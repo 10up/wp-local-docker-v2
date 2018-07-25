@@ -1,0 +1,1 @@
+2018/07/25 21:32:57 [error] 7#7: *2 directory index of "/var/www/html/" is forbidden, client: 172.18.0.1, server: localhost, request: "GET / HTTP/1.1", host: "localhost"
