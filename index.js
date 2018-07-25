@@ -2,6 +2,7 @@
 
 var yaml = require( 'write-yaml' );
 var prompt = require( 'prompt' );
+var fs = require( 'fs-extra' );
 
 var baseConfig = {
 	'version': '3',
@@ -218,22 +219,26 @@ prompt.get( schema, function( err, result ) {
 	}
 	
 	// Write Docker Compose
+	console.log( "Generating docker-compose.yml file..." );
 	yaml( 'docker-compose.yml', baseConfig, { 'lineWidth': 500 }, function( err ) {
 		console.log(err);
 	});
 
+	// Create webroot/config
+	console.log( "Copying required files..." );
+	console.log( process.cwd() );
+	fs.copySync( __dirname + '/wordpress', process.cwd() + '/wordpress' );
+	fs.copySync( __dirname + '/data', process.cwd() + '/data' );     
+	fs.copySync( __dirname + '/config', process.cwd() + '/config' );     
+	fs.copySync( __dirname + '/logs', process.cwd() + '/logs' );     
 });
 
 
 // prompt:
 // wpsnapshots snapshot ID
 
-// Create directories:
-// ./wordpress
-// ./data (mysql)
-// ./config
-// ./logs
-
 // Add update checker?
+// - check for update to this project
+// - check for docker image updates
 
 

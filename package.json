@@ -16,6 +16,7 @@
   "author": "Chris Marslender",
   "license": "MIT",
   "dependencies": {
+    "fs-extra": "^7.0.0",
     "prompt": "^1.0.0",
     "write-yaml": "^1.0.0"
   }
