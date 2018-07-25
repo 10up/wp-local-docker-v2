@@ -129,6 +129,11 @@ var schema = {
 };
 
 prompt.get( schema, function( err, result ) {
+	if ( err ) {
+		console.log(''); // so we don't end up cursor on the old prompt line
+		return;
+	}
+	
 	baseConfig.services.phpfpm = {
 		'image': '10up/phpfpm:' + result.phpVersion,
 		'restart': 'unless-stopped',
