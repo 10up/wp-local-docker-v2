@@ -57,6 +57,23 @@ var baseConfig = {
 
 prompt.start();
 
+var validateBool = function( value ) {
+	var y = new RegExp( /^y(es)?$/i );
+	var n = new RegExp( /^no?$/i );
+
+	if ( typeof value !== 'string' ) {
+		return value;
+	}
+
+	if ( value.match( y ) !== null ) {
+		return 'true';
+	} else if ( value.match( n ) !== null ) {
+		return 'false';
+	}
+
+	return value;
+}
+
 var schema = {
 	properties: {
 		phpVersion: {
@@ -75,23 +92,37 @@ var schema = {
 			required: true,
 			default: 'Y',
 			enum: [ 'Y', 'y', 'N', 'n' ],
-			before: function( value ) {
-				var y = new RegExp( /^y(es)?$/i );
-				var n = new RegExp( /^no?$/i );
-
-				if ( typeof value !== 'string' ) {
-					return value;
-				}
-
-				if ( value.match( y ) !== null ) {
-					return 'true';
-				} else if ( value.match( n ) !== null ) {
-					return 'false';
-				}
-
-				return value;
-			},
+			before: validateBool,
 		},
+		mailcatcher: {
+			description: "Do you want to use mailcatcher? (Y/n)",
+			message: "You must choose either `Y` or `n`",
+			type: 'string',
+			required: true,
+			default: 'Y',
+			enum: [ 'Y', 'y', 'N', 'n' ],
+			before: validateBool,
+		},
+		phpmyadmin: {
+			description: "Do you want to use phpMyAdmin? (Y/n)",
+			message: "You must choose either `Y` or `n`",
+			type: 'string',
+			required: true,
+			default: 'n',
+			enum: [ 'Y', 'y', 'N', 'n' ],
+			before: validateBool,
+
+		},
+		phpmemcachedadmin: {
+			description: "Do you want to use phpMemcachedAdmin? (Y/n)",
+			message: "You must choose either `Y` or `n`",
+			type: 'string',
+			required: true,
+			default: 'n',
+			enum: [ 'Y', 'y', 'N', 'n' ],
+			before: validateBool,
+
+		}
 	},
 };
 
@@ -132,6 +163,54 @@ prompt.get( schema, function( err, result ) {
 		};
 	}
 
+	if ( result.mailcatcher === "true" ) {
+		baseConfig.services.mailcatcher = {
+			'image': 'schickling/mailcatcher',
+			'restart': 'unless-stopped',
+			'ports': [
+				'1025:1025',
+				'1080:1080'
+			],
+			'environment': {
+				MAILCATCHER_PORT: 1025
+			}
+		};
+	}
+
+	if ( result.phpmyadmin === "true" ) {
+		baseConfig.services.phpmyadmin = {
+			'image': 'phpmyadmin/phpmyadmin',
+			'restart': 'unless-stopped',
+			'ports': [
+				'8092:80'
+			],
+			'environment': {
+				MYSQL_ROOT_PASSWORD: 'password',
+				MYSQL_DATABASE: 'wordpress',
+      				MYSQL_USER: 'wordpress',
+      				MYSQL_PASSWORD: 'password',
+				PMA_HOST: 'mysql'
+			},
+			'depends_on': [
+				'mysql'
+			]
+		};
+	}
+
+	if ( result.phpmemcachedadmin === "true" ) {
+		baseConfig.services.phpmemcachedadmin = {
+			'image': 'hitwe/phpmemcachedadmin',
+			'restart': 'unless-stopped',
+			'ports': [
+				'8093:80'
+			],
+			'depends_on': [
+				'memcached'
+			]
+		};
+	}
+	
+	// Write Docker Compose
 	yaml( 'docker-compose.yml', baseConfig, { 'lineWidth': 500 }, function( err ) {
 		console.log(err);
 	});
@@ -140,14 +219,7 @@ prompt.get( schema, function( err, result ) {
 
 
 // prompt:
-// phpfpm version
-// elasticsearch
 // wpsnapshots snapshot ID
-//
-// Extra:
-// mailcatcher
-// phpmyadmin
-// phpmemcachedadmin
 
 // Create directories:
 // ./wordpress
