@@ -27,3 +27,6 @@ sassdoc
 scss-lint-report.xml
 config.codekit
 
+/data
+/docker-compose.yml
+
