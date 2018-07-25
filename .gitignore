@@ -27,6 +27,20 @@ sassdoc
 scss-lint-report.xml
 config.codekit
 
-/data
-/docker-compose.yml
+/wordpress/*
+!/wordpress/.gitkeep
+
+/data/*
+!/data/.gitkeep
+
+/logs/*
+!/logs/.gitkeep
+
+docker-compose.yml
+docker-compose.override.yml
+
+notes.md
+/config/elasticsearch/plugins/*
+
+config/wpsnapshots/.wpsnapshots.json
 
