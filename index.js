@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 var yaml = require( 'write-yaml' );
 var prompt = require( 'prompt' );
 

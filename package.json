@@ -4,7 +4,10 @@
   "description": "Generates a WP Local Docker environment",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "create-env": "node index.js"
+  },
+  "bin": {
+    "create-env": "./index.js"
   },
   "repository": {
     "type": "git",
