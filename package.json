@@ -13,6 +13,7 @@
   "author": "Chris Marslender",
   "license": "MIT",
   "dependencies": {
+    "prompt": "^1.0.0",
     "write-yaml": "^1.0.0"
   }
 }
