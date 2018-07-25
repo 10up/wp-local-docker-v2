@@ -21,7 +21,7 @@ var baseConfig = {
 			}
 		},
 		'memcached': {
-			'image': 'schickling/mailcatcher',
+			'image': 'memcached:latest',
 			'restart': 'unless-stopped'
 		},
 		'nginx': {
