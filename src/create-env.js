@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 
 if ( require.main.filename.indexOf( 'index.js' ) === -1 ) {
-    console.error( "ERROR: Do not run create-env.js directly. Run the `10up-docker create` command instead." );
     process.exit(1);
 }
 
@@ -11,12 +10,12 @@ const slugify = require('@sindresorhus/slugify');
 const yaml = require( 'write-yaml' );
 const prompt = require( 'prompt' );
 const mysql = require('mysql');
-const execSync = require('child_process').execSync;
-const dockerCompose = require( 'docker-compose' );
+const environment = require( './environment.js' );
+const wordpress = require( './wordpress');
 
 // Setup some paths for reference later
 const rootPath = path.dirname( require.main.filename );
-const sitePath = path.join( rootPath, 'sites' );
+const sitesPath = path.join( rootPath, 'sites' );
 
 var baseConfig = {
     'version': '3',
@@ -131,25 +130,6 @@ var prompts = {
             enum: [ 'Y', 'y', 'N', 'n' ],
             before: validateBool,
         },
-        mailcatcher: {
-            description: "Do you want to use mailcatcher? (Y/n)",
-            message: "You must choose either `Y` or `n`",
-            type: 'string',
-            required: true,
-            default: 'Y',
-            enum: [ 'Y', 'y', 'N', 'n' ],
-            before: validateBool,
-        },
-        phpmyadmin: {
-            description: "Do you want to use phpMyAdmin? (Y/n)",
-            message: "You must choose either `Y` or `n`",
-            type: 'string',
-            required: true,
-            default: 'n',
-            enum: [ 'Y', 'y', 'N', 'n' ],
-            before: validateBool,
-
-        },
         phpmemcachedadmin: {
             description: "Do you want to use phpMemcachedAdmin? (Y/n)",
             message: "You must choose either `Y` or `n`",
@@ -215,7 +195,7 @@ prompt.get( prompts, function( err, result ) {
 
     // Folder name inside of /sites/ for this site
     let hostSlug = slugify( result.hostname );
-    let envPath = path.join( sitePath, hostSlug );
+    let envPath = path.join( sitesPath, hostSlug );
 
     fs.ensureDirSync( path.join( envPath, 'wordpress' ) );
     fs.ensureDirSync( path.join( envPath, 'logs', 'nginx' ) );
@@ -241,28 +221,25 @@ prompt.get( prompts, function( err, result ) {
     connection.query( `CREATE DATABASE IF NOT EXISTS \`${hostSlug}\`;`, function( err, results ) {
         if (err) {
             console.log('error in creating database', err);
+            process.exit();
             return;
         }
 
         connection.query( `GRANT ALL PRIVILEGES ON \`${hostSlug}\`.* TO 'wordpress'@'%' IDENTIFIED BY 'password';`, function( err, results ) {
-            connection.end();
+            if ( err ) {
+                console.log('error in creating database', err);
+                process.exit();
+                return;
+            }
+            connection.destroy();
 
-            installWordPress(envPath, hostSlug);
+            environment.start(hostSlug);
+            wordpress.download(hostSlug);
+            wordpress.configure(hostSlug);
+            wordpress.install(hostSlug, result.hostname);
         } );
     } );
 });
-
-function installWordPress(envPath, hostSlug) {
-    console.log( "Starting environment" );
-    execSync( `cd ${envPath} && docker-compose up -d` );
-
-    console.log( "Installing WordPress" );
-
-    execSync( `cd ${envPath} && docker-compose exec -T phpfpm su -s /bin/bash www-data -c "wp core download --force"`);
-    execSync( `cd ${envPath} && docker-compose exec -T phpfpm su -s /bin/bash www-data -c "wp config create --force --dbname=${hostSlug}"`);
-
-    console.log( "Done!" );
-}
 
 
 // prompt:

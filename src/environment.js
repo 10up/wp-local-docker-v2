@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 
 if ( require.main.filename.indexOf( 'index.js' ) === -1 ) {
-    console.error( "ERROR: Do not run create-env.js directly. Run the `10up-docker create` command instead." );
     process.exit(1);
 }
 
@@ -56,7 +55,7 @@ const start = function( env ) {
     }
 
     console.log( " - Starting docker containers..." );
-    execSync( "cd " + envPath + " && docker-compose up -d" );
+    execSync( `cd ${envPath} && docker-compose up -d` );
 };
 
 module.exports = { start, startGlobal };
