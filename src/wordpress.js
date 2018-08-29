@@ -1,9 +1,3 @@
-#!/usr/bin/env node
-
-if ( require.main.filename.indexOf( 'index.js' ) === -1 ) {
-    process.exit(1);
-}
-
 const path = require('path');
 const slugify = require('@sindresorhus/slugify');
 const execSync = require('child_process').execSync;

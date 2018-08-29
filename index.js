@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-const environment = require('./src/environment.js');
+const environment = require('./src/environment');
 
 function help() {
 	console.log( "HELP ME!" );
@@ -12,7 +12,7 @@ if ( process.argv.length < 3 ) {
     switch( process.argv[2].toLowerCase() ) {
         case 'create':
             environment.startGlobal();
-            require( './src/create-env.js' );
+            require( './src/create-env' );
             break;
         case 'start':
             if ( 'all' === process.argv[3] ) {
@@ -35,7 +35,7 @@ if ( process.argv.length < 3 ) {
                 environment.restart( process.argv[3] );
             }
         case 'delete':
-
+            environment.deleteEnv( process.argv[3] );
             break;
         default:
             help();

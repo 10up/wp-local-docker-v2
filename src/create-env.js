@@ -70,39 +70,6 @@ var networkConfig = {
 
 prompt.start();
 
-var validateBool = function( value ) {
-    var y = new RegExp( /^y(es)?$/i );
-    var n = new RegExp( /^no?$/i );
-
-    if ( typeof value !== 'string' ) {
-        return value;
-    }
-
-    if ( value.match( y ) !== null ) {
-        return 'true';
-    } else if ( value.match( n ) !== null ) {
-        return 'false';
-    }
-
-    return value;
-};
-
-/*
-Not foolproof, but should catch some more common issues with entering hostnames
- */
-var parseHostname = function( value ) {
-    // Get rid of any http(s):// prefix
-    value = value.replace( /^https?:\/\//i, '' );
-
-    // Get rid of any spaces
-    value = value.replace( /\s/i, '' );
-
-    // get rid of any trailing slashes that might exist
-    value = value.replace( /\/$/i, '' );
-
-    return value;
-};
-
 var prompts = {
     properties: {
         hostname: {
@@ -110,7 +77,7 @@ var prompts = {
             message: "You must choose a hostname for your site.",
             type: 'string',
             required: true,
-            before: parseHostname,
+            before: promptValidators.parseHostname,
         },
         phpVersion: {
             description: "What version of PHP would you like to use? [5.5, 5.6, 7.0, 7.1, 7.2]",
@@ -128,7 +95,7 @@ var prompts = {
             required: true,
             default: 'Y',
             enum: [ 'Y', 'y', 'N', 'n' ],
-            before: validateBool,
+            before: promptValidators.validateBool,
         },
         phpmemcachedadmin: {
             description: "Do you want to use phpMemcachedAdmin? (Y/n)",
@@ -137,7 +104,7 @@ var prompts = {
             required: true,
             default: 'n',
             enum: [ 'Y', 'y', 'N', 'n' ],
-            before: validateBool,
+            before: promptValidators.validateBool,
         }
     },
 };
@@ -145,7 +112,7 @@ var prompts = {
 prompt.get( prompts, function( err, result ) {
     if ( err ) {
         console.log(''); // so we don't end up cursor on the old prompt line
-        return;
+        process.exit();
     }
 
     baseConfig.services.nginx.environment = {
