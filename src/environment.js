@@ -15,21 +15,23 @@ const sitePath = path.join( rootPath, 'sites' );
 
 const ensureNetworkExists = function() {
     try {
-        console.log( "Ensuring network exists" );
+        console.log( "Ensuring global network exists" );
         let networks = execSync( "docker network ls --filter name=wplocaldocker" ).toString();
         if ( networks.indexOf( 'wplocaldocker' ) !== -1 ) {
             console.log( " - Network exists" );
+            console.log();
             return;
         }
 
         console.log( " - Creating network" );
+        console.log();
         execSync('docker network create wplocaldocker');
     } catch (ex) {}
 };
 
 const removeNetwork = function() {
     try {
-        console.log( "Removing Network" );
+        console.log( "Removing Global Network" );
         execSync('docker network rm wplocaldocker');
     } catch (ex) {}
 };
@@ -39,6 +41,7 @@ const startGateway = function() {
         console.log( "Ensuring global services are running" );
         let globalPath = path.join( rootPath, 'global' );
         execSync( `cd ${globalPath} && docker-compose up -d` );
+        console.log();
     } catch ( ex ) {}
 };
 
@@ -47,6 +50,7 @@ const stopGateway = function() {
         console.log( "Stopping global services" );
         let globalPath = path.join( rootPath, 'global' );
         execSync( `cd ${globalPath} && docker-compose down` );
+        console.log();
     } catch ( ex ) {}
 };
 
@@ -90,6 +94,7 @@ const start = function( env ) {
 
     console.log( `Starting docker containers for ${env}...` );
     execSync( `cd ${envPath} && docker-compose up -d` );
+    console.log();
 };
 
 const stop = function( env ) {
@@ -97,6 +102,7 @@ const stop = function( env ) {
 
     console.log( `Stopping docker containers for ${env}...` );
     execSync( `cd ${envPath} && docker-compose down` );
+    console.log();
 };
 
 const startAll = function() {

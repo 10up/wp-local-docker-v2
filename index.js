@@ -25,7 +25,7 @@ if ( process.argv.length < 3 ) {
             if ( 'all' === process.argv[3] ) {
                 environment.stopAll();
             } else {
-                environment.stop(process.argv[3]);
+                environment.stop( process.argv[3] );
             }
             break;
         case 'restart':
