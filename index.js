@@ -34,6 +34,7 @@ if ( process.argv.length < 3 ) {
             } else {
                 environment.restart( process.argv[3] );
             }
+            break;
         case 'delete':
             environment.deleteEnv( process.argv[3] );
             break;

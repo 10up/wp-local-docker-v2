@@ -106,6 +106,54 @@ var prompts = {
             default: 'n',
             enum: [ 'Y', 'y', 'N', 'n' ],
             before: promptValidators.validateBool,
+        },
+        wordpress: {
+            description: "Do you want to install WordPress? (Y/n)",
+            message: "You must choose either `Y` or `n`",
+            type: 'string',
+            required: true,
+            default: 'Y',
+            enum: [ 'Y', 'y', 'N', 'n' ],
+            before: promptValidators.validateBool,
+        },
+        wordpressDev: {
+            description: "Would you like to install WordPress for core development? (n)",
+            message: "You must choose either `Y` or `n`",
+            type: 'string',
+            required: true,
+            default: 'n',
+            enum: [ 'Y', 'y', 'N', 'n' ],
+            before: promptValidators.validateBool,
+            ask: function() {
+                // only ask if install WordPress was true
+                return prompt.history('wordpress').value === "true";
+            }
+        },
+        wordpressMultisite: {
+            description: "Would you like to install WordPress multisite? (n)",
+            message: "You must choose either `Y` or `n`",
+            type: 'string',
+            required: true,
+            default: 'n',
+            enum: [ 'Y', 'y', 'N', 'n' ],
+            before: promptValidators.validateBool,
+            ask: function() {
+                // only ask if install WordPress was true and dev was false
+                return prompt.history('wordpress').value === "true" && prompt.history('wordpressDev').value === "false";
+            }
+        },
+        subdomains: {
+            description: "Would you like a subdomain install? Defaults to subdirectories. (n)",
+            message: "You must choose either `Y` or `n`",
+            type: 'string',
+            required: true,
+            default: 'n',
+            enum: [ 'Y', 'y', 'N', 'n' ],
+            before: promptValidators.validateBool,
+            ask: function() {
+                // only ask if install WordPress was true and dev was false
+                return prompt.history('wordpressMultisite').value === "true";
+            }
         }
     },
 };
@@ -119,6 +167,9 @@ prompt.get( prompts, function( err, result ) {
     baseConfig.services.nginx.environment = {
         VIRTUAL_HOST: result.hostname
     };
+    if ( result.subdomains === 'true' ) {
+        baseConfig.services.nginx.environment.VIRTUAL_HOST += `,*.${result.hostname}`;
+    }
 
     baseConfig.services.phpfpm = {
         'image': '10up/phpfpm:' + result.phpVersion,
@@ -145,8 +196,8 @@ prompt.get( prompts, function( err, result ) {
         baseConfig.services.elasticsearch = {
             image: 'docker.elastic.co/elasticsearch/elasticsearch:5.6.5',
             'restart': 'unless-stopped',
-            'ports': [
-                '9200:9200'
+            'expose': [
+                '9200'
             ],
             'volumes': [
                 './config/elasticsearch/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml',
@@ -203,9 +254,27 @@ prompt.get( prompts, function( err, result ) {
             connection.destroy();
 
             environment.start(hostSlug);
-            wordpress.download(hostSlug);
-            wordpress.configure(hostSlug);
-            wordpress.install(hostSlug, result.hostname);
+
+            if ( result.wordpress === 'true' ) {
+                if ( result.wordpressDev === 'true' ) {
+                    // @todo
+                } else {
+                    wordpress.download(hostSlug);
+                    wordpress.configure(hostSlug);
+
+                    if ( result.wordpressMultisite === 'true' ) {
+                        if ( result.subdomains === 'true' ) {
+                            wordpress.installMultisiteSubdomains( hostSlug, result.hostname );
+                        } else {
+                            wordpress.installMultisiteSubdirectories( hostSlug, result.hostname );
+                        }
+                    } else {
+                        wordpress.install(hostSlug, result.hostname);
+                    }
+                }
+
+            }
+
         } );
     } );
 });
