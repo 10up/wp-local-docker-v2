@@ -1,8 +1,19 @@
 #!/usr/bin/env node
 
-var yaml = require( 'write-yaml' );
-var prompt = require( 'prompt' );
-var fs = require( 'fs-extra' );
+if ( require.main.filename.indexOf( 'index.js' ) === -1 ) {
+    console.error( "ERROR: Do not run create-env.js directly. Run the `10up-docker create` command instead." );
+    process.exit(1);
+}
+
+const path = require('path');
+const fs = require( 'fs-extra' );
+const slugify = require('@sindresorhus/slugify');
+const yaml = require( 'write-yaml' );
+const prompt = require( 'prompt' );
+
+// Setup some paths for reference later
+const rootPath = path.dirname( require.main.filename );
+const sitePath = path.join( rootPath, 'sites' );
 
 var baseConfig = {
     'version': '3',
@@ -204,7 +215,6 @@ prompt.get( prompts, function( err, result ) {
             'environment': {
                 ES_JAVA_OPTS: '-Xms750m -Xmx750m'
             }
-
         };
     }
 
@@ -255,21 +265,24 @@ prompt.get( prompts, function( err, result ) {
         };
     }
 
+    // Create webroot/config
+    console.log( "Copying required files..." );
+
+    // Folder name inside of /sites/ for this site
+    let hostDir = slugify( result.hostname );
+
+    fs.ensureDirSync( path.join( sitePath, hostDir, 'wordpress' ) );
+    fs.ensureDirSync( path.join( sitePath, hostDir, 'data' ) );
+    fs.ensureDirSync( path.join( sitePath, hostDir, 'logs', 'nginx' ) );
+    fs.copySync( path.join( __dirname, 'config' ), path.join( sitePath, hostDir, 'config' ) );
+
     // Write Docker Compose
     console.log( "Generating docker-compose.yml file..." );
-    yaml( 'docker-compose.yml', Object.assign( baseConfig, networkConfig ), { 'lineWidth': 500 }, function( err ) {
+    yaml( path.join( sitePath, hostDir, 'docker-compose.yml' ), Object.assign( baseConfig, networkConfig ), { 'lineWidth': 500 }, function( err ) {
         if ( err ) {
             console.log(err);
         }
     });
-
-    // Create webroot/config
-    console.log( "Copying required files..." );
-    fs.mkdirSync( process.cwd() + '/wordpress' );
-    fs.mkdirSync( process.cwd() + '/data' );
-    fs.mkdirSync( process.cwd() + '/logs' );
-    fs.mkdirSync( process.cwd() + '/logs/nginx' );
-    fs.copySync( __dirname + '/config', process.cwd() + '/config' );
 
     console.log( "Done!" );
 });

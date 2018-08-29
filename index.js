@@ -4,23 +4,18 @@ function help() {
 	console.log( "HELP ME!" );
 }
 
-function create() {
-	require( './src/create-env.js' );
-}
-
-function gateway() {
-	require( './src/gateway.js' );
-}
-
 if ( process.argv.length < 3 ) {
 	help();
 } else {
     switch( process.argv[2].toLowerCase() ) {
         case 'create':
-            create();
+            require( './src/create-env.js' );
             break;
-        case 'gateway':
-            gateway();
+        case 'start':
+        case 'stop':
+        case 'restart':
+        case 'remove':
+            require( './src/environment.js' );
             break;
         default:
             help();
