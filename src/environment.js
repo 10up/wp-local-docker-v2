@@ -14,11 +14,7 @@ const execSync = require('child_process').execSync;
 const rootPath = path.dirname( require.main.filename );
 const sitePath = path.join( rootPath, 'sites' );
 
-function help() {
-    console.log( "Environment Help" );
-}
-
-function ensureNetworkExists() {
+const ensureNetworkExists = function() {
     try {
         console.log( "Ensuring network exists" );
         let networks = execSync( "docker network ls --filter name=wplocaldocker" ).toString();
@@ -30,21 +26,25 @@ function ensureNetworkExists() {
         console.log( " - Creating network" );
         execSync('docker network create wplocaldocker');
     } catch (ex) {}
-}
+};
 
-function startGateway() {
+const startGateway = function() {
     try {
         console.log( "Ensuring global services are running" );
         let globalPath = path.join( rootPath, 'global' );
         execSync( "cd " + globalPath + " && docker-compose up -d" );
     } catch ( ex ) {}
-}
+};
 
-
-
-function start( env ) {
+const startGlobal = function() {
     ensureNetworkExists();
     startGateway();
+};
+
+
+
+const start = function( env ) {
+    startGlobal();
 
     console.log( "Locating project files for " + env );
 
@@ -57,27 +57,6 @@ function start( env ) {
 
     console.log( " - Starting docker containers..." );
     execSync( "cd " + envPath + " && docker-compose up -d" );
-}
+};
 
-
-if ( process.argv.length < 4 ) {
-    help();
-} else {
-    switch( process.argv[2].toLowerCase() ) {
-        case 'start':
-            start( process.argv[3] );
-            break;
-        case 'stop':
-
-            break;
-        case 'restart':
-
-            break;
-        case 'remove':
-
-            break;
-        default:
-            help();
-            break;
-    }
-}
+module.exports = { start, startGlobal };

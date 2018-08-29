@@ -11,6 +11,8 @@ const slugify = require('@sindresorhus/slugify');
 const yaml = require( 'write-yaml' );
 const prompt = require( 'prompt' );
 const mysql = require('mysql');
+const execSync = require('child_process').execSync;
+const dockerCompose = require( 'docker-compose' );
 
 // Setup some paths for reference later
 const rootPath = path.dirname( require.main.filename );
@@ -177,7 +179,7 @@ prompt.get( prompts, function( err, result ) {
             './wordpress:/var/www/html',
             './config/php-fpm/php.ini:/usr/local/etc/php/php.ini',
             './config/php-fpm/docker-php-ext-xdebug.ini:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini',
-            './config/php-fpm/wp-cli.local.yml:/var/www/html/wp-cli.local.yml',
+            './config/php-fpm/wp-cli.local.yml:/var/www/wp-cli.local.yml',
             '~/.ssh:/root/.ssh'
         ],
         'depends_on': [
@@ -213,15 +215,16 @@ prompt.get( prompts, function( err, result ) {
 
     // Folder name inside of /sites/ for this site
     let hostSlug = slugify( result.hostname );
+    let envPath = path.join( sitePath, hostSlug );
 
-    fs.ensureDirSync( path.join( sitePath, hostSlug, 'wordpress' ) );
-    fs.ensureDirSync( path.join( sitePath, hostSlug, 'data' ) );
-    fs.ensureDirSync( path.join( sitePath, hostSlug, 'logs', 'nginx' ) );
-    fs.copySync( path.join( __dirname, 'config' ), path.join( sitePath, hostSlug, 'config' ) );
+    fs.ensureDirSync( path.join( envPath, 'wordpress' ) );
+    fs.ensureDirSync( path.join( envPath, 'logs', 'nginx' ) );
+    fs.copySync( path.join( __dirname, 'config' ), path.join( envPath, 'config' ) );
 
     // Write Docker Compose
     console.log( "Generating docker-compose.yml file..." );
-    yaml( path.join( sitePath, hostSlug, 'docker-compose.yml' ), Object.assign( baseConfig, networkConfig ), { 'lineWidth': 500 }, function( err ) {
+    let dockerCompose = Object.assign( baseConfig, networkConfig );
+    yaml.sync( path.join( envPath, 'docker-compose.yml' ), dockerCompose, { 'lineWidth': 500 }, function( err ) {
         if ( err ) {
             console.log(err);
         }
@@ -243,11 +246,23 @@ prompt.get( prompts, function( err, result ) {
 
         connection.query( `GRANT ALL PRIVILEGES ON \`${hostSlug}\`.* TO 'wordpress'@'%' IDENTIFIED BY 'password';`, function( err, results ) {
             connection.end();
+
+            installWordPress(envPath, hostSlug);
         } );
     } );
+});
+
+function installWordPress(envPath, hostSlug) {
+    console.log( "Starting environment" );
+    execSync( `cd ${envPath} && docker-compose up -d` );
+
+    console.log( "Installing WordPress" );
+
+    execSync( `cd ${envPath} && docker-compose exec -T phpfpm su -s /bin/bash www-data -c "wp core download --force"`);
+    execSync( `cd ${envPath} && docker-compose exec -T phpfpm su -s /bin/bash www-data -c "wp config create --force --dbname=${hostSlug}"`);
 
     console.log( "Done!" );
-});
+}
 
 
 // prompt:

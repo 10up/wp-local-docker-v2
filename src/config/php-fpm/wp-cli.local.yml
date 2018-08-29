@@ -1,7 +1,6 @@
 config create:
 	dbhost: mysql
-	dbname: wordpress
-	dbuser: root
+	dbuser: wordpress
 	dbpass: password
 	extra-php: |
 		define( 'DISALLOW_FILE_EDIT', true );
