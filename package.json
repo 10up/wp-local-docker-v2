@@ -18,6 +18,7 @@
   "dependencies": {
     "@sindresorhus/slugify": "^0.3.0",
     "fs-extra": "^7.0.0",
+    "mysql": "^2.16.0",
     "prompt": "^1.0.0",
     "write-yaml": "^1.0.0"
   }

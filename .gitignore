@@ -27,6 +27,8 @@ sassdoc
 scss-lint-report.xml
 config.codekit
 
+/global/data
+
 /sites/*
 !/sites/.gitkeep
 

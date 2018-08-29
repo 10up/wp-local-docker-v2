@@ -1,0 +1,36 @@
+version: '3'
+services:
+  gateway:
+    image: jwilder/nginx-proxy
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - "/var/run/docker.sock:/tmp/docker.sock:ro"
+    networks:
+      - wplocaldocker
+  mysql:
+    image: mysql:5
+    volumes:
+      - "./data/db:/var/lib/mysql:delegated"
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_USER: wordpress
+      MYSQL_PASSWORD: password
+    networks:
+      - wplocaldocker
+  mailcatcher:
+     image: schickling/mailcatcher
+     ports:
+       - "1025:1025"
+       - "1080:1080"
+     environment:
+       MAILCATCHER_PORT: 1025
+     networks:
+       - wplocaldocker
+networks:
+  wplocaldocker:
+    external:
+      name: "wplocaldocker"

@@ -10,6 +10,7 @@ const fs = require( 'fs-extra' );
 const slugify = require('@sindresorhus/slugify');
 const yaml = require( 'write-yaml' );
 const prompt = require( 'prompt' );
+const mysql = require('mysql');
 
 // Setup some paths for reference later
 const rootPath = path.dirname( require.main.filename );
@@ -18,19 +19,6 @@ const sitePath = path.join( rootPath, 'sites' );
 var baseConfig = {
     'version': '3',
     'services': {
-        'mysql': {
-            'image': 'mysql:5',
-            'volumes': [
-                './data/db:/var/lib/mysql'
-            ],
-            'restart': 'unless-stopped',
-            'environment': {
-                MYSQL_ROOT_PASSWORD: 'password',
-                MYSQL_DATABASE: 'wordpress',
-                MYSQL_USER: 'wordpress',
-                MYSQL_PASSWORD: 'password'
-            }
-        },
         'memcached': {
             'image': 'memcached:latest',
             'restart': 'unless-stopped'
@@ -63,7 +51,6 @@ var baseConfig = {
                 './wordpress:/var/www/html'
             ],
             'depends_on': [
-                'mysql',
                 'phpfpm'
             ]
         },
@@ -194,8 +181,11 @@ prompt.get( prompts, function( err, result ) {
             '~/.ssh:/root/.ssh'
         ],
         'depends_on': [
-            'mysql',
             'memcached',
+        ],
+        'networks': [
+            'default',
+            'wplocaldocker'
         ]
     };
 
@@ -218,71 +208,43 @@ prompt.get( prompts, function( err, result ) {
         };
     }
 
-    if ( result.mailcatcher === "true" ) {
-        baseConfig.services.mailcatcher = {
-            'image': 'schickling/mailcatcher',
-            'restart': 'unless-stopped',
-            'ports': [
-                '1025:1025',
-                '1080:1080'
-            ],
-            'environment': {
-                MAILCATCHER_PORT: 1025
-            }
-        };
-    }
-
-    if ( result.phpmyadmin === "true" ) {
-        baseConfig.services.phpmyadmin = {
-            'image': 'phpmyadmin/phpmyadmin',
-            'restart': 'unless-stopped',
-            'ports': [
-                '8092:80'
-            ],
-            'environment': {
-                MYSQL_ROOT_PASSWORD: 'password',
-                MYSQL_DATABASE: 'wordpress',
-                MYSQL_USER: 'wordpress',
-                MYSQL_PASSWORD: 'password',
-                PMA_HOST: 'mysql'
-            },
-            'depends_on': [
-                'mysql'
-            ]
-        };
-    }
-
-    if ( result.phpmemcachedadmin === "true" ) {
-        baseConfig.services.phpmemcachedadmin = {
-            'image': 'hitwe/phpmemcachedadmin',
-            'restart': 'unless-stopped',
-            'ports': [
-                '8093:80'
-            ],
-            'depends_on': [
-                'memcached'
-            ]
-        };
-    }
-
     // Create webroot/config
     console.log( "Copying required files..." );
 
     // Folder name inside of /sites/ for this site
-    let hostDir = slugify( result.hostname );
+    let hostSlug = slugify( result.hostname );
 
-    fs.ensureDirSync( path.join( sitePath, hostDir, 'wordpress' ) );
-    fs.ensureDirSync( path.join( sitePath, hostDir, 'data' ) );
-    fs.ensureDirSync( path.join( sitePath, hostDir, 'logs', 'nginx' ) );
-    fs.copySync( path.join( __dirname, 'config' ), path.join( sitePath, hostDir, 'config' ) );
+    fs.ensureDirSync( path.join( sitePath, hostSlug, 'wordpress' ) );
+    fs.ensureDirSync( path.join( sitePath, hostSlug, 'data' ) );
+    fs.ensureDirSync( path.join( sitePath, hostSlug, 'logs', 'nginx' ) );
+    fs.copySync( path.join( __dirname, 'config' ), path.join( sitePath, hostSlug, 'config' ) );
 
     // Write Docker Compose
     console.log( "Generating docker-compose.yml file..." );
-    yaml( path.join( sitePath, hostDir, 'docker-compose.yml' ), Object.assign( baseConfig, networkConfig ), { 'lineWidth': 500 }, function( err ) {
+    yaml( path.join( sitePath, hostSlug, 'docker-compose.yml' ), Object.assign( baseConfig, networkConfig ), { 'lineWidth': 500 }, function( err ) {
         if ( err ) {
             console.log(err);
         }
     });
+
+    // Create database
+    console.log( "Creating database" );
+    let connection = mysql.createConnection({
+        host: '127.0.0.1',
+        user: 'root',
+        password: 'password',
+    });
+
+    connection.query( `CREATE DATABASE IF NOT EXISTS \`${hostSlug}\`;`, function( err, results ) {
+        if (err) {
+            console.log('error in creating database', err);
+            return;
+        }
+
+        connection.query( `GRANT ALL PRIVILEGES ON \`${hostSlug}\`.* TO 'wordpress'@'%' IDENTIFIED BY 'password';`, function( err, results ) {
+            connection.end();
+        } );
+    } );
 
     console.log( "Done!" );
 });

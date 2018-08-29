@@ -34,24 +34,9 @@ function ensureNetworkExists() {
 
 function startGateway() {
     try {
-        console.log( "Ensuring gateway is running" );
-        let gateways = execSync( "docker ps -a --filter name=wplocaldocker-gateway" ).toString();
-
-        // Container is running.. Nothing to do here
-        if ( gateways.indexOf( 'Up' ) !== -1 ) {
-            console.log( " - Gateway Running" );
-            return;
-        }
-
-        // Container is stopped. Remove it before moving on
-        if ( gateways.indexOf( 'Exited' ) !== -1 ) {
-            console.log( " - Gateway stopped. Removing container" );
-            execSync( "docker rm wplocaldocker-gateway" );
-        }
-
-        // Start the gateway
-        console.log( " - Starting gateway" );
-        execSync('docker run -d --name wplocaldocker-gateway -p 80:80 -p 9200:9200 --network wplocaldocker -v /var/run/docker.sock:/tmp/docker.sock:ro jwilder/nginx-proxy');
+        console.log( "Ensuring global services are running" );
+        let globalPath = path.join( rootPath, 'global' );
+        execSync( "cd " + globalPath + " && docker-compose up -d" );
     } catch ( ex ) {}
 }
 
