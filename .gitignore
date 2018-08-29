@@ -27,6 +27,7 @@ sassdoc
 scss-lint-report.xml
 config.codekit
 
+/cache/
 /global/data
 
 /sites/*

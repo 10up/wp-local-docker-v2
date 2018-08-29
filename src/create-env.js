@@ -34,7 +34,6 @@ var baseConfig = {
             ],
             'volumes': [
                 './wordpress:/var/www/html',
-                './config/nginx/default.conf:/etc/nginx/conf.d/default.conf',
                 './config/certs:/etc/nginx/certs',
                 './logs/nginx:/var/log/nginx'
             ],
@@ -152,7 +151,7 @@ var prompts = {
             before: promptValidators.validateBool,
             ask: function() {
                 // only ask if install WordPress was true and dev was false
-                return prompt.history('wordpressMultisite').value === "true";
+                return prompt.history('wordpress').value === 'true' && prompt.history('wordpressDev').value === 'false' && prompt.history('wordpressMultisite').value === "true";
             }
         }
     },
@@ -164,11 +163,19 @@ prompt.get( prompts, function( err, result ) {
         process.exit();
     }
 
+
+    // Additional nginx config based on selections above
     baseConfig.services.nginx.environment = {
         VIRTUAL_HOST: result.hostname
     };
     if ( result.subdomains === 'true' ) {
         baseConfig.services.nginx.environment.VIRTUAL_HOST += `,*.${result.hostname}`;
+    }
+    // Map a different config for Develop version of WP
+    if ( result.wordpressDev === 'true' ) {
+        baseConfig.services.nginx.volumes.push( './config/nginx/develop.conf:/etc/nginx/conf.d/default.conf' );
+    } else {
+        baseConfig.services.nginx.volumes.push( './config/nginx/default.conf:/etc/nginx/conf.d/default.conf' );
     }
 
     baseConfig.services.phpfpm = {
@@ -178,7 +185,6 @@ prompt.get( prompts, function( err, result ) {
             './wordpress:/var/www/html',
             './config/php-fpm/php.ini:/usr/local/etc/php/php.ini',
             './config/php-fpm/docker-php-ext-xdebug.ini:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini',
-            './config/php-fpm/wp-cli.local.yml:/var/www/wp-cli.local.yml',
             '~/.ssh:/root/.ssh'
         ],
         'depends_on': [
@@ -189,6 +195,12 @@ prompt.get( prompts, function( err, result ) {
             'wplocaldocker'
         ]
     };
+
+    if ( result.wordpressDev == 'true' ) {
+        baseConfig.services.phpfpm.volumes.push('./config/php-fpm/wp-cli.develop.yml:/var/www/.wp-cli/config.yml');
+    } else {
+        baseConfig.services.phpfpm.volumes.push('./config/php-fpm/wp-cli.local.yml:/var/www/.wp-cli/config.yml');
+    }
 
     if ( result.elasticsearch === 'true' ) {
         baseConfig.services.phpfpm.depends_on.push( 'elasticsearch' );
@@ -257,22 +269,22 @@ prompt.get( prompts, function( err, result ) {
 
             if ( result.wordpress === 'true' ) {
                 if ( result.wordpressDev === 'true' ) {
-                    // @todo
+                    wordpress.downloadDevelop( hostSlug );
                 } else {
                     wordpress.download(hostSlug);
-                    wordpress.configure(hostSlug);
-
-                    if ( result.wordpressMultisite === 'true' ) {
-                        if ( result.subdomains === 'true' ) {
-                            wordpress.installMultisiteSubdomains( hostSlug, result.hostname );
-                        } else {
-                            wordpress.installMultisiteSubdirectories( hostSlug, result.hostname );
-                        }
-                    } else {
-                        wordpress.install(hostSlug, result.hostname);
-                    }
                 }
 
+                wordpress.configure(hostSlug);
+
+                if ( result.wordpressMultisite === 'true' ) {
+                    if ( result.subdomains === 'true' ) {
+                        wordpress.installMultisiteSubdomains( hostSlug, result.hostname );
+                    } else {
+                        wordpress.installMultisiteSubdirectories( hostSlug, result.hostname );
+                    }
+                } else {
+                    wordpress.install(hostSlug, result.hostname);
+                }
             }
 
         } );

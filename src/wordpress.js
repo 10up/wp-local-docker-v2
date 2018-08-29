@@ -15,6 +15,17 @@ const download = function( env ) {
     execSync( `cd ${envPath} && docker-compose exec phpfpm su -s /bin/bash www-data -c "wp core download --force"`, { stdio: 'inherit' });
 };
 
+const downloadDevelop = function( env ) {
+    // Folder name inside of /sites/ for this site
+    let hostSlug = slugify( env );
+    let envPath = path.join( sitesPath, hostSlug );
+
+    console.log( "Downloading WordPress Develop" );
+    execSync( `cd ${envPath} && docker-compose exec phpfpm su -s /bin/bash www-data -c "git clone git://develop.git.wordpress.org/ ."`, { stdio: 'inherit' });
+    execSync( `cd ${envPath} && docker run -t --rm -v ${envPath}/wordpress:/usr/src/app -v ${rootPath}/cache/npm:/root/.npm 10up/wpcorebuild:latest npm install`, { stdio: 'inherit' });
+    execSync( `cd ${envPath} && docker run -t --rm -v ${envPath}/wordpress:/usr/src/app 10up/wpcorebuild:latest grunt`, { stdio: 'inherit' });
+};
+
 const configure = function( env ) {
     // Folder name inside of /sites/ for this site
     let hostSlug = slugify( env );
@@ -51,4 +62,4 @@ const installMultisiteSubdomains = function( env, hostname ) {
     execSync( `cd ${envPath} && docker-compose exec phpfpm su -s /bin/bash www-data -c "wp core multisite-install --url=http://${hostname} --subdomains --prompt=title,admin_user,admin_password,admin_email"`, { stdio: 'inherit' });
 };
 
-module.exports = { download, configure, install, installMultisiteSubdomains, installMultisiteSubdirectories };
+module.exports = { download, downloadDevelop, configure, install, installMultisiteSubdomains, installMultisiteSubdirectories };
