@@ -27,11 +27,26 @@ const ensureNetworkExists = function() {
     } catch (ex) {}
 };
 
+const removeNetwork = function() {
+    try {
+        console.log( "Removing Network" );
+        execSync('docker network rm wplocaldocker');
+    } catch (ex) {}
+};
+
 const startGateway = function() {
     try {
         console.log( "Ensuring global services are running" );
         let globalPath = path.join( rootPath, 'global' );
-        execSync( "cd " + globalPath + " && docker-compose up -d" );
+        execSync( `cd ${globalPath} && docker-compose up -d` );
+    } catch ( ex ) {}
+};
+
+const stopGateway = function() {
+    try {
+        console.log( "Stopping global services" );
+        let globalPath = path.join( rootPath, 'global' );
+        execSync( `cd ${globalPath} && docker-compose down` );
     } catch ( ex ) {}
 };
 
@@ -40,17 +55,33 @@ const startGlobal = function() {
     startGateway();
 };
 
+const stopGlobal = function() {
+    stopGateway();
+    removeNetwork();
+};
+
 const getPathOrError = function( env ) {
     console.log( "Locating project files for " + env );
 
     let envSlug = slugify( env );
     let envPath = path.join( sitePath, envSlug );
     if ( ! fs.pathExistsSync( envPath ) ) {
-        console.error( "ERROR: Cannot find " + env + " site!" );
+        console.error( `ERROR: Cannot find ${env} site!` );
         exit(1);
     }
 
     return envPath;
+};
+
+const getAllEnvironments = function() {
+    const isDirectory = source => fs.lstatSync(source).isDirectory();
+
+    const dirs = fs.readdirSync( sitePath )
+        .map(name => path.join(sitePath, name))
+        .filter(isDirectory)
+        .map(name => path.basename( name ) );
+
+    return dirs;
 };
 
 const start = function( env ) {
@@ -68,4 +99,14 @@ const stop = function( env ) {
     execSync( `cd ${envPath} && docker-compose down` );
 };
 
-module.exports = { startGlobal, start, stop };
+const startAll = function() {
+    startGlobal();
+    getAllEnvironments().map( env => start(env) );
+};
+
+const stopAll = function() {
+    getAllEnvironments().map( env => stop(env) );
+    stopGlobal();
+};
+
+module.exports = { startGlobal, stopGlobal, start, stop, startAll, stopAll };

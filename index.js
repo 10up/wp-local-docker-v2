@@ -15,10 +15,18 @@ if ( process.argv.length < 3 ) {
             require( './src/create-env.js' );
             break;
         case 'start':
-            environment.start( process.argv[3] );
+            if ( 'all' === process.argv[3] ) {
+                environment.startAll();
+            } else {
+                environment.start( process.argv[3] );
+            }
             break;
         case 'stop':
-            environment.stop( process.argv[3] );
+            if ( 'all' === process.argv[3] ) {
+                environment.stopAll();
+            } else {
+                environment.stop(process.argv[3]);
+            }
             break;
         case 'restart':
         case 'remove':
