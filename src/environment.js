@@ -37,21 +37,24 @@ const removeNetwork = function() {
 };
 
 const startGateway = function() {
-    try {
-        console.log( "Ensuring global services are running" );
-        let globalPath = path.join( rootPath, 'global' );
-        execSync( `cd ${globalPath} && docker-compose up -d` );
-        console.log();
-    } catch ( ex ) {}
+    console.log( "Ensuring global services are running" );
+    let globalPath = path.join( rootPath, 'global' );
+    execSync( `cd ${globalPath} && docker-compose up -d` );
+    console.log();
 };
 
 const stopGateway = function() {
-    try {
-        console.log( "Stopping global services" );
-        let globalPath = path.join( rootPath, 'global' );
-        execSync( `cd ${globalPath} && docker-compose down` );
-        console.log();
-    } catch ( ex ) {}
+    console.log( "Stopping global services" );
+    let globalPath = path.join( rootPath, 'global' );
+    execSync( `cd ${globalPath} && docker-compose down` );
+    console.log();
+};
+
+const restartGateway = function() {
+    console.log( "Restarting global services" );
+    let globalPath = path.join( rootPath, 'global' );
+    execSync( `cd ${globalPath} && docker-compose restart` );
+    console.log();
 };
 
 const startGlobal = function() {
@@ -64,8 +67,13 @@ const stopGlobal = function() {
     removeNetwork();
 };
 
+const restartGlobal = function() {
+    ensureNetworkExists();
+    restartGateway();
+};
+
 const getPathOrError = function( env ) {
-    console.log( "Locating project files for " + env );
+    console.log( `Locating project files for ${env}` );
 
     let envSlug = slugify( env );
     let envPath = path.join( sitePath, envSlug );
@@ -92,7 +100,7 @@ const start = function( env ) {
     startGlobal();
     let envPath = getPathOrError(env);
 
-    console.log( `Starting docker containers for ${env}...` );
+    console.log( `Starting docker containers for ${env}` );
     execSync( `cd ${envPath} && docker-compose up -d` );
     console.log();
 };
@@ -100,8 +108,16 @@ const start = function( env ) {
 const stop = function( env ) {
     let envPath = getPathOrError(env);
 
-    console.log( `Stopping docker containers for ${env}...` );
+    console.log( `Stopping docker containers for ${env}` );
     execSync( `cd ${envPath} && docker-compose down` );
+    console.log();
+};
+
+const restart = function( env ) {
+    let envPath = getPathOrError(env);
+
+    console.log( `Restarting docker containers for ${env}` );
+    execSync( `cd ${envPath} && docker-compose restart` );
     console.log();
 };
 
@@ -115,4 +131,9 @@ const stopAll = function() {
     stopGlobal();
 };
 
-module.exports = { startGlobal, stopGlobal, start, stop, startAll, stopAll };
+const restartAll = function() {
+    getAllEnvironments().map( env => restart(env) );
+    restartGlobal();
+};
+
+module.exports = { startGlobal, stopGlobal, start, stop, restart, startAll, stopAll, restartAll };

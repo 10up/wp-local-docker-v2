@@ -29,7 +29,12 @@ if ( process.argv.length < 3 ) {
             }
             break;
         case 'restart':
-        case 'remove':
+            if ( 'all' === process.argv[3] ) {
+                environment.restartAll();
+            } else {
+                environment.restart( process.argv[3] );
+            }
+        case 'delete':
 
             break;
         default:
