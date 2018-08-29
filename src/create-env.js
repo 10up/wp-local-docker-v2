@@ -9,6 +9,7 @@ const fs = require( 'fs-extra' );
 const slugify = require('@sindresorhus/slugify');
 const yaml = require( 'write-yaml' );
 const prompt = require( 'prompt' );
+const promptValidators = require( './prompt-validators' );
 const mysql = require('mysql');
 const environment = require( './environment.js' );
 const wordpress = require( './wordpress');
