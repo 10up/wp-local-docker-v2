@@ -18,6 +18,8 @@ if ( process.argv.length < 3 ) {
             environment.start( process.argv[3] );
             break;
         case 'stop':
+            environment.stop( process.argv[3] );
+            break;
         case 'restart':
         case 'remove':
 

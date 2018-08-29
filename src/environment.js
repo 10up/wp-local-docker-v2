@@ -40,11 +40,7 @@ const startGlobal = function() {
     startGateway();
 };
 
-
-
-const start = function( env ) {
-    startGlobal();
-
+const getPathOrError = function( env ) {
     console.log( "Locating project files for " + env );
 
     let envSlug = slugify( env );
@@ -54,8 +50,22 @@ const start = function( env ) {
         exit(1);
     }
 
-    console.log( " - Starting docker containers..." );
+    return envPath;
+};
+
+const start = function( env ) {
+    startGlobal();
+    let envPath = getPathOrError(env);
+
+    console.log( `Starting docker containers for ${env}...` );
     execSync( `cd ${envPath} && docker-compose up -d` );
 };
 
-module.exports = { start, startGlobal };
+const stop = function( env ) {
+    let envPath = getPathOrError(env);
+
+    console.log( `Stopping docker containers for ${env}...` );
+    execSync( `cd ${envPath} && docker-compose down` );
+};
+
+module.exports = { startGlobal, start, stop };
