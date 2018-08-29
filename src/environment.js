@@ -4,6 +4,7 @@ const slugify = require('@sindresorhus/slugify');
 const execSync = require('child_process').execSync;
 const prompt = require( 'prompt' );
 const promptValidators = require( './prompt-validators' );
+const mysql = require('mysql');
 
 // Setup some paths for reference later
 const rootPath = path.dirname( require.main.filename );
@@ -75,7 +76,7 @@ const getPathOrError = function( env ) {
     let envPath = path.join( sitePath, envSlug );
     if ( ! fs.pathExistsSync( envPath ) ) {
         console.error( `ERROR: Cannot find ${env} site!` );
-        exit(1);
+        process.exit(1);
     }
 
     return envPath;
@@ -119,6 +120,7 @@ const restart = function( env ) {
 
 const deleteEnv = function( env ) {
     let envPath = getPathOrError(env);
+    let envSlug = slugify( env );
 
     prompt.start();
 
@@ -147,8 +149,32 @@ const deleteEnv = function( env ) {
         }
 
         // We at least need to be able to reach the DB in order to clean everything up, so ensure global services are running
-        this.startGlobal();
-        console.log( 'deleting' );
+        startGlobal();
+
+        // Stop the current environment if it is running
+        stop(env);
+
+        console.log( "Deleting Files" );
+        fs.removeSync( envPath );
+        console.log();
+
+        console.log( 'Deleting Database' );
+        // @todo clean up/abstract to a database file
+        let connection = mysql.createConnection({
+            host: '127.0.0.1',
+            user: 'root',
+            password: 'password',
+        });
+
+        connection.query( `DROP DATABASE IF EXISTS \`${envSlug}\`;`, function( err, results ) {
+            if (err) {
+                console.log('error in creating database', err);
+                process.exit();
+                return;
+            }
+
+            connection.destroy();
+        } );
     });
 };
 

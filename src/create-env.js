@@ -179,6 +179,7 @@ prompt.get( prompts, function( err, result ) {
     });
 
     // Create database
+    // @todo clean up/abstract to a database file
     console.log( "Creating database" );
     let connection = mysql.createConnection({
         host: '127.0.0.1',
