@@ -198,6 +198,7 @@ prompt.get( prompts, function( err, result ) {
             './wordpress:/var/www/html',
             './config/php-fpm/php.ini:/usr/local/etc/php/php.ini',
             './config/php-fpm/docker-php-ext-xdebug.ini:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini',
+            `${rootPath}/cache/wp-cli:/var/www/.wp-cli/cache`,
             '~/.ssh:/root/.ssh'
         ],
         'depends_on': [
