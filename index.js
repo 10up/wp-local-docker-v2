@@ -10,6 +10,7 @@ Commands:
   cache         Manages the build cache
   create        Create a new docker environment
   delete        Deletes a specific docker environment
+  image         Manages docker images used by this environment
   restart       Restarts a specific docker environment
   start         Starts a specific docker environment
   stop          Stops a specific docker environment
