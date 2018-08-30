@@ -153,7 +153,20 @@ var prompts = {
                 // only ask if install WordPress was true and dev was false
                 return prompt.history('wordpress').value === 'true' && prompt.history('wordpressDev').value === 'false' && prompt.history('wordpressMultisite').value === "true";
             }
-        }
+        },
+        emptyContent: {
+            description: "Would you like to remove the default content? (Y/n)",
+            message: "You must choose either `Y` or `n`",
+            type: 'string',
+            required: true,
+            default: 'y',
+            enum: [ 'Y', 'y', 'N', 'n' ],
+            before: promptValidators.validateBool,
+            ask: function() {
+                // only ask if install WordPress was true
+                return prompt.history('wordpress').value === "true";
+            }
+        },
     },
 };
 
@@ -285,8 +298,13 @@ prompt.get( prompts, function( err, result ) {
                 } else {
                     wordpress.install(hostSlug, result.hostname);
                 }
-            }
 
+                wordpress.setRewrites( hostSlug );
+
+                if ( result.emptyContent === 'true' ) {
+                    wordpress.emptyContent( hostSlug );
+                }
+            }
         } );
     } );
 });
