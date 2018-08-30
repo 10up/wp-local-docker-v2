@@ -1,3 +1,4 @@
+const commandUtils = require( './command-utils' );
 const fs = require( 'fs-extra' );
 const path = require( 'path' );
 const execSync = require('child_process').execSync;
@@ -7,15 +8,18 @@ const snapshots = function() {
     // Except for a few whitelisted commands, enforce a configuration before proceeding
     // probably need to figure out which commands need a path vs which just need auth.
     let bypassCommands = [ 'configure', 'help', 'list' ];
+    let noPathCommands = [ 'configure', 'help', 'list', 'delete', 'search', 'download' ];
     let envPath = false;
 
-    if ( bypassCommands.indexOf( process.argv[3] ) === -1 ) {
+    if ( bypassCommands.indexOf( commandUtils.subcommand() ) === -1 ) {
         // Verify we have a configuration
         if ( fs.existsSync( path.join( envUtils.globalPath, 'data', 'wpsnapshots', 'config.json' ) ) === false ) {
             console.error( "Error: WP Snapshots does not have a configuration file. Please run '10up-docker wpsnapshots configure' before continuing." );
             process.exit();
         }
+    }
 
+    if ( noPathCommands.indexOf( commandUtils.subcommand() ) === -1 ) {
         // @todo allow users to specify environment an alternate way
         let envSlug = envUtils.parseEnvFromCWD();
         if ( envSlug === false ) {
@@ -26,7 +30,7 @@ const snapshots = function() {
     }
 
     // Get everything after the snapshots command, so we can pass to the docker container
-    let command = Array.prototype.slice.call( process.argv, 3 ).join( ' ' );
+    let command = commandUtils.commandArgs();
 
     // @todo update the image version once new images are merged
     if ( envPath === false ) {
