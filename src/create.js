@@ -5,6 +5,7 @@ const yaml = require( 'write-yaml' );
 const prompt = require( 'prompt' );
 const promptValidators = require( './prompt-validators' );
 const mysql = require('mysql');
+const gateway = require( './gateway' );
 const environment = require( './environment.js' );
 const wordpress = require( './wordpress');
 const envUtils = require( './env-utils' );
@@ -172,12 +173,13 @@ const createEnv = function() {
         },
     };
 
-    prompt.get( prompts, function( err, result ) {
+    prompt.get( prompts, async function( err, result ) {
         if ( err ) {
             console.log(''); // so we don't end up cursor on the old prompt line
             process.exit(1);
         }
 
+        await gateway.startGlobal();
 
         // Additional nginx config based on selections above
         baseConfig.services.nginx.environment = {
@@ -320,7 +322,6 @@ const command = async function() {
             help();
             break;
         default:
-            await environment.startGlobal();
             await createEnv();
             break;
     }

@@ -6,6 +6,7 @@ const prompt = require( 'prompt' );
 const promptValidators = require( './prompt-validators' );
 const mysql = require('mysql');
 const envUtils = require( './env-utils' );
+const gateway = require( './gateway' );
 
 const help = function() {
     let command = commandUtils.command();
@@ -26,77 +27,7 @@ When 'all' is specified as the ENVIRONMENT, each environment will ${command}
     process.exit();
 };
 
-const ensureNetworkExists = function() {
-    try {
-        console.log( "Ensuring global network exists" );
-        let networks = execSync( "docker network ls --filter name=wplocaldocker" ).toString();
-        if ( networks.indexOf( 'wplocaldocker' ) !== -1 ) {
-            console.log( " - Network exists" );
-            console.log();
-            return;
-        }
 
-        console.log( " - Creating network" );
-        console.log();
-        execSync('docker network create wplocaldocker');
-    } catch (ex) {}
-};
-
-const removeNetwork = function() {
-    try {
-        console.log( "Removing Global Network" );
-        execSync('docker network rm wplocaldocker');
-    } catch (ex) {}
-};
-
-const waitForDB = function() {
-    // ready for connections
-    return new Promise( resolve => {
-        let interval = setInterval(() => {
-            console.log( "Waiting for mysql..." );
-            let mysql = execSync( `cd ${envUtils.globalPath} && docker-compose logs mysql` ).toString();
-            if ( mysql.indexOf( 'ready for connections' ) !== -1 ) {
-                clearInterval( interval );
-                resolve();
-            }
-        }, 1000 );
-    });
-};
-
-const startGateway = async function() {
-    console.log( "Ensuring global services are running" );
-    execSync( `cd ${envUtils.globalPath} && docker-compose up -d` );
-    console.log();
-
-    await waitForDB();
-};
-
-const stopGateway = function() {
-    console.log( "Stopping global services" );
-    execSync( `cd ${envUtils.globalPath} && docker-compose down` );
-    console.log();
-};
-
-const restartGateway = function() {
-    console.log( "Restarting global services" );
-    execSync( `cd ${envUtils.globalPath} && docker-compose restart` );
-    console.log();
-};
-
-const startGlobal = async function() {
-    ensureNetworkExists();
-    await startGateway();
-};
-
-const stopGlobal = function() {
-    stopGateway();
-    removeNetwork();
-};
-
-const restartGlobal = function() {
-    ensureNetworkExists();
-    restartGateway();
-};
 
 const getPathOrError = function( env ) {
     if ( undefined === env || env.trim().length === 0 ) {
@@ -109,6 +40,7 @@ const getPathOrError = function( env ) {
     let envPath = envUtils.envPath( env );
     if ( ! fs.pathExistsSync( envPath ) ) {
         console.error( `ERROR: Cannot find ${env} environment!` );
+        help();
         process.exit(1);
     }
 
@@ -126,8 +58,10 @@ const getAllEnvironments = function() {
     return dirs;
 };
 
-const start = function( env ) {
+const start = async function( env ) {
     let envPath = getPathOrError(env);
+
+    await gateway.startGlobal();
 
     console.log( `Starting docker containers for ${env}` );
     execSync( `cd ${envPath} && docker-compose up -d` );
@@ -142,15 +76,17 @@ const stop = function( env ) {
     console.log();
 };
 
-const restart = function( env ) {
+const restart = async function( env ) {
     let envPath = getPathOrError(env);
+
+    await gateway.startGlobal();
 
     console.log( `Restarting docker containers for ${env}` );
     execSync( `cd ${envPath} && docker-compose restart` );
     console.log();
 };
 
-const deleteEnv = function( env ) {
+const deleteEnv = async function( env ) {
     let envPath = getPathOrError(env);
     let envSlug = envUtils.envSlug( env );
 
@@ -170,7 +106,7 @@ const deleteEnv = function( env ) {
         }
     };
 
-    prompt.get( prompts, function( err, result ) {
+    prompt.get( prompts, async function( err, result ) {
         if ( err ) {
             console.log( '' );
             process.exit();
@@ -179,6 +115,8 @@ const deleteEnv = function( env ) {
         if ( result.confirmDelete !== 'true' ) {
             return;
         }
+
+        await gateway.startGlobal();
 
         // Stop the current environment if it is running
         stop(env);
@@ -213,12 +151,12 @@ const startAll = function() {
 
 const stopAll = function() {
     getAllEnvironments().map( env => stop(env) );
-    stopGlobal();
+    gateway.stopGlobal();
 };
 
 const restartAll = function() {
     getAllEnvironments().map( env => restart(env) );
-    restartGlobal();
+    gateway.restartGlobal();
 };
 
 const command = async function() {
@@ -227,18 +165,15 @@ const command = async function() {
     } else {
         switch ( commandUtils.command() ) {
             case 'start':
-                await startGlobal();
                 commandUtils.subcommand() === 'all' ? startAll() : start( commandUtils.commandArgs() );
                 break;
             case 'stop':
                 commandUtils.subcommand() === 'all' ? stopAll() : stop( commandUtils.commandArgs() );
                 break;
             case 'restart':
-                await startGlobal();
                 commandUtils.subcommand() === 'all' ? restartAll() : restart( commandUtils.commandArgs() );
                 break;
             case 'delete':
-                await startGlobal();
                 deleteEnv( commandUtils.commandArgs() );
                 break;
             default:
@@ -248,4 +183,4 @@ const command = async function() {
     }
 };
 
-module.exports = { command, startGlobal, stopGlobal, start, stop, restart, deleteEnv, startAll, stopAll, restartAll, help };
+module.exports = { command, start, stop, restart, help };
