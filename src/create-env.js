@@ -116,7 +116,7 @@ var prompts = {
             before: promptValidators.validateBool,
         },
         wordpressDev: {
-            description: "Would you like to install WordPress for core development? (n)",
+            description: "Would you like to install WordPress for core development? (Y/n)",
             message: "You must choose either `Y` or `n`",
             type: 'string',
             required: true,
@@ -129,7 +129,7 @@ var prompts = {
             }
         },
         wordpressMultisite: {
-            description: "Would you like to install WordPress multisite? (n)",
+            description: "Would you like to install WordPress multisite? (Y/n)",
             message: "You must choose either `Y` or `n`",
             type: 'string',
             required: true,
@@ -142,7 +142,7 @@ var prompts = {
             }
         },
         subdomains: {
-            description: "Would you like a subdomain install? Defaults to subdirectories. (n)",
+            description: "Would you like a subdomain install? Defaults to subdirectories. (Y/n)",
             message: "You must choose either `Y` or `n`",
             type: 'string',
             required: true,
