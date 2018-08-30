@@ -70,6 +70,11 @@ const restartGlobal = function() {
 };
 
 const getPathOrError = function( env ) {
+    if ( undefined === env ) {
+        console.error( `Error: You must pass an environment to the ${process.argv[2]} command` );
+        process.exit(1);
+    }
+
     console.log( `Locating project files for ${env}` );
 
     let envSlug = slugify( env );
