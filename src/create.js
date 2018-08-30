@@ -1,16 +1,12 @@
 const path = require('path');
 const fs = require( 'fs-extra' );
-const slugify = require('@sindresorhus/slugify');
 const yaml = require( 'write-yaml' );
 const prompt = require( 'prompt' );
 const promptValidators = require( './prompt-validators' );
 const mysql = require('mysql');
 const environment = require( './environment.js' );
 const wordpress = require( './wordpress');
-
-// Setup some paths for reference later
-const rootPath = path.dirname( require.main.filename );
-const sitesPath = path.join( rootPath, 'sites' );
+const envUtils = require( './env-utils' );
 
 const help = function() {
     let help = `
@@ -178,7 +174,7 @@ const create = function() {
     prompt.get( prompts, function( err, result ) {
         if ( err ) {
             console.log(''); // so we don't end up cursor on the old prompt line
-            process.exit();
+            process.exit(1);
         }
 
 
@@ -203,7 +199,7 @@ const create = function() {
                 './wordpress:/var/www/html',
                 './config/php-fpm/php.ini:/usr/local/etc/php/php.ini',
                 './config/php-fpm/docker-php-ext-xdebug.ini:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini',
-                `${rootPath}/cache/wp-cli:/var/www/.wp-cli/cache`,
+                `${envUtils.cachePath}/wp-cli:/var/www/.wp-cli/cache`,
                 '~/.ssh:/root/.ssh'
             ],
             'depends_on': [
@@ -244,12 +240,13 @@ const create = function() {
         console.log( "Copying required files..." );
 
         // Folder name inside of /sites/ for this site
-        let hostSlug = slugify( result.hostname );
-        let envPath = path.join( sitesPath, hostSlug );
+        let envHost = result.hostname;
+        let envSlug = envUtils.envSlug( envHost );
+        let envPath = envUtils.envPath( envHost );
 
         fs.ensureDirSync( path.join( envPath, 'wordpress' ) );
         fs.ensureDirSync( path.join( envPath, 'logs', 'nginx' ) );
-        fs.copySync( path.join( __dirname, 'config' ), path.join( envPath, 'config' ) );
+        fs.copySync( path.join( envUtils.srcPath, 'config' ), path.join( envPath, 'config' ) );
 
         // Write Docker Compose
         console.log( "Generating docker-compose.yml file..." );
@@ -269,46 +266,46 @@ const create = function() {
             password: 'password',
         });
 
-        connection.query( `CREATE DATABASE IF NOT EXISTS \`${hostSlug}\`;`, function( err, results ) {
+        connection.query( `CREATE DATABASE IF NOT EXISTS \`${envSlug}\`;`, function( err, results ) {
             if (err) {
                 console.log('error in creating database', err);
-                process.exit();
+                process.exit(1);
                 return;
             }
 
-            connection.query( `GRANT ALL PRIVILEGES ON \`${hostSlug}\`.* TO 'wordpress'@'%' IDENTIFIED BY 'password';`, function( err, results ) {
+            connection.query( `GRANT ALL PRIVILEGES ON \`${envSlug}\`.* TO 'wordpress'@'%' IDENTIFIED BY 'password';`, function( err, results ) {
                 if ( err ) {
                     console.log('error in creating database', err);
-                    process.exit();
+                    process.exit(1);
                     return;
                 }
                 connection.destroy();
 
-                environment.start(hostSlug);
+                environment.start( envSlug );
 
                 if ( result.wordpress === 'true' ) {
                     if ( result.wordpressDev === 'true' ) {
-                        wordpress.downloadDevelop( hostSlug );
+                        wordpress.downloadDevelop( envSlug );
                     } else {
-                        wordpress.download(hostSlug);
+                        wordpress.download( envSlug );
                     }
 
-                    wordpress.configure(hostSlug);
+                    wordpress.configure( envSlug );
 
                     if ( result.wordpressMultisite === 'true' ) {
                         if ( result.subdomains === 'true' ) {
-                            wordpress.installMultisiteSubdomains( hostSlug, result.hostname );
+                            wordpress.installMultisiteSubdomains( envSlug, envHost );
                         } else {
-                            wordpress.installMultisiteSubdirectories( hostSlug, result.hostname );
+                            wordpress.installMultisiteSubdirectories( envSlug, envHost );
                         }
                     } else {
-                        wordpress.install(hostSlug, result.hostname);
+                        wordpress.install( envSlug, envHost );
                     }
 
-                    wordpress.setRewrites( hostSlug );
+                    wordpress.setRewrites( envSlug );
 
                     if ( result.emptyContent === 'true' ) {
-                        wordpress.emptyContent( hostSlug );
+                        wordpress.emptyContent( envSlug );
                     }
                 }
             } );

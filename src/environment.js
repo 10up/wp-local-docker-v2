@@ -1,14 +1,10 @@
 const path = require('path');
 const fs = require( 'fs-extra' );
-const slugify = require('@sindresorhus/slugify');
 const execSync = require('child_process').execSync;
 const prompt = require( 'prompt' );
 const promptValidators = require( './prompt-validators' );
 const mysql = require('mysql');
-
-// Setup some paths for reference later
-const rootPath = path.dirname( require.main.filename );
-const sitePath = path.join( rootPath, 'sites' );
+const envUtils = require( './env-utils' );
 
 const help = function() {
     let command = process.argv[2];
@@ -54,12 +50,10 @@ const removeNetwork = function() {
 
 const waitForDB = function() {
     // ready for connections
-    let globalPath = path.join( rootPath, 'global' );
-
     return new Promise( resolve => {
         let interval = setInterval(() => {
             console.log( "Waiting for mysql..." );
-            let mysql = execSync( `cd ${globalPath} && docker-compose logs mysql` ).toString();
+            let mysql = execSync( `cd ${envUtils.globalPath} && docker-compose logs mysql` ).toString();
             if ( mysql.indexOf( 'ready for connections' ) !== -1 ) {
                 clearInterval( interval );
                 resolve();
@@ -70,8 +64,7 @@ const waitForDB = function() {
 
 const startGateway = async function() {
     console.log( "Ensuring global services are running" );
-    let globalPath = path.join( rootPath, 'global' );
-    execSync( `cd ${globalPath} && docker-compose up -d` );
+    execSync( `cd ${envUtils.globalPath} && docker-compose up -d` );
     console.log();
 
     await waitForDB();
@@ -79,15 +72,13 @@ const startGateway = async function() {
 
 const stopGateway = function() {
     console.log( "Stopping global services" );
-    let globalPath = path.join( rootPath, 'global' );
-    execSync( `cd ${globalPath} && docker-compose down` );
+    execSync( `cd ${envUtils.globalPath} && docker-compose down` );
     console.log();
 };
 
 const restartGateway = function() {
     console.log( "Restarting global services" );
-    let globalPath = path.join( rootPath, 'global' );
-    execSync( `cd ${globalPath} && docker-compose restart` );
+    execSync( `cd ${envUtils.globalPath} && docker-compose restart` );
     console.log();
 };
 
@@ -114,10 +105,9 @@ const getPathOrError = function( env ) {
 
     console.log( `Locating project files for ${env}` );
 
-    let envSlug = slugify( env );
-    let envPath = path.join( sitePath, envSlug );
+    let envPath = envUtils.envPath( env );
     if ( ! fs.pathExistsSync( envPath ) ) {
-        console.error( `ERROR: Cannot find ${env} site!` );
+        console.error( `ERROR: Cannot find ${env} environment!` );
         process.exit(1);
     }
 
@@ -127,10 +117,10 @@ const getPathOrError = function( env ) {
 const getAllEnvironments = function() {
     const isDirectory = source => fs.lstatSync(source).isDirectory();
 
-    const dirs = fs.readdirSync( sitePath )
-        .map(name => path.join(sitePath, name))
-        .filter(isDirectory)
-        .map(name => path.basename( name ) );
+    const dirs = fs.readdirSync( envUtils.sitesPath )
+        .map( name => path.join( envUtils.sitesPath, name ) )
+        .filter( isDirectory )
+        .map( name => path.basename( name ) );
 
     return dirs;
 };
@@ -161,7 +151,7 @@ const restart = function( env ) {
 
 const deleteEnv = function( env ) {
     let envPath = getPathOrError(env);
-    let envSlug = slugify( env );
+    let envSlug = envUtils.envSlug( env );
 
     prompt.start();
 
