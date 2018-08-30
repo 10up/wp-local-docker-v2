@@ -9,7 +9,13 @@ const commandArgs = function() {
 };
 
 const subcommand = function() {
-    return process.argv[3].toLowerCase();
+    let subcommand = process.argv[3];
+
+    if ( typeof subcommand !== 'undefined' ) {
+        return process.argv[3].toLowerCase();
+    }
+
+    return false;
 };
 
 module.exports = { command, commandArgs, subcommand };

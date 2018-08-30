@@ -4,13 +4,13 @@ const path = require( 'path' );
 const execSync = require('child_process').execSync;
 const envUtils = require('./env-utils');
 
-const snapshots = function() {
-    // Except for a few whitelisted commands, enforce a configuration before proceeding
-    // probably need to figure out which commands need a path vs which just need auth.
-    let bypassCommands = [ 'configure', 'help', 'list' ];
-    let noPathCommands = [ 'configure', 'help', 'list', 'delete', 'search', 'download' ];
+const command = async function() {
+    // false catches the case when no subcommand is passed, and we just pass to snapshots to show usage
+    let bypassCommands = [ false, 'configure', 'help', 'list' ];
+    let noPathCommands = [ false, 'configure', 'help', 'list', 'delete', 'search', 'download' ];
     let envPath = false;
 
+    // Except for a few whitelisted commands, enforce a configuration before proceeding
     if ( bypassCommands.indexOf( commandUtils.subcommand() ) === -1 ) {
         // Verify we have a configuration
         if ( fs.existsSync( path.join( envUtils.globalPath, 'data', 'wpsnapshots', 'config.json' ) ) === false ) {
@@ -19,6 +19,7 @@ const snapshots = function() {
         }
     }
 
+    // These commands can be run without being in the context of a WP install
     if ( noPathCommands.indexOf( commandUtils.subcommand() ) === -1 ) {
         // @todo allow users to specify environment an alternate way
         let envSlug = envUtils.parseEnvFromCWD();
@@ -33,11 +34,13 @@ const snapshots = function() {
     let command = commandUtils.commandArgs();
 
     // @todo update the image version once new images are merged
-    if ( envPath === false ) {
-        execSync( `docker run -it --rm --network wplocaldocker -v ${envUtils.globalPath}/data/wpsnapshots:/home/wpsnapshots/.wpsnapshots 10up/wpsnapshots:dev ${command}`, { stdio: 'inherit' });
-    } else {
-        execSync( `docker run -it --rm --network wplocaldocker -v ${envPath}/wordpress:/var/www/html -v ${envUtils.globalPath}/data/wpsnapshots:/home/wpsnapshots/.wpsnapshots 10up/wpsnapshots:dev ${command}`, { stdio: 'inherit' });
-    }
+    try{
+        if ( envPath === false ) {
+            execSync( `docker run -it --rm --network wplocaldocker -v ${envUtils.globalPath}/data/wpsnapshots:/home/wpsnapshots/.wpsnapshots 10up/wpsnapshots:dev ${command}`, { stdio: 'inherit' });
+        } else {
+            execSync( `docker run -it --rm --network wplocaldocker -v ${envPath}/wordpress:/var/www/html -v ${envUtils.globalPath}/data/wpsnapshots:/home/wpsnapshots/.wpsnapshots 10up/wpsnapshots:dev ${command}`, { stdio: 'inherit' });
+        }
+    } catch (ex) {}
 };
 
-module.exports = { snapshots };
+module.exports = { command };

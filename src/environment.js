@@ -1,3 +1,4 @@
+const commandUtils = require( './command-utils' );
 const path = require('path');
 const fs = require( 'fs-extra' );
 const execSync = require('child_process').execSync;
@@ -98,7 +99,7 @@ const restartGlobal = function() {
 };
 
 const getPathOrError = function( env ) {
-    if ( undefined === env ) {
+    if ( undefined === env || env.trim().length === 0 ) {
         help();
         process.exit(1);
     }
@@ -220,4 +221,27 @@ const restartAll = function() {
     restartGlobal();
 };
 
-module.exports = { startGlobal, stopGlobal, start, stop, restart, deleteEnv, startAll, stopAll, restartAll, help };
+const command = async function() {
+    switch ( commandUtils.command() ) {
+        case 'start':
+            await startGlobal();
+            commandUtils.subcommand() === 'all' ? startAll() : start( commandUtils.commandArgs() );
+            break;
+        case 'stop':
+            commandUtils.subcommand() === 'all' ? stopAll() : stop( commandUtils.commandArgs() );
+            break;
+        case 'restart':
+            await startGlobal();
+            commandUtils.subcommand() === 'all' ? restartAll() : restart( commandUtils.commandArgs() );
+            break;
+        case 'delete':
+            await startGlobal();
+            deleteEnv( commandUtils.commandArgs() );
+            break;
+        default:
+            help();
+            break;
+    }
+};
+
+module.exports = { command, startGlobal, stopGlobal, start, stop, restart, deleteEnv, startAll, stopAll, restartAll, help };

@@ -1,3 +1,4 @@
+const commandUtils = require( './command-utils' );
 const path = require('path');
 const fs = require( 'fs-extra' );
 const yaml = require( 'write-yaml' );
@@ -18,7 +19,7 @@ Creates a new docker environment interactively.
     process.exit();
 };
 
-const create = function() {
+const createEnv = function() {
     var baseConfig = {
         'version': '3',
         'services': {
@@ -313,12 +314,16 @@ const create = function() {
     });
 };
 
-module.exports = { create, help };
+const command = async function() {
+    switch ( commandUtils.subcommand() ) {
+        case 'help':
+            help();
+            break;
+        default:
+            await environment.startGlobal();
+            await createEnv();
+            break;
+    }
+};
 
-
-// prompt:
-// wpsnapshots snapshot ID
-
-// Add update checker?
-// - check for update to this project
-// - check for docker image updates
+module.exports = { command, help };

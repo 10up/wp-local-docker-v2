@@ -19,10 +19,11 @@ const downloadDevelop = function( env ) {
 };
 
 const configure = function( env ) {
+    let envSlug = envUtils.envSlug( env );
     let envPath = envUtils.envPath( env );
 
     console.log( "Configuring WordPress" );
-    execSync( `cd ${envPath} && docker-compose exec phpfpm su -s /bin/bash www-data -c "wp config create --force --dbname=${hostSlug}"`, { stdio: 'inherit' });
+    execSync( `cd ${envPath} && docker-compose exec phpfpm su -s /bin/bash www-data -c "wp config create --force --dbname=${envSlug}"`, { stdio: 'inherit' });
 };
 
 const install = function( env, envHost ) {

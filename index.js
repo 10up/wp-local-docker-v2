@@ -1,10 +1,9 @@
 #!/usr/bin/env node
 
-const create = require('./src/create');
-const environment = require('./src/environment');
+const commandUtils = require( './src/command-utils' );
 
 const help = function() {
-	let help = `
+    let help = `
 Usage: 10up-docker COMMAND
 
 Commands:
@@ -19,66 +18,27 @@ Run '10up-docker COMMAND help' for more information on a command.
     console.log( help );
 };
 
-if ( process.argv.length < 3 ) {
-	help();
-} else {
-    // Don't wait for startup if just looking for help
-    if ( undefined !== process.argv[3] && 'help' === process.argv[3].toLowerCase() ) {
-        switch( process.argv[2].toLowerCase() ) {
-            case 'create':
-                create.help();
-                break;
-            case 'start':
-            case 'stop':
-            case 'restart':
-            case 'delete':
-                environment.help();
-                break;
-            default:
-                help();
-                break;
-        }
-    } else {
-        // Make sure the global services are up and ready to go before anything else
-        environment.startGlobal().then(() => {
-            console.log(); // For readability of logs
-
-            switch( process.argv[2].toLowerCase() ) {
-                case 'create':
-                    require( './src/create-env' );
-                    break;
-                case 'start':
-                    if ( 'all' === process.argv[3] ) {
-                        environment.startAll();
-                    } else {
-                        environment.start( process.argv[3] );
-                    }
-                    break;
-                case 'stop':
-                    if ( 'all' === process.argv[3] ) {
-                        environment.stopAll();
-                    } else {
-                        environment.stop( process.argv[3] );
-                    }
-                    break;
-                case 'restart':
-                    if ( 'all' === process.argv[3] ) {
-                        environment.restartAll();
-                    } else {
-                        environment.restart( process.argv[3] );
-                    }
-                    break;
-                case 'delete':
-                    environment.deleteEnv( process.argv[3] );
-                    break;
-                case 'wpsnapshots':
-                    require( './src/wpsnapshots' ).snapshots();
-                    break;
-                default:
-                    help();
-                    break;
-            }
-        });
+const init = async function() {
+    switch ( commandUtils.command() ) {
+        case 'create':
+            await require('./src/create').command();
+            break;
+        case 'start':
+        case 'stop':
+        case 'restart':
+        case 'delete':
+            await require('./src/environment').command();
+            break;
+        case 'snapshots':
+        case 'wpsnapshots':
+            await require('./src/wpsnapshots').command();
+            break;
+        case 'cache':
+            await require('./src/cache').command();
+            break;
+        default:
+            help();
+            break;
     }
-
-}
+};
+init();
