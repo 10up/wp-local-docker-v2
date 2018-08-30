@@ -266,7 +266,7 @@ const createEnv = function() {
                 return;
             }
 
-            connection.query( `GRANT ALL PRIVILEGES ON \`${envSlug}\`.* TO 'wordpress'@'%' IDENTIFIED BY 'password';`, function( err, results ) {
+            connection.query( `GRANT ALL PRIVILEGES ON \`${envSlug}\`.* TO 'wordpress'@'%' IDENTIFIED BY 'password';`, async function( err, results ) {
                 if ( err ) {
                     console.log('error in creating database', err);
                     process.exit(1);
@@ -274,7 +274,7 @@ const createEnv = function() {
                 }
                 connection.destroy();
 
-                environment.start( envSlug );
+                await environment.start( envSlug );
 
                 if ( result.wordpress === 'true' ) {
                     if ( result.wordpressDev === 'true' ) {
