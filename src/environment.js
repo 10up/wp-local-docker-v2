@@ -33,11 +33,29 @@ const removeNetwork = function() {
     } catch (ex) {}
 };
 
-const startGateway = function() {
+const waitForDB = function() {
+    // ready for connections
+    let globalPath = path.join( rootPath, 'global' );
+
+    return new Promise( resolve => {
+        let interval = setInterval(() => {
+            console.log( "Waiting for mysql..." );
+            let mysql = execSync( `cd ${globalPath} && docker-compose logs mysql` ).toString();
+            if ( mysql.indexOf( 'ready for connections' ) !== -1 ) {
+                clearInterval( interval );
+                resolve();
+            }
+        }, 1000 );
+    });
+};
+
+const startGateway = async function() {
     console.log( "Ensuring global services are running" );
     let globalPath = path.join( rootPath, 'global' );
     execSync( `cd ${globalPath} && docker-compose up -d` );
     console.log();
+
+    await waitForDB();
 };
 
 const stopGateway = function() {
@@ -54,9 +72,9 @@ const restartGateway = function() {
     console.log();
 };
 
-const startGlobal = function() {
+const startGlobal = async function() {
     ensureNetworkExists();
-    startGateway();
+    await startGateway();
 };
 
 const stopGlobal = function() {
@@ -99,7 +117,6 @@ const getAllEnvironments = function() {
 };
 
 const start = function( env ) {
-    startGlobal();
     let envPath = getPathOrError(env);
 
     console.log( `Starting docker containers for ${env}` );
@@ -153,9 +170,6 @@ const deleteEnv = function( env ) {
             return;
         }
 
-        // We at least need to be able to reach the DB in order to clean everything up, so ensure global services are running
-        startGlobal();
-
         // Stop the current environment if it is running
         stop(env);
 
@@ -184,7 +198,6 @@ const deleteEnv = function( env ) {
 };
 
 const startAll = function() {
-    startGlobal();
     getAllEnvironments().map( env => start(env) );
 };
 
