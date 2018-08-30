@@ -71,6 +71,9 @@ if ( process.argv.length < 3 ) {
                 case 'delete':
                     environment.deleteEnv( process.argv[3] );
                     break;
+                case 'wpsnapshots':
+                    require( './src/wpsnapshots' ).snapshots();
+                    break;
                 default:
                     help();
                     break;

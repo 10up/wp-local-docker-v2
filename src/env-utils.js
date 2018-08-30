@@ -31,10 +31,28 @@ const envSlug = function( env ) {
 };
 
 const envPath = function( env ) {
-    let envSlug = envSlug( env );
-    let envPath = path.join( sitesPath, envSlug );
+    let envPath = path.join( sitesPath, envSlug( env ) );
 
     return envPath;
 };
 
-module.exports = { rootPath, srcPath, sitesPath, cachePath, globalPath, envSlug, envPath };
+const parseEnvFromCWD = function() {
+    let cwd = process.cwd();
+    if ( cwd.indexOf( sitesPath ) === -1 ) {
+        return false;
+    }
+
+    if ( cwd === sitesPath ) {
+        return false;
+    }
+
+    // Strip the base sitepath from the path
+    cwd = cwd.replace( sitesPath, '' ).replace( /^\//i, '' );
+
+    // First segment is now the envSlug, get rid of the rest
+    cwd = cwd.split( '/' )[0];
+
+    return cwd;
+};
+
+module.exports = { rootPath, srcPath, sitesPath, cachePath, globalPath, envSlug, envPath, parseEnvFromCWD };
