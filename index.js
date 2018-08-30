@@ -38,6 +38,9 @@ const init = async function() {
         case 'cache':
             await require('./src/cache').command();
             break;
+        case 'image':
+            await require('./src/image').command();
+            break;
         default:
             help();
             break;
