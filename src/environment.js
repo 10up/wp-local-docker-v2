@@ -8,7 +8,7 @@ const mysql = require('mysql');
 const envUtils = require( './env-utils' );
 
 const help = function() {
-    let command = process.argv[2];
+    let command = commandUtils.command();
 
     let help = `
 Usage:  10up-docker ${command} ENVIRONMENT
@@ -222,25 +222,29 @@ const restartAll = function() {
 };
 
 const command = async function() {
-    switch ( commandUtils.command() ) {
-        case 'start':
-            await startGlobal();
-            commandUtils.subcommand() === 'all' ? startAll() : start( commandUtils.commandArgs() );
-            break;
-        case 'stop':
-            commandUtils.subcommand() === 'all' ? stopAll() : stop( commandUtils.commandArgs() );
-            break;
-        case 'restart':
-            await startGlobal();
-            commandUtils.subcommand() === 'all' ? restartAll() : restart( commandUtils.commandArgs() );
-            break;
-        case 'delete':
-            await startGlobal();
-            deleteEnv( commandUtils.commandArgs() );
-            break;
-        default:
-            help();
-            break;
+    if ( commandUtils.subcommand() === 'help' || commandUtils.subcommand() === false ) {
+        help();
+    } else {
+        switch ( commandUtils.command() ) {
+            case 'start':
+                await startGlobal();
+                commandUtils.subcommand() === 'all' ? startAll() : start( commandUtils.commandArgs() );
+                break;
+            case 'stop':
+                commandUtils.subcommand() === 'all' ? stopAll() : stop( commandUtils.commandArgs() );
+                break;
+            case 'restart':
+                await startGlobal();
+                commandUtils.subcommand() === 'all' ? restartAll() : restart( commandUtils.commandArgs() );
+                break;
+            case 'delete':
+                await startGlobal();
+                deleteEnv( commandUtils.commandArgs() );
+                break;
+            default:
+                help();
+                break;
+        }
     }
 };
 
