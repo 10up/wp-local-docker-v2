@@ -10,6 +10,25 @@ const mysql = require('mysql');
 const rootPath = path.dirname( require.main.filename );
 const sitePath = path.join( rootPath, 'sites' );
 
+const help = function() {
+    let command = process.argv[2];
+
+    let help = `
+Usage:  10up-docker ${command} ENVIRONMENT
+        10up-docker ${command} all
+
+${command.charAt(0).toUpperCase()}${command.substr(1)} one or more environments 
+
+ENVIRONMENT can be set to either the slug version of the hostname (same as the directory name) or the hostname.
+    - docker.test
+    - docker-test
+
+When 'all' is specified as the ENVIRONMENT, each environment will ${command}
+`;
+    console.log( help );
+    process.exit();
+};
+
 const ensureNetworkExists = function() {
     try {
         console.log( "Ensuring global network exists" );
@@ -89,7 +108,7 @@ const restartGlobal = function() {
 
 const getPathOrError = function( env ) {
     if ( undefined === env ) {
-        console.error( `Error: You must pass an environment to the ${process.argv[2]} command` );
+        help();
         process.exit(1);
     }
 
@@ -211,4 +230,4 @@ const restartAll = function() {
     restartGlobal();
 };
 
-module.exports = { startGlobal, stopGlobal, start, stop, restart, deleteEnv, startAll, stopAll, restartAll };
+module.exports = { startGlobal, stopGlobal, start, stop, restart, deleteEnv, startAll, stopAll, restartAll, help };
