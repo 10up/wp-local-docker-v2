@@ -47,17 +47,7 @@ const createEnv = function() {
                     'default',
                     'wplocaldocker'
                 ]
-            },
-            'wpsnapshots': {
-                'image': '10up/wpsnapshots:latest',
-                'volumes': [
-                    './config/wpsnapshots:/wpsnapshots',
-                    './wordpress:/var/www/html'
-                ],
-                'depends_on': [
-                    'phpfpm'
-                ]
-            },
+            }
         }
     };
 
