@@ -7,11 +7,13 @@ const help = function() {
 Usage: 10up-docker COMMAND
 
 Commands:
-  create    Create a new docker environment
-  delete    Deletes a specific docker environment
-  restart   Restarts a specific docker environment
-  start     Starts a specific docker environment
-  stop      Stops a specific docker environment
+  cache         Manages the build cache
+  create        Create a new docker environment
+  delete        Deletes a specific docker environment
+  restart       Restarts a specific docker environment
+  start         Starts a specific docker environment
+  stop          Stops a specific docker environment
+  wpsnapshots   Runs a wp snapshots command
 
 Run '10up-docker COMMAND help' for more information on a command.
 `;
