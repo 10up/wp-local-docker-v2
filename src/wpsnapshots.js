@@ -3,6 +3,7 @@ const fs = require( 'fs-extra' );
 const path = require( 'path' );
 const execSync = require('child_process').execSync;
 const envUtils = require('./env-utils');
+const gateway = require( './gateway' );
 
 const command = async function() {
     // false catches the case when no subcommand is passed, and we just pass to snapshots to show usage
@@ -38,6 +39,7 @@ const command = async function() {
         if ( envPath === false ) {
             execSync( `docker run -it --rm -v ${envUtils.globalPath}/data/wpsnapshots:/home/wpsnapshots/.wpsnapshots 10up/wpsnapshots:dev ${command}`, { stdio: 'inherit' });
         } else {
+            await gateway.startGlobal();
             execSync( `docker run -it --rm --network wplocaldocker -v ${envPath}/wordpress:/var/www/html -v ${envUtils.globalPath}/data/wpsnapshots:/home/wpsnapshots/.wpsnapshots 10up/wpsnapshots:dev ${command}`, { stdio: 'inherit' });
         }
     } catch (ex) {}
