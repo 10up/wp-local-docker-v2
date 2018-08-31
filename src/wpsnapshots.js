@@ -36,7 +36,7 @@ const command = async function() {
     // @todo update the image version once new images are merged
     try{
         if ( envPath === false ) {
-            execSync( `docker run -it --rm --network wplocaldocker -v ${envUtils.globalPath}/data/wpsnapshots:/home/wpsnapshots/.wpsnapshots 10up/wpsnapshots:dev ${command}`, { stdio: 'inherit' });
+            execSync( `docker run -it --rm -v ${envUtils.globalPath}/data/wpsnapshots:/home/wpsnapshots/.wpsnapshots 10up/wpsnapshots:dev ${command}`, { stdio: 'inherit' });
         } else {
             execSync( `docker run -it --rm --network wplocaldocker -v ${envPath}/wordpress:/var/www/html -v ${envUtils.globalPath}/data/wpsnapshots:/home/wpsnapshots/.wpsnapshots 10up/wpsnapshots:dev ${command}`, { stdio: 'inherit' });
         }
