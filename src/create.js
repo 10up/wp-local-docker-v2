@@ -89,15 +89,6 @@ const createEnv = function() {
                 enum: [ 'Y', 'y', 'N', 'n' ],
                 before: promptValidators.validateBool,
             },
-            phpmemcachedadmin: {
-                description: "Do you want to use phpMemcachedAdmin? (Y/n)",
-                message: "You must choose either `Y` or `n`",
-                type: 'string',
-                required: true,
-                default: 'n',
-                enum: [ 'Y', 'y', 'N', 'n' ],
-                before: promptValidators.validateBool,
-            },
             wordpress: {
                 description: "Do you want to install WordPress? (Y/n)",
                 message: "You must choose either `Y` or `n`",
