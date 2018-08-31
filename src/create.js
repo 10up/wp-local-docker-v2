@@ -37,7 +37,6 @@ const createEnv = function() {
                 ],
                 'volumes': [
                     './wordpress:/var/www/html',
-                    './config/certs:/etc/nginx/certs',
                     './logs/nginx:/var/log/nginx'
                 ],
                 'depends_on': [
