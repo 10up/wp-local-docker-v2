@@ -220,7 +220,8 @@ const createEnv = function() {
                 ],
                 'volumes': [
                     './config/elasticsearch/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml',
-                    './config/elasticsearch/plugins:/usr/share/elasticsearch/plugins'
+                    './config/elasticsearch/plugins:/usr/share/elasticsearch/plugins',
+                    './data/elasticsearch:/usr/share/elasticsearch/data:delegated'
                 ],
                 'environment': {
                     ES_JAVA_OPTS: '-Xms750m -Xmx750m'
