@@ -63,6 +63,7 @@ const createEnv = function() {
     var volumeConfig = {
         'volumes': {}
     };
+    volumeConfig.volumes[ envUtils.cacheVolume ] = {};
 
     prompt.start();
 
@@ -186,7 +187,7 @@ const createEnv = function() {
                 './wordpress:/var/www/html',
                 './config/php-fpm/php.ini:/usr/local/etc/php/php.ini',
                 './config/php-fpm/docker-php-ext-xdebug.ini:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini',
-                `${envUtils.cachePath}/wp-cli:/var/www/.wp-cli/cache`,
+                `${envUtils.cacheVolume}:/var/www/.wp-cli/cache`,
                 '~/.ssh:/root/.ssh'
             ],
             'depends_on': [

@@ -1,4 +1,5 @@
 const execSync = require('child_process').execSync;
+const exec = require('child_process').exec;
 const envUtils = require( './env-utils' );
 
 // Tracks if we've started global inside of this session
@@ -10,12 +11,10 @@ const ensureNetworkExists = function() {
         let networks = execSync( "docker network ls --filter name=wplocaldocker" ).toString();
         if ( networks.indexOf( 'wplocaldocker' ) !== -1 ) {
             console.log( " - Network exists" );
-            console.log();
             return;
         }
 
         console.log( " - Creating network" );
-        console.log();
         execSync('docker network create wplocaldocker');
     } catch (ex) {}
 };
@@ -24,6 +23,32 @@ const removeNetwork = function() {
     try {
         console.log( "Removing Global Network" );
         execSync('docker network rm wplocaldocker');
+    } catch (ex) {}
+};
+
+const ensureCacheExists = async function() {
+    try {
+        console.log( "Ensuring global cache volume exists" );
+        let volumes = await exec( `docker volume ls --filter name=${envUtils.cacheVolume}` ).toString();
+        if ( volumes.indexOf( `${envUtils.cacheVolume}` ) !== -1 ) {
+            console.log( " - Volume Exists" );
+            return;
+        }
+
+        console.log( " - Creating Volume" );
+        await exec( `docker volume create ${envUtils.cacheVolume}` );
+    }   catch (ex) {}
+};
+
+const removeCacheVolume = async function() {
+    try {
+        console.log( "Removing cache volume" );
+        let volumes = await exec( `docker volume ls --filter name=${envUtils.cacheVolume}` ).toString();
+        if ( volumes.indexOf( `${envUtils.cacheVolume}` ) === -1 ) {
+            await exec( `docker volume rm ${envUtils.cacheVolume}` );
+            console.log( " - Volume Removed" );
+            return;
+        }
     } catch (ex) {}
 };
 
@@ -66,6 +91,7 @@ const startGlobal = async function() {
         return;
     }
     ensureNetworkExists();
+    await ensureCacheExists();
     await startGateway();
 
     started = true;
@@ -85,4 +111,4 @@ const restartGlobal = function() {
     started = true;
 };
 
-module.exports = { startGlobal, stopGlobal, restartGlobal };
+module.exports = { startGlobal, stopGlobal, restartGlobal, removeCacheVolume, ensureCacheExists };

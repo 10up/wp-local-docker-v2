@@ -6,7 +6,7 @@
  *  rootPath    Path to the root of WP Local Docker. Every other path is based on this path currently
  *  srcPath     Path to the source code of WP Local Docker generator scripts as well as the config files copied to each project
  *  sitesPath   Path to the folder all environments are ultimately generated inside of
- *  cachePath   Path where we can cache data between docker containers. Ex: npm cache and wp-cli cache
+ *  cacheVolume Named volume that we mount to containers for cache (wp-cli and npm cache)
  *  globalPath  Path to the global container installation. Contains the global docker-compose as well as DB Data files
  *
  * Methods & Variables
@@ -23,7 +23,7 @@ const path = require( 'path' );
 const rootPath = path.dirname( require.main.filename );
 const srcPath = path.join( rootPath, 'src' );
 const sitesPath = path.join( rootPath, 'sites' );
-const cachePath = path.join( rootPath, 'cache' );
+const cacheVolume = 'wplocaldockerCache';
 const globalPath = path.join( rootPath, 'global' );
 
 const envSlug = function( env ) {
@@ -55,4 +55,4 @@ const parseEnvFromCWD = function() {
     return cwd;
 };
 
-module.exports = { rootPath, srcPath, sitesPath, cachePath, globalPath, envSlug, envPath, parseEnvFromCWD };
+module.exports = { rootPath, srcPath, sitesPath, cacheVolume, globalPath, envSlug, envPath, parseEnvFromCWD };

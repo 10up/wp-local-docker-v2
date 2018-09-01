@@ -1,6 +1,5 @@
 const commandUtils = require( './command-utils' );
-const fs = require( 'fs-extra' );
-const envUtils = require('./env-utils');
+const gateway = require( './gateway' );
 
 // @todo clear wp-snapshots cache. Hoping for alternate directory structure
 const help = function() {
@@ -14,8 +13,8 @@ Clears npm, wp-cli, and WP Snapshots caches
 };
 
 const clear = async function() {
-    console.log( "Clearing Cache" );
-    await fs.emptyDir( envUtils.cachePath );
+    await gateway.removeCacheVolume();
+    await gateway.ensureCacheExists();
     console.log( "Cache Cleared" );
 };
 
