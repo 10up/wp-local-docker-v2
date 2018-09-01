@@ -52,13 +52,52 @@ const removeCacheVolume = async function() {
     } catch (ex) {}
 };
 
+const occurrences = function(string, subString, allowOverlapping) {
+
+    string += "";
+    subString += "";
+    if (subString.length <= 0) return (string.length + 1);
+
+    var n = 0,
+        pos = 0,
+        step = allowOverlapping ? 1 : subString.length;
+
+    while (true) {
+        pos = string.indexOf(subString, pos);
+        if (pos >= 0) {
+            ++n;
+            pos += step;
+        } else break;
+    }
+    return n;
+};
+
+/**
+ * Wait for mysql to come up and finish initializing.
+ *
+ * The first the time the container starts, it will restart, so wait for 2 occurrences of the "ready for connections" string
+ * Otherwise, we just wait for one occurrence.
+ */
 const waitForDB = function() {
-    // ready for connections
+    let firstTimeMatch = 'Initializing database';
+    let readyMatch = 'ready for connections';
     return new Promise( resolve => {
         let interval = setInterval(() => {
             console.log( "Waiting for mysql..." );
             let mysql = execSync( `cd ${envUtils.globalPath} && docker-compose logs mysql` ).toString();
-            if ( mysql.indexOf( 'ready for connections' ) !== -1 ) {
+
+            if ( mysql.indexOf( readyMatch ) !== -1 ) {
+                if ( occurrences( mysql, firstTimeMatch, false ) !== 0 ) {
+                    // this is the first time the DB is starting, so it will restart.. Wait for TWO occurrences of connection string
+                    if ( occurrences( mysql, readyMatch, false ) < 2 ) {
+                        return;
+                    }
+                } else {
+                    if ( occurrences( mysql, readyMatch, false ) < 1 ) {
+                        return;
+                    }
+                }
+
                 clearInterval( interval );
                 resolve();
             }
