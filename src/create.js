@@ -36,8 +36,7 @@ const createEnv = function() {
                     "443"
                 ],
                 'volumes': [
-                    './wordpress:/var/www/html',
-                    './logs/nginx:/var/log/nginx'
+                    './wordpress:/var/www/html'
                 ],
                 'depends_on': [
                     'phpfpm'
