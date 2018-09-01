@@ -14,7 +14,7 @@ const command = async function() {
     // Except for a few whitelisted commands, enforce a configuration before proceeding
     if ( bypassCommands.indexOf( commandUtils.subcommand() ) === -1 ) {
         // Verify we have a configuration
-        if ( fs.existsSync( path.join( envUtils.globalPath, 'data', 'wpsnapshots', 'config.json' ) ) === false ) {
+        if ( fs.existsSync( path.join( envUtils.globalPath, 'wpsnapshots', 'config.json' ) ) === false ) {
             console.error( "Error: WP Snapshots does not have a configuration file. Please run '10up-docker wpsnapshots configure' before continuing." );
             process.exit();
         }
@@ -37,10 +37,10 @@ const command = async function() {
     // @todo update the image version once new images are merged
     try{
         if ( envPath === false ) {
-            execSync( `docker run -it --rm -v ${envUtils.globalPath}/data/wpsnapshots:/home/wpsnapshots/.wpsnapshots 10up/wpsnapshots:dev ${command}`, { stdio: 'inherit' });
+            execSync( `docker run -it --rm -v ${envUtils.globalPath}/wpsnapshots:/home/wpsnapshots/.wpsnapshots 10up/wpsnapshots:dev ${command}`, { stdio: 'inherit' });
         } else {
             await gateway.startGlobal();
-            execSync( `docker run -it --rm --network wplocaldocker -v ${envPath}/wordpress:/var/www/html -v ${envUtils.globalPath}/data/wpsnapshots:/home/wpsnapshots/.wpsnapshots 10up/wpsnapshots:dev ${command}`, { stdio: 'inherit' });
+            execSync( `docker run -it --rm --network wplocaldocker -v ${envPath}/wordpress:/var/www/html -v ${envUtils.globalPath}/wpsnapshots:/home/wpsnapshots/.wpsnapshots 10up/wpsnapshots:dev ${command}`, { stdio: 'inherit' });
         }
     } catch (ex) {}
 };

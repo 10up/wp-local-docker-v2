@@ -12,7 +12,7 @@ services:
   mysql:
     image: mysql:5
     volumes:
-      - "./data/db:/var/lib/mysql:delegated"
+      - "./db:/var/lib/mysql:delegated"
     ports:
       - "3306:3306"
     environment:
