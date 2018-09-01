@@ -27,8 +27,6 @@ sassdoc
 scss-lint-report.xml
 config.codekit
 
-/cache/
-/global/db
 /global/wpsnapshots
 
 /sites/*
