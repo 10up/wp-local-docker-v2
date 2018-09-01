@@ -235,7 +235,6 @@ const createEnv = function() {
         let envPath = envUtils.envPath( envHost );
 
         fs.ensureDirSync( path.join( envPath, 'wordpress' ) );
-        fs.ensureDirSync( path.join( envPath, 'logs', 'nginx' ) );
         fs.copySync( path.join( envUtils.srcPath, 'config' ), path.join( envPath, 'config' ) );
 
         // Write Docker Compose
