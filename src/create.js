@@ -62,7 +62,11 @@ const createEnv = function() {
     var volumeConfig = {
         'volumes': {}
     };
-    volumeConfig.volumes[ envUtils.cacheVolume ] = {};
+    volumeConfig.volumes[ envUtils.cacheVolume ] = {
+        'external': {
+            'name': `${envUtils.cacheVolume}`
+        }
+    };
 
     prompt.start();
 
