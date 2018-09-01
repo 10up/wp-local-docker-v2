@@ -1,4 +1,9 @@
 const command = function() {
+    let command = process.argv[2];
+    if ( typeof command === "undefined" ) {
+        return;
+    }
+
     return process.argv[2].toLowerCase();
 };
 
@@ -15,7 +20,7 @@ const subcommand = function() {
         return process.argv[3].toLowerCase();
     }
 
-    return false;
+    return;
 };
 
 module.exports = { command, commandArgs, subcommand };
