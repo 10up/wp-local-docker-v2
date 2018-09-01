@@ -25,12 +25,10 @@ const createEnv = function() {
         'version': '3',
         'services': {
             'memcached': {
-                'image': 'memcached:latest',
-                'restart': 'unless-stopped'
+                'image': 'memcached:latest'
             },
             'nginx': {
                 'image': 'nginx:latest',
-                'restart': 'unless-stopped',
                 'expose': [
                     "80",
                     "443"
@@ -185,7 +183,6 @@ const createEnv = function() {
 
         baseConfig.services.phpfpm = {
             'image': '10up/phpfpm:' + result.phpVersion,
-            'restart': 'unless-stopped',
             'volumes': [
                 './wordpress:/var/www/html',
                 './config/php-fpm/php.ini:/usr/local/etc/php/php.ini',
@@ -213,7 +210,6 @@ const createEnv = function() {
 
             baseConfig.services.elasticsearch = {
                 image: 'docker.elastic.co/elasticsearch/elasticsearch:5.6.5',
-                'restart': 'unless-stopped',
                 'expose': [
                     '9200'
                 ],
