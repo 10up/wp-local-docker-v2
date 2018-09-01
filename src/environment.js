@@ -118,8 +118,11 @@ const deleteEnv = async function( env ) {
 
         await gateway.startGlobal();
 
-        // Stop the current environment if it is running
-        stop(env);
+        // Stop the environment, and ensure volumes are deleted with it
+        let envPath = getPathOrError(env);
+        execSync( `cd ${envPath} && docker-compose down -v` );
+        console.log();
+
 
         console.log( "Deleting Files" );
         fs.removeSync( envPath );

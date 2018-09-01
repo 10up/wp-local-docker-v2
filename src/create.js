@@ -60,6 +60,10 @@ const createEnv = function() {
         }
     };
 
+    var volumeConfig = {
+        'volumes': {}
+    };
+
     prompt.start();
 
     var prompts = {
@@ -212,12 +216,14 @@ const createEnv = function() {
                 'volumes': [
                     './config/elasticsearch/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml',
                     './config/elasticsearch/plugins:/usr/share/elasticsearch/plugins',
-                    './data/elasticsearch:/usr/share/elasticsearch/data:delegated'
+                    'elasticsearchData:/usr/share/elasticsearch/data:delegated'
                 ],
                 'environment': {
                     ES_JAVA_OPTS: '-Xms750m -Xmx750m'
                 }
             };
+
+            volumeConfig.volumes.elasticsearchData = {};
         }
 
         // Create webroot/config
@@ -234,7 +240,7 @@ const createEnv = function() {
 
         // Write Docker Compose
         console.log( "Generating docker-compose.yml file..." );
-        let dockerCompose = Object.assign( baseConfig, networkConfig );
+        let dockerCompose = Object.assign( baseConfig, networkConfig, volumeConfig );
         yaml.sync( path.join( envPath, 'docker-compose.yml' ), dockerCompose, { 'lineWidth': 500 }, function( err ) {
             if ( err ) {
                 console.log(err);
