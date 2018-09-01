@@ -22,7 +22,7 @@ const images = [
 
 const help = function() {
     let help = `
-Usage: 10up-docker image update
+Usage: 10updocker image update
 
 Updates any docker images used by your environment to the latest versions available for the specified tag
 `;

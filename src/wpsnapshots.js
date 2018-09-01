@@ -18,7 +18,7 @@ const command = async function() {
     if ( bypassCommands.indexOf( commandUtils.subcommand() ) === -1 ) {
         // Verify we have a configuration
         if ( fs.existsSync( path.join( envUtils.globalPath, 'wpsnapshots', 'config.json' ) ) === false ) {
-            console.error( "Error: WP Snapshots does not have a configuration file. Please run '10up-docker wpsnapshots configure' before continuing." );
+            console.error( "Error: WP Snapshots does not have a configuration file. Please run '10updocker wpsnapshots configure' before continuing." );
             process.exit();
         }
     }

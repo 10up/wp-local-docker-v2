@@ -4,7 +4,7 @@ const gateway = require( './gateway' );
 // @todo clear wp-snapshots cache. Hoping for alternate directory structure
 const help = function() {
     let help = `
-Usage: 10up-docker cache clear
+Usage: 10updocker cache clear
 
 Clears npm, wp-cli, and WP Snapshots caches
 `;

@@ -12,8 +12,8 @@ const help = function() {
     let command = commandUtils.command();
 
     let help = `
-Usage:  10up-docker ${command} ENVIRONMENT
-        10up-docker ${command} all
+Usage:  10updocker ${command} ENVIRONMENT
+        10updocker ${command} all
 
 ${command.charAt(0).toUpperCase()}${command.substr(1)} one or more environments 
 

@@ -12,7 +12,7 @@ const envUtils = require( './env-utils' );
 
 const help = function() {
     let help = `
-Usage: 10up-docker create
+Usage: 10updocker create
 
 Creates a new docker environment interactively.
 `;

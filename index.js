@@ -4,7 +4,7 @@ const commandUtils = require( './src/command-utils' );
 
 const help = function() {
     let help = `
-Usage: 10up-docker COMMAND
+Usage: 10updocker COMMAND
 
 Commands:
   cache         Manages the build cache
@@ -16,7 +16,7 @@ Commands:
   stop          Stops a specific docker environment
   wpsnapshots   Runs a wp snapshots command
 
-Run '10up-docker COMMAND help' for more information on a command.
+Run '10updocker COMMAND help' for more information on a command.
 `;
     console.log( help );
 };

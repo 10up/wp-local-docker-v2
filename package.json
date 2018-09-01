@@ -4,10 +4,10 @@
   "description": "Generates a WP Local Docker environment",
   "main": "index.js",
   "scripts": {
-    "10up-docker": "node index.js"
+    "10updocker": "node index.js"
   },
   "bin": {
-    "10up-docker": "./index.js"
+    "10updocker": "./index.js"
   },
   "repository": {
     "type": "git",
