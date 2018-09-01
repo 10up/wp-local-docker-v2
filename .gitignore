@@ -28,7 +28,8 @@ scss-lint-report.xml
 config.codekit
 
 /cache/
-/global/data
+/global/db
+/global/wpsnapshots
 
 /sites/*
 !/sites/.gitkeep

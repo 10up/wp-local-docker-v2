@@ -11,6 +11,9 @@ const command = async function() {
     let noPathCommands = [ false, 'configure', 'help', 'list', 'delete', 'search', 'download' ];
     let envPath = false;
 
+    // Ensure that the wpsnapshots folder is created and owned by the current user versus letting docker create it so we can enforce proper ownership later
+    await fs.ensureDir( path.join( envUtils.globalPath, 'wpsnapshots' ) );
+
     // Except for a few whitelisted commands, enforce a configuration before proceeding
     if ( bypassCommands.indexOf( commandUtils.subcommand() ) === -1 ) {
         // Verify we have a configuration
