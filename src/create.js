@@ -165,6 +165,17 @@ const createEnv = function() {
             process.exit(1);
         }
 
+        // Folder name inside of /sites/ for this site
+        let envHost = result.hostname;
+        let envSlug = envUtils.envSlug( envHost );
+        let envPath = envUtils.envPath( envHost );
+
+        if ( await fs.exists( envPath ) === true ) {
+            console.log();
+            console.error( `Error: ${envHost} environment already exists. To recreate the environment, please delete it first by running \`10updocker delete ${envHost}\`` );
+            process.exit(1);
+        }
+
         await gateway.startGlobal();
 
         // Additional nginx config based on selections above
@@ -228,11 +239,6 @@ const createEnv = function() {
 
         // Create webroot/config
         console.log( "Copying required files..." );
-
-        // Folder name inside of /sites/ for this site
-        let envHost = result.hostname;
-        let envSlug = envUtils.envSlug( envHost );
-        let envPath = envUtils.envPath( envHost );
 
         fs.ensureDirSync( path.join( envPath, 'wordpress' ) );
         fs.copySync( path.join( envUtils.srcPath, 'config' ), path.join( envPath, 'config' ) );
