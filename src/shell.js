@@ -14,8 +14,14 @@ const command = async function() {
     let envPath = await envUtils.envPath( envSlug );
     let container = commandUtils.subcommand() || 'phpfpm';
 
-    await gateway.startGlobal();
-    await environment.start( envSlug );
+    // Check if the container is running, otherwise, start up the stacks
+    try {
+        let output = execSync( `cd ${envPath} && docker-compose ps` ).toString();
+        if ( output.indexOf( container ) === -1 ) {
+            await gateway.startGlobal();
+            await environment.start( envSlug );
+        }
+    } catch (ex) {}
 
     try {
         execSync( `cd ${envPath} && docker-compose exec ${container} bash`, { stdio: 'inherit' });
