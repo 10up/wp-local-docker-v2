@@ -14,6 +14,7 @@ Commands:
   delete        Deletes a specific docker environment
   image         Manages docker images used by this environment
   restart       Restarts a specific docker environment
+  shell         Opens a shell for a specified container in your current environment. Defaults to the phpfpm container.
   start         Starts a specific docker environment
   stop          Stops a specific docker environment
   wpsnapshots   Runs a wp snapshots command
@@ -56,6 +57,9 @@ const init = async function() {
             break;
         case 'image':
             await require('./src/image').command();
+            break;
+        case 'shell':
+            await require( './src/shell' ).command();
             break;
         default:
             help();
