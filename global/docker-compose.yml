@@ -1,7 +1,7 @@
 version: '3'
 services:
   gateway:
-    image: jwilder/nginx-proxy
+    image: 10up/nginx-proxy
     ports:
       - "80:80"
       - "443:443"

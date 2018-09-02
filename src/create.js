@@ -43,7 +43,11 @@ const createEnv = function() {
                 'networks': [
                     'default',
                     'wplocaldocker'
-                ]
+                ],
+                'environment': {
+                    'CERT_NAME': 'localhost',
+                    'HTTPS_METHOD': 'noredirect'
+                }
             },
             'memcacheadmin': {
                 'image': 'hitwe/phpmemcachedadmin',
@@ -189,9 +193,8 @@ const createEnv = function() {
         await gateway.startGlobal();
 
         // Additional nginx config based on selections above
-        baseConfig.services.nginx.environment = {
-            VIRTUAL_HOST: result.hostname
-        };
+        baseConfig.services.nginx.environment.VIRTUAL_HOST = result.hostname;
+
         if ( result.subdomains === 'true' ) {
             baseConfig.services.nginx.environment.VIRTUAL_HOST += `,*.${result.hostname}`;
         }
