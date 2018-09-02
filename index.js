@@ -44,6 +44,7 @@ const init = async function() {
         case 'stop':
         case 'restart':
         case 'delete':
+        case 'remove':
             await require('./src/environment').command();
             break;
         case 'snapshots':

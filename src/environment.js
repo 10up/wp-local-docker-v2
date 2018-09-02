@@ -198,6 +198,7 @@ const command = async function() {
                 commandUtils.subcommand() === 'all' ? restartAll() : restart( commandUtils.commandArgs() );
                 break;
             case 'delete':
+            case 'remove':
                 deleteEnv( commandUtils.commandArgs() );
                 break;
             default:
