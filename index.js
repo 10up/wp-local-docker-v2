@@ -14,9 +14,10 @@ Commands:
   delete        Deletes a specific docker environment
   image         Manages docker images used by this environment
   restart       Restarts a specific docker environment
-  shell         Opens a shell for a specified container in your current environment. Defaults to the phpfpm container.
+  shell         Opens a shell for a specified container in your current environment (Defaults to the phpfpm container)
   start         Starts a specific docker environment
   stop          Stops a specific docker environment
+  wp            Runs a wp-cli command in your current environment
   wpsnapshots   Runs a wp snapshots command
 
 Run '10updocker COMMAND help' for more information on a command.
