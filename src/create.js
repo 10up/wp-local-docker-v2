@@ -131,7 +131,7 @@ const createEnv = function() {
                 }
             },
             subdomains: {
-                description: "Would you like a subdomain install? Defaults to subdirectories. (Y/n)",
+                description: "Would you like a subdomain install? (Y/n)",
                 message: "You must choose either `Y` or `n`",
                 type: 'string',
                 required: true,
