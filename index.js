@@ -13,6 +13,7 @@ Commands:
   create        Create a new docker environment
   delete        Deletes a specific docker environment
   image         Manages docker images used by this environment
+  logs          Shows logs from the specified container in your current environment (Defaults to all containers)
   restart       Restarts a specific docker environment
   shell         Opens a shell for a specified container in your current environment (Defaults to the phpfpm container)
   start         Starts a specific docker environment
@@ -64,6 +65,9 @@ const init = async function() {
             break;
         case 'wp':
             await require( './src/wp' ).command();
+            break;
+        case 'logs':
+            await require( './src/logs' ).command();
             break;
         default:
             help();
