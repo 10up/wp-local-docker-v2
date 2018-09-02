@@ -61,6 +61,9 @@ const init = async function() {
         case 'shell':
             await require( './src/shell' ).command();
             break;
+        case 'wp':
+            await require( './src/wp' ).command();
+            break;
         default:
             help();
             break;
