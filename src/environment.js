@@ -65,7 +65,7 @@ const start = async function( env ) {
     await gateway.startGlobal();
 
     console.log( `Starting docker containers for ${env}` );
-    execSync( `cd ${envPath} && docker-compose up -d` );
+    execSync( `cd ${envPath} && docker-compose up -d`, { stdio: 'inherit' });
     console.log();
 };
 
@@ -73,7 +73,7 @@ const stop = async function( env ) {
     let envPath = await getPathOrError(env);
 
     console.log( `Stopping docker containers for ${env}` );
-    execSync( `cd ${envPath} && docker-compose down` );
+    execSync( `cd ${envPath} && docker-compose down`, { stdio: 'inherit' });
     console.log();
 };
 
@@ -83,7 +83,7 @@ const restart = async function( env ) {
     await gateway.startGlobal();
 
     console.log( `Restarting docker containers for ${env}` );
-    execSync( `cd ${envPath} && docker-compose restart` );
+    execSync( `cd ${envPath} && docker-compose restart`, { stdio: 'inherit' });
     console.log();
 };
 
@@ -122,7 +122,7 @@ const deleteEnv = async function( env ) {
         // Stop the environment, and ensure volumes are deleted with it
         console.log( "Deleting containers" );
         try {
-            execSync( `cd ${envPath} && docker-compose down -v` );
+            execSync( `cd ${envPath} && docker-compose down -v`, { stdio: 'inherit' });
         } catch (ex) {
             // If the docker-compose file is already gone, this happens
         }

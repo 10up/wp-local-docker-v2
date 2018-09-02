@@ -107,7 +107,7 @@ const waitForDB = function() {
 
 const startGateway = async function() {
     console.log( "Ensuring global services are running" );
-    execSync( `cd ${envUtils.globalPath} && docker-compose up -d` );
+    execSync( `cd ${envUtils.globalPath} && docker-compose up -d`, { stdio: 'inherit' });
 
     await waitForDB();
     console.log();
@@ -115,13 +115,13 @@ const startGateway = async function() {
 
 const stopGateway = function() {
     console.log( "Stopping global services" );
-    execSync( `cd ${envUtils.globalPath} && docker-compose down` );
+    execSync( `cd ${envUtils.globalPath} && docker-compose down`, { stdio: 'inherit' });
     console.log();
 };
 
 const restartGateway = function() {
     console.log( "Restarting global services" );
-    execSync( `cd ${envUtils.globalPath} && docker-compose restart` );
+    execSync( `cd ${envUtils.globalPath} && docker-compose restart`, { stdio: 'inherit' });
     console.log();
 };
 
