@@ -9,6 +9,7 @@ const gateway = require( './gateway' );
 const environment = require( './environment.js' );
 const wordpress = require( './wordpress');
 const envUtils = require( './env-utils' );
+const sudo = require( 'sudo' );
 
 const help = function() {
     let help = `
@@ -316,6 +317,12 @@ const createEnv = function() {
                         await wordpress.emptyContent( envSlug );
                     }
                 }
+
+                console.log( 'Adding entry to hosts file' );
+                let child = sudo(['10updocker-hosts', 'add', envHost]);
+                child.stdout.on('data', function(data) {
+                    console.log( data.toString() );
+                });
             } );
         } );
     });

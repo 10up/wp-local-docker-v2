@@ -4,10 +4,12 @@
   "description": "WP Local Docker Environment Manager",
   "main": "index.js",
   "scripts": {
-    "10updocker": "node index.js"
+    "10updocker": "node index.js",
+    "10updocker-hosts": "./hosts.js"
   },
   "bin": {
-    "10updocker": "./index.js"
+    "10updocker": "./index.js",
+    "10updocker-hosts": "./hosts.js"
   },
   "repository": {
     "type": "git",
@@ -18,8 +20,10 @@
   "dependencies": {
     "@sindresorhus/slugify": "^0.3.0",
     "fs-extra": "^7.0.0",
+    "hostile": "^1.3.2",
     "mysql": "^2.16.0",
     "prompt": "^1.0.0",
+    "sudo": "^1.0.3",
     "write-yaml": "^1.0.0"
   }
 }
