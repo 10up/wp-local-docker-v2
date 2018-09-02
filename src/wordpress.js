@@ -50,16 +50,16 @@ const installMultisiteSubdomains = function( env, envHost ) {
 const setRewrites = function( env ) {
     let envPath = envUtils.envPath( env );
 
-    execSync( `cd ${envPath} && docker-compose exec phpfpm su -s /bin/bash www-data -c 'wp rewrite structure "/%postname%/"'`, { stdio: 'inherit' });
+    execSync( `cd ${envPath} && docker-compose exec phpfpm su -s /bin/bash www-data -c "wp rewrite structure /%postname%/"`, { stdio: 'inherit' });
 };
 
 const emptyContent = function( env ) {
     let envPath = envUtils.envPath( env );
 
-    execSync( `cd ${envPath} && docker-compose exec phpfpm su -s /bin/bash www-data -c 'wp site empty --yes'`, { stdio: 'inherit' });
-    execSync( `cd ${envPath} && docker-compose exec phpfpm su -s /bin/bash www-data -c 'wp plugin delete hello akismet'`, { stdio: 'inherit' });
-    execSync( `cd ${envPath} && docker-compose exec phpfpm su -s /bin/bash www-data -c 'wp theme delete twentyfifteen twentysixteen'`, { stdio: 'inherit' });
-    execSync( `cd ${envPath} && docker-compose exec phpfpm su -s /bin/bash www-data -c 'wp widget delete search-2 recent-posts-2 recent-comments-2 archives-2 categories-2 meta-2'`, { stdio: 'inherit' });
+    execSync( `cd ${envPath} && docker-compose exec phpfpm su -s /bin/bash www-data -c "wp site empty --yes"`, { stdio: 'inherit' });
+    execSync( `cd ${envPath} && docker-compose exec phpfpm su -s /bin/bash www-data -c "wp plugin delete hello akismet"`, { stdio: 'inherit' });
+    execSync( `cd ${envPath} && docker-compose exec phpfpm su -s /bin/bash www-data -c "wp theme delete twentyfifteen twentysixteen"`, { stdio: 'inherit' });
+    execSync( `cd ${envPath} && docker-compose exec phpfpm su -s /bin/bash www-data -c "wp widget delete search-2 recent-posts-2 recent-comments-2 archives-2 categories-2 meta-2"`, { stdio: 'inherit' });
 };
 
 module.exports = { download, downloadDevelop, configure, install, installMultisiteSubdomains, installMultisiteSubdirectories, setRewrites, emptyContent };
