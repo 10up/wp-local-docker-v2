@@ -27,13 +27,4 @@ sassdoc
 scss-lint-report.xml
 config.codekit
 
-/global/wpsnapshots
-
-/sites/*
-!/sites/.gitkeep
-
 notes.md
-/src/config/elasticsearch/plugins/*
-/srcconfig/wpsnapshots/.wpsnapshots.json
-
-

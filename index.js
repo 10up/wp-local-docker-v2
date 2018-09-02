@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 const commandUtils = require( './src/command-utils' );
+const config = require( './src/configure' );
 
 const help = function() {
     let help = `
@@ -8,6 +9,7 @@ Usage: 10updocker COMMAND
 
 Commands:
   cache         Manages the build cache
+  configure     Set up a configuration for WP Local Docker
   create        Create a new docker environment
   delete        Deletes a specific docker environment
   image         Manages docker images used by this environment
@@ -22,7 +24,19 @@ Run '10updocker COMMAND help' for more information on a command.
 };
 
 const init = async function() {
-    switch ( commandUtils.command() ) {
+    let command = commandUtils.command();
+    let configured = await config.checkIfConfigured();
+
+    // Show warning about not being configured unless we are trying to get help or run the configure command
+    if ( configured === false && [ undefined, 'configure', 'help' ].indexOf( command ) === -1 ) {
+        console.error( 'Error: WP Local Docker not configured. Please run `10updocker configure`' );
+        process.exit(1);
+    }
+
+    switch ( command ) {
+        case 'configure':
+            config.command();
+            break;
         case 'create':
             await require('./src/create').command();
             break;

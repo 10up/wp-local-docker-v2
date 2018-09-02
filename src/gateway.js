@@ -108,9 +108,9 @@ const waitForDB = function() {
 const startGateway = async function() {
     console.log( "Ensuring global services are running" );
     execSync( `cd ${envUtils.globalPath} && docker-compose up -d` );
-    console.log();
 
     await waitForDB();
+    console.log();
 };
 
 const stopGateway = function() {

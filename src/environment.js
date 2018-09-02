@@ -29,7 +29,7 @@ When 'all' is specified as the ENVIRONMENT, each environment will ${command}
 
 
 
-const getPathOrError = function( env ) {
+const getPathOrError = async function( env ) {
     if ( undefined === env || env.trim().length === 0 ) {
         help();
         process.exit(1);
@@ -37,8 +37,8 @@ const getPathOrError = function( env ) {
 
     console.log( `Locating project files for ${env}` );
 
-    let envPath = envUtils.envPath( env );
-    if ( ! fs.pathExistsSync( envPath ) ) {
+    let envPath = await envUtils.envPath( env );
+    if ( ! await fs.pathExists( envPath ) ) {
         console.error( `ERROR: Cannot find ${env} environment!` );
         help();
         process.exit(1);
@@ -47,11 +47,12 @@ const getPathOrError = function( env ) {
     return envPath;
 };
 
-const getAllEnvironments = function() {
+const getAllEnvironments = async function() {
     const isDirectory = source => fs.lstatSync(source).isDirectory();
 
-    const dirs = fs.readdirSync( envUtils.sitesPath )
-        .map( name => path.join( envUtils.sitesPath, name ) )
+    let sitesPath = await envUtils.sitesPath();
+    const dirs = fs.readdirSync( sitesPath )
+        .map( name => path.join( sitesPath, name ) )
         .filter( isDirectory )
         .map( name => path.basename( name ) );
 
@@ -59,7 +60,7 @@ const getAllEnvironments = function() {
 };
 
 const start = async function( env ) {
-    let envPath = getPathOrError(env);
+    let envPath = await getPathOrError(env);
 
     await gateway.startGlobal();
 
@@ -68,8 +69,8 @@ const start = async function( env ) {
     console.log();
 };
 
-const stop = function( env ) {
-    let envPath = getPathOrError(env);
+const stop = async function( env ) {
+    let envPath = await getPathOrError(env);
 
     console.log( `Stopping docker containers for ${env}` );
     execSync( `cd ${envPath} && docker-compose down` );
@@ -77,7 +78,7 @@ const stop = function( env ) {
 };
 
 const restart = async function( env ) {
-    let envPath = getPathOrError(env);
+    let envPath = await getPathOrError(env);
 
     await gateway.startGlobal();
 
@@ -87,7 +88,7 @@ const restart = async function( env ) {
 };
 
 const deleteEnv = async function( env ) {
-    let envPath = getPathOrError(env);
+    let envPath = await getPathOrError(env);
     let envSlug = envUtils.envSlug( env );
 
     prompt.start();
@@ -119,13 +120,12 @@ const deleteEnv = async function( env ) {
         await gateway.startGlobal();
 
         // Stop the environment, and ensure volumes are deleted with it
-        let envPath = getPathOrError(env);
         execSync( `cd ${envPath} && docker-compose down -v` );
         console.log();
 
 
         console.log( "Deleting Files" );
-        fs.removeSync( envPath );
+        await fs.remove( envPath );
         console.log();
 
         console.log( 'Deleting Database' );
@@ -136,7 +136,7 @@ const deleteEnv = async function( env ) {
             password: 'password',
         });
 
-        connection.query( `DROP DATABASE IF EXISTS \`${envSlug}\`;`, function( err, results ) {
+        await connection.query( `DROP DATABASE IF EXISTS \`${envSlug}\`;`, function( err, results ) {
             if (err) {
                 console.log('error in creating database', err);
                 process.exit();
@@ -148,17 +148,33 @@ const deleteEnv = async function( env ) {
     });
 };
 
-const startAll = function() {
-    getAllEnvironments().map( env => start(env) );
+const startAll = async function() {
+    let envs = await getAllEnvironments();
+
+    await gateway.startGlobal();
+
+    for ( let i = 0, len = envs.length; i < len; i++ ) {
+        await start( envs[i] );
+    }
 };
 
-const stopAll = function() {
-    getAllEnvironments().map( env => stop(env) );
+const stopAll = async function() {
+    let envs = await getAllEnvironments();
+
+    for ( let i = 0, len = envs.length; i < len; i++ ) {
+        await stop( envs[ i ] );
+    }
+
     gateway.stopGlobal();
 };
 
-const restartAll = function() {
-    getAllEnvironments().map( env => restart(env) );
+const restartAll = async function() {
+    let envs = await getAllEnvironments();
+
+    for ( let i = 0, len = envs.length; i < len; i++ ) {
+        await restart( envs[ i ] );
+    }
+
     gateway.restartGlobal();
 };
 

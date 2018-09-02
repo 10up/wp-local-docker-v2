@@ -168,7 +168,7 @@ const createEnv = function() {
         // Folder name inside of /sites/ for this site
         let envHost = result.hostname;
         let envSlug = envUtils.envSlug( envHost );
-        let envPath = envUtils.envPath( envHost );
+        let envPath = await envUtils.envPath( envHost );
 
         if ( await fs.exists( envPath ) === true ) {
             console.log();
@@ -280,27 +280,27 @@ const createEnv = function() {
 
                 if ( result.wordpress === 'true' ) {
                     if ( result.wordpressDev === 'true' ) {
-                        wordpress.downloadDevelop( envSlug );
+                        await wordpress.downloadDevelop( envSlug );
                     } else {
-                        wordpress.download( envSlug );
+                        await wordpress.download( envSlug );
                     }
 
-                    wordpress.configure( envSlug );
+                    await wordpress.configure( envSlug );
 
                     if ( result.wordpressMultisite === 'true' ) {
                         if ( result.subdomains === 'true' ) {
-                            wordpress.installMultisiteSubdomains( envSlug, envHost );
+                            await wordpress.installMultisiteSubdomains( envSlug, envHost );
                         } else {
-                            wordpress.installMultisiteSubdirectories( envSlug, envHost );
+                            await wordpress.installMultisiteSubdirectories( envSlug, envHost );
                         }
                     } else {
-                        wordpress.install( envSlug, envHost );
+                        await wordpress.install( envSlug, envHost );
                     }
 
-                    wordpress.setRewrites( envSlug );
+                    await wordpress.setRewrites( envSlug );
 
                     if ( result.emptyContent === 'true' ) {
-                        wordpress.emptyContent( envSlug );
+                        await wordpress.emptyContent( envSlug );
                     }
                 }
             } );

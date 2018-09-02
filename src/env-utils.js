@@ -19,35 +19,39 @@
  */
 const slugify = require( '@sindresorhus/slugify' );
 const path = require( 'path' );
+const config = require( './configure' );
 
 const rootPath = path.dirname( require.main.filename );
 const srcPath = path.join( rootPath, 'src' );
-const sitesPath = path.join( rootPath, 'sites' );
 const cacheVolume = 'wplocaldockerCache';
 const globalPath = path.join( rootPath, 'global' );
+
+const sitesPath = async function() {
+    return await config.get( 'sitesPath' );
+};
 
 const envSlug = function( env ) {
     return slugify( env );
 };
 
-const envPath = function( env ) {
-    let envPath = path.join( sitesPath, envSlug( env ) );
+const envPath = async function( env ) {
+    let envPath = path.join( await sitesPath(), envSlug( env ) );
 
     return envPath;
 };
 
-const parseEnvFromCWD = function() {
+const parseEnvFromCWD = async function() {
     let cwd = process.cwd();
-    if ( cwd.indexOf( sitesPath ) === -1 ) {
+    if ( cwd.indexOf( await sitesPath() ) === -1 ) {
         return false;
     }
 
-    if ( cwd === sitesPath ) {
+    if ( cwd === await sitesPath() ) {
         return false;
     }
 
     // Strip the base sitepath from the path
-    cwd = cwd.replace( sitesPath, '' ).replace( /^\//i, '' );
+    cwd = cwd.replace( await sitesPath(), '' ).replace( /^\//i, '' );
 
     // First segment is now the envSlug, get rid of the rest
     cwd = cwd.split( '/' )[0];
