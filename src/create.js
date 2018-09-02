@@ -37,11 +37,21 @@ const createEnv = function() {
                     './wordpress:/var/www/html'
                 ],
                 'depends_on': [
-                    'phpfpm'
+                    'phpfpm',
+                    'memcacheadmin'
                 ],
                 'networks': [
                     'default',
                     'wplocaldocker'
+                ]
+            },
+            'memcacheadmin': {
+                'image': 'hitwe/phpmemcachedadmin',
+                'expose': [
+                    '80'
+                ],
+                'depends_on': [
+                    'memcached'
                 ]
             }
         }
