@@ -3,9 +3,10 @@ const execSync = require('child_process').execSync;
 
 // These have to exist, so we don't bother checking if they exist on the system first
 const globalImages = [
-    'jwilder/nginx-proxy:latest',
+    '10up/nginx-proxy:latest',
     'mysql:5',
     'schickling/mailcatcher',
+    'phpmyadmin/phpmyadmin'
 ];
 const images = [
     '10up/phpfpm:latest',
@@ -14,10 +15,11 @@ const images = [
     '10up/phpfpm:7.0',
     '10up/phpfpm:5.6',
     '10up/phpfpm:5.5',
-    '10up/wpsnapshots:latest',
+    '10up/wpsnapshots:dev',
     'memcached:latest',
     'nginx:latest',
     'docker.elastic.co/elasticsearch/elasticsearch:5.6.5',
+    'hitwe/phpmemcachedadmin'
 ];
 
 const help = function() {
