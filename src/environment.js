@@ -120,7 +120,12 @@ const deleteEnv = async function( env ) {
         await gateway.startGlobal();
 
         // Stop the environment, and ensure volumes are deleted with it
-        execSync( `cd ${envPath} && docker-compose down -v` );
+        console.log( "Deleting containers" );
+        try {
+            execSync( `cd ${envPath} && docker-compose down -v` );
+        } catch (ex) {
+            // If the docker-compose file is already gone, this happens
+        }
         console.log();
 
 
