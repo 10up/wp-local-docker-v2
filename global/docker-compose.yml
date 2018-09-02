@@ -22,14 +22,24 @@ services:
     networks:
       - wplocaldocker
   mailcatcher:
-     image: schickling/mailcatcher
-     ports:
-       - "1025:1025"
-       - "1080:1080"
-     environment:
-       MAILCATCHER_PORT: 1025
-     networks:
-       - wplocaldocker
+    image: schickling/mailcatcher
+    ports:
+      - "1025:1025"
+      - "1080:1080"
+    environment:
+      MAILCATCHER_PORT: 1025
+    networks:
+      - wplocaldocker
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    ports:
+      - "8092:80"
+    depends_on:
+      - mysql
+    environment:
+      PMA_HOST: mysql
+    networks:
+      - wplocaldocker
 networks:
   wplocaldocker:
     external:
