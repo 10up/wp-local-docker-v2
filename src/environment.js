@@ -7,6 +7,7 @@ const promptValidators = require( './prompt-validators' );
 const mysql = require('mysql');
 const envUtils = require( './env-utils' );
 const gateway = require( './gateway' );
+const sudo = require( 'sudo-prompt' );
 
 const help = function() {
     let command = commandUtils.command();
@@ -126,12 +127,23 @@ const deleteEnv = async function( env ) {
         } catch (ex) {
             // If the docker-compose file is already gone, this happens
         }
-        console.log();
 
+        console.log( "Removing host file entries" );
+        let envConfig = await fs.readJson( path.join( envPath, '.config.json' ));
+
+        let sudoOptions = {
+            name: "WP Local Docker Generator"
+        };
+        await new Promise( resolve => {
+            sudo.exec( `10updocker-hosts remove ${envConfig.envHost}`, sudoOptions, function( error, stdout, stderr ) {
+                if (error) throw error;
+                console.log(stdout);
+                resolve();
+            });
+        });
 
         console.log( "Deleting Files" );
         await fs.remove( envPath );
-        console.log();
 
         console.log( 'Deleting Database' );
         // @todo clean up/abstract to a database file
@@ -143,7 +155,7 @@ const deleteEnv = async function( env ) {
 
         await connection.query( `DROP DATABASE IF EXISTS \`${envSlug}\`;`, function( err, results ) {
             if (err) {
-                console.log('error in creating database', err);
+                console.log('error deleting database', err);
                 process.exit();
                 return;
             }
