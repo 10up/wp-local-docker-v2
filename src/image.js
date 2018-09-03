@@ -39,8 +39,9 @@ const update = function( image ) {
 
 const updateIfUsed = function( image ) {
     console.log( `Testing ${image}` );
-    let result = execSync( `docker image ls ${image} | wc -l`).toString();
-    if ( result.trim() === '1' ) {
+    let result = execSync( `docker image ls ${image}`).toString();
+    // All images say how long "ago" they were created.. Use this to determine if the image exists, since `wc -l` doesn't work on windows
+    if ( result.indexOf( 'ago' ) === -1 ) {
         console.log( `${image} doesn't exist on this system. Skipping update.` );
         return;
     }
