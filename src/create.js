@@ -332,7 +332,7 @@ const createEnv = function() {
 
                 // Track things we might need to know later in order to clean up the environment
                 let envConfig = {
-                    'envHost': envHost
+                    'envHosts': [ envHost ]
                 };
                 await fs.writeJson( path.join( envPath, '.config.json' ), envConfig );
             } );
