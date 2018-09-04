@@ -1,3 +1,7 @@
+const validateNotEmpty = function( value ) {
+    return ( value.trim().length !== 0 ) ? true : "This field is required";
+};
+
 const validateBool = function( value ) {
     var y = new RegExp( /^y(es)?$/i );
     var n = new RegExp( /^no?$/i );
@@ -31,4 +35,4 @@ const parseHostname = function( value ) {
     return value;
 };
 
-module.exports = { validateBool, parseHostname };
+module.exports = { validateNotEmpty, validateBool, parseHostname };

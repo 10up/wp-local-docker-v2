@@ -21,8 +21,9 @@
     "@sindresorhus/slugify": "^0.3.0",
     "fs-extra": "^7.0.0",
     "hostile": "^1.3.2",
+    "inquirer": "^6.2.0",
+    "inquirer-path": "^1.0.0-beta5",
     "mysql": "^2.16.0",
-    "prompt": "^1.0.0",
     "sudo-prompt": "^8.2.0",
     "write-yaml": "^1.0.0"
   }

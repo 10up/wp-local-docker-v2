@@ -2,9 +2,9 @@ const commandUtils = require( './command-utils' );
 const path = require('path');
 const fs = require( 'fs-extra' );
 const yaml = require( 'write-yaml' );
-const prompt = require( 'prompt' );
+const inquirer = require( 'inquirer' );
 const promptValidators = require( './prompt-validators' );
-const mysql = require('mysql');
+const database = require( './database' );
 const gateway = require( './gateway' );
 const environment = require( './environment.js' );
 const wordpress = require( './wordpress');
@@ -21,7 +21,7 @@ Creates a new docker environment interactively.
     process.exit();
 };
 
-const createEnv = function() {
+const createEnv = async function() {
     var baseConfig = {
         'version': '3',
         'services': {
@@ -81,263 +81,201 @@ const createEnv = function() {
         }
     };
 
-    prompt.start();
-
-    var prompts = {
-        properties: {
-            hostname: {
-                description: "What hostname would you like to use for your site? (Ex: docker.test)",
-                message: "You must choose a hostname for your site.",
-                type: 'string',
-                required: true,
-                before: promptValidators.parseHostname,
-            },
-            phpVersion: {
-                description: "What version of PHP would you like to use? [5.5, 5.6, 7.0, 7.1, 7.2]",
-                message: "You must select one of 5.5, 5.6, 7.0, 7.1, or 7.2",
-                type: 'string',
-                required: true,
-                default: '7.2',
-                enum: [ '5.5', '5.6', '7.0', '7.1', '7.2' ],
-            },
-            elasticsearch: {
-                description: "Do you need Elasticsearch? (Y/n)",
-                //type: 'boolean', // Doesn't allow Y/n
-                message: "You must choose either `Y` or `n`",
-                type: 'string',
-                required: true,
-                default: 'Y',
-                enum: [ 'Y', 'y', 'N', 'n' ],
-                before: promptValidators.validateBool,
-            },
-            wordpress: {
-                description: "Do you want to install WordPress? (Y/n)",
-                message: "You must choose either `Y` or `n`",
-                type: 'string',
-                required: true,
-                default: 'Y',
-                enum: [ 'Y', 'y', 'N', 'n' ],
-                before: promptValidators.validateBool,
-            },
-            wordpressDev: {
-                description: "Would you like to install WordPress for core development? (Y/n)",
-                message: "You must choose either `Y` or `n`",
-                type: 'string',
-                required: true,
-                default: 'n',
-                enum: [ 'Y', 'y', 'N', 'n' ],
-                before: promptValidators.validateBool,
-                ask: function() {
-                    // only ask if install WordPress was true
-                    return prompt.history('wordpress').value === "true";
-                }
-            },
-            wordpressMultisite: {
-                description: "Would you like to install WordPress multisite? (Y/n)",
-                message: "You must choose either `Y` or `n`",
-                type: 'string',
-                required: true,
-                default: 'n',
-                enum: [ 'Y', 'y', 'N', 'n' ],
-                before: promptValidators.validateBool,
-                ask: function() {
-                    // only ask if install WordPress was true and dev was false
-                    return prompt.history('wordpress').value === "true" && prompt.history('wordpressDev').value === "false";
-                }
-            },
-            subdomains: {
-                description: "Would you like a subdomain install? (Y/n)",
-                message: "You must choose either `Y` or `n`",
-                type: 'string',
-                required: true,
-                default: 'n',
-                enum: [ 'Y', 'y', 'N', 'n' ],
-                before: promptValidators.validateBool,
-                ask: function() {
-                    // only ask if install WordPress was true and dev was false
-                    return prompt.history('wordpress').value === 'true' && prompt.history('wordpressDev').value === 'false' && prompt.history('wordpressMultisite').value === "true";
-                }
-            },
-            emptyContent: {
-                description: "Would you like to remove the default content? (Y/n)",
-                message: "You must choose either `Y` or `n`",
-                type: 'string',
-                required: true,
-                default: 'y',
-                enum: [ 'Y', 'y', 'N', 'n' ],
-                before: promptValidators.validateBool,
-                ask: function() {
-                    // only ask if install WordPress was true
-                    return prompt.history('wordpress').value === "true";
-                }
-            },
+    let questions = [
+        {
+            name: 'hostname',
+            type: 'input',
+            message: "What hostname would you like to use for your site? (Ex: docker.test)",
+            validate: promptValidators.validateNotEmpty,
+            filter: promptValidators.parseHostname,
         },
+        {
+            name: 'phpVersion',
+            type: 'list',
+            message: "What version of PHP would you like to use?",
+            choices: [ '7.2', '7.1', '7.0', '5.6', '5.5' ],
+            default: '7.2',
+        },
+        {
+            name: 'elasticsearch',
+            type: 'confirm',
+            message: "Do you need Elasticsearch",
+        },
+        {
+            name: 'wordpress',
+            type: 'confirm',
+            message: "Do you want to install WordPress?",
+        },
+        {
+            name: 'wordpressType',
+            type: 'list',
+            message: "Select a WordPress installation type:",
+            choices: [
+                { name: "Single Site", value: "single" },
+                { name: "Subdirectory Multisite", value: "subdirectory" },
+                { name: "Subdomain Multisite", value: "subdomain" },
+                { name: "Core Development Version", value: "dev" },
+            ],
+            default: 'single',
+            when: function( answers ) {
+                return answers.wordpress === true;
+            }
+        },
+        {
+            name: 'emptyContent',
+            type: 'confirm',
+            message: "Do you want to remove the default content?",
+            when: function( answers ) {
+                return answers.wordpress === true;
+            }
+        }
+    ];
+
+    let answers = await inquirer.prompt( questions );
+
+    // Folder name inside of /sites/ for this site
+    let envHost = answers.hostname;
+    let envSlug = envUtils.envSlug( envHost );
+    let envPath = await envUtils.envPath( envHost );
+
+    if ( await fs.exists( envPath ) === true ) {
+        console.log();
+        console.error( `Error: ${envHost} environment already exists. To recreate the environment, please delete it first by running \`10updocker delete ${envHost}\`` );
+        process.exit(1);
+    }
+
+    await gateway.startGlobal();
+
+    // Additional nginx config based on selections above
+    baseConfig.services.nginx.environment.VIRTUAL_HOST = answers.hostname;
+
+    if ( answers.wordpressType === 'subdomain' ) {
+        baseConfig.services.nginx.environment.VIRTUAL_HOST += `,*.${answers.hostname}`;
+    }
+    // Map a different config for Develop version of WP
+    if ( answers.wordpressType === 'dev' ) {
+        baseConfig.services.nginx.volumes.push( './config/nginx/develop.conf:/etc/nginx/conf.d/default.conf' );
+    } else {
+        baseConfig.services.nginx.volumes.push( './config/nginx/default.conf:/etc/nginx/conf.d/default.conf' );
+    }
+
+    baseConfig.services.phpfpm = {
+        'image': '10up/phpfpm:' + answers.phpVersion,
+        'volumes': [
+            './wordpress:/var/www/html',
+            './config/php-fpm/php.ini:/usr/local/etc/php/php.ini',
+            './config/php-fpm/docker-php-ext-xdebug.ini:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini',
+            `${envUtils.cacheVolume}:/var/www/.wp-cli/cache`,
+            '~/.ssh:/root/.ssh'
+        ],
+        'depends_on': [
+            'memcached',
+        ],
+        'networks': [
+            'default',
+            'wplocaldocker'
+        ]
     };
 
-    prompt.get( prompts, async function( err, result ) {
-        if ( err ) {
-            console.log(''); // so we don't end up cursor on the old prompt line
-            process.exit(1);
-        }
+    if ( answers.wordpressType == 'dev' ) {
+        baseConfig.services.phpfpm.volumes.push('./config/php-fpm/wp-cli.develop.yml:/var/www/.wp-cli/config.yml');
+    } else {
+        baseConfig.services.phpfpm.volumes.push('./config/php-fpm/wp-cli.local.yml:/var/www/.wp-cli/config.yml');
+    }
 
-        // Folder name inside of /sites/ for this site
-        let envHost = result.hostname;
-        let envSlug = envUtils.envSlug( envHost );
-        let envPath = await envUtils.envPath( envHost );
+    if ( answers.elasticsearch === true ) {
+        baseConfig.services.phpfpm.depends_on.push( 'elasticsearch' );
 
-        if ( await fs.exists( envPath ) === true ) {
-            console.log();
-            console.error( `Error: ${envHost} environment already exists. To recreate the environment, please delete it first by running \`10updocker delete ${envHost}\`` );
-            process.exit(1);
-        }
-
-        await gateway.startGlobal();
-
-        // Additional nginx config based on selections above
-        baseConfig.services.nginx.environment.VIRTUAL_HOST = result.hostname;
-
-        if ( result.subdomains === 'true' ) {
-            baseConfig.services.nginx.environment.VIRTUAL_HOST += `,*.${result.hostname}`;
-        }
-        // Map a different config for Develop version of WP
-        if ( result.wordpressDev === 'true' ) {
-            baseConfig.services.nginx.volumes.push( './config/nginx/develop.conf:/etc/nginx/conf.d/default.conf' );
-        } else {
-            baseConfig.services.nginx.volumes.push( './config/nginx/default.conf:/etc/nginx/conf.d/default.conf' );
-        }
-
-        baseConfig.services.phpfpm = {
-            'image': '10up/phpfpm:' + result.phpVersion,
+        baseConfig.services.elasticsearch = {
+            image: 'docker.elastic.co/elasticsearch/elasticsearch:5.6.5',
+            'expose': [
+                '9200'
+            ],
             'volumes': [
-                './wordpress:/var/www/html',
-                './config/php-fpm/php.ini:/usr/local/etc/php/php.ini',
-                './config/php-fpm/docker-php-ext-xdebug.ini:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini',
-                `${envUtils.cacheVolume}:/var/www/.wp-cli/cache`,
-                '~/.ssh:/root/.ssh'
+                './config/elasticsearch/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml',
+                './config/elasticsearch/plugins:/usr/share/elasticsearch/plugins',
+                'elasticsearchData:/usr/share/elasticsearch/data:delegated'
             ],
-            'depends_on': [
-                'memcached',
-            ],
-            'networks': [
-                'default',
-                'wplocaldocker'
-            ]
+            'environment': {
+                ES_JAVA_OPTS: '-Xms750m -Xmx750m'
+            }
         };
 
-        if ( result.wordpressDev == 'true' ) {
-            baseConfig.services.phpfpm.volumes.push('./config/php-fpm/wp-cli.develop.yml:/var/www/.wp-cli/config.yml');
-        } else {
-            baseConfig.services.phpfpm.volumes.push('./config/php-fpm/wp-cli.local.yml:/var/www/.wp-cli/config.yml');
-        }
+        volumeConfig.volumes.elasticsearchData = {};
+    }
 
-        if ( result.elasticsearch === 'true' ) {
-            baseConfig.services.phpfpm.depends_on.push( 'elasticsearch' );
+    // Create webroot/config
+    console.log( "Copying required files..." );
 
-            baseConfig.services.elasticsearch = {
-                image: 'docker.elastic.co/elasticsearch/elasticsearch:5.6.5',
-                'expose': [
-                    '9200'
-                ],
-                'volumes': [
-                    './config/elasticsearch/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml',
-                    './config/elasticsearch/plugins:/usr/share/elasticsearch/plugins',
-                    'elasticsearchData:/usr/share/elasticsearch/data:delegated'
-                ],
-                'environment': {
-                    ES_JAVA_OPTS: '-Xms750m -Xmx750m'
-                }
-            };
+    await fs.ensureDir( path.join( envPath, 'wordpress' ) );
+    await fs.copy( path.join( envUtils.srcPath, 'config' ), path.join( envPath, 'config' ) );
 
-            volumeConfig.volumes.elasticsearchData = {};
-        }
-
-        // Create webroot/config
-        console.log( "Copying required files..." );
-
-        fs.ensureDirSync( path.join( envPath, 'wordpress' ) );
-        fs.copySync( path.join( envUtils.srcPath, 'config' ), path.join( envPath, 'config' ) );
-
-        // Write Docker Compose
-        console.log( "Generating docker-compose.yml file..." );
-        let dockerCompose = Object.assign( baseConfig, networkConfig, volumeConfig );
-        yaml.sync( path.join( envPath, 'docker-compose.yml' ), dockerCompose, { 'lineWidth': 500 }, function( err ) {
+    // Write Docker Compose
+    console.log( "Generating docker-compose.yml file..." );
+    let dockerCompose = Object.assign( baseConfig, networkConfig, volumeConfig );
+    await new Promise( resolve => {
+        yaml( path.join( envPath, 'docker-compose.yml' ), dockerCompose, { 'lineWidth': 500 }, function( err ) {
             if ( err ) {
                 console.log(err);
             }
+            console.log( 'done' );
+            resolve();
         });
-
-        // Create database
-        // @todo clean up/abstract to a database file
-        console.log( "Creating database" );
-        let connection = mysql.createConnection({
-            host: '127.0.0.1',
-            user: 'root',
-            password: 'password',
-        });
-
-        connection.query( `CREATE DATABASE IF NOT EXISTS \`${envSlug}\`;`, function( err, results ) {
-            if (err) {
-                console.log('error in creating database', err);
-                process.exit(1);
-                return;
-            }
-
-            connection.query( `GRANT ALL PRIVILEGES ON \`${envSlug}\`.* TO 'wordpress'@'%' IDENTIFIED BY 'password';`, async function( err, results ) {
-                if ( err ) {
-                    console.log('error in creating database', err);
-                    process.exit(1);
-                    return;
-                }
-                connection.destroy();
-
-                await environment.start( envSlug );
-
-                if ( result.wordpress === 'true' ) {
-                    if ( result.wordpressDev === 'true' ) {
-                        await wordpress.downloadDevelop( envSlug );
-                    } else {
-                        await wordpress.download( envSlug );
-                    }
-
-                    await wordpress.configure( envSlug );
-
-                    if ( result.wordpressMultisite === 'true' ) {
-                        if ( result.subdomains === 'true' ) {
-                            await wordpress.installMultisiteSubdomains( envSlug, envHost );
-                        } else {
-                            await wordpress.installMultisiteSubdirectories( envSlug, envHost );
-                        }
-                    } else {
-                        await wordpress.install( envSlug, envHost );
-                    }
-
-                    await wordpress.setRewrites( envSlug );
-
-                    if ( result.emptyContent === 'true' ) {
-                        await wordpress.emptyContent( envSlug );
-                    }
-                }
-
-                console.log( 'Adding entry to hosts file' );
-                let sudoOptions = {
-                    name: "WP Local Docker Generator"
-                };
-                await new Promise( resolve => {
-                    sudo.exec( `10updocker-hosts add ${envHost}`, sudoOptions, function( error, stdout, stderr ) {
-                        if (error) throw error;
-                        console.log(stdout);
-                        resolve();
-                    });
-                });
-
-                // Track things we might need to know later in order to clean up the environment
-                let envConfig = {
-                    'envHosts': [ envHost ]
-                };
-                await fs.writeJson( path.join( envPath, '.config.json' ), envConfig );
-            } );
-        } );
     });
+
+    // Create database
+    console.log( "Creating database" );
+    await database.create( envSlug );
+    await database.assignPrivs( envSlug );
+
+    await environment.start( envSlug );
+
+    if ( answers.wordpress === true ) {
+        if ( answers.wordpressType === 'dev' ) {
+            await wordpress.downloadDevelop( envSlug );
+        } else {
+            await wordpress.download( envSlug );
+        }
+
+        await wordpress.configure( envSlug );
+
+        switch( answers.wordpressType ) {
+            case 'single':
+            case 'dev':
+                await wordpress.install( envSlug, envHost );
+                break;
+            case 'subdirectory':
+                await wordpress.installMultisiteSubdirectories( envSlug, envHost );
+                break;
+            case 'subdomain':
+                await wordpress.installMultisiteSubdomains( envSlug, envHost );
+                break;
+        }
+
+        await wordpress.setRewrites( envSlug );
+
+        if ( answers.emptyContent === true ) {
+            await wordpress.emptyContent( envSlug );
+        }
+    }
+
+    console.log( 'Adding entry to hosts file' );
+    let sudoOptions = {
+        name: "WP Local Docker Generator"
+    };
+    await new Promise( resolve => {
+        sudo.exec( `10updocker-hosts add ${envHost}`, sudoOptions, function( error, stdout, stderr ) {
+            if (error) throw error;
+            console.log(stdout);
+            resolve();
+        });
+    });
+
+    // Track things we might need to know later in order to clean up the environment
+    let envConfig = {
+        'envHosts': [ envHost ]
+    };
+    await fs.writeJson( path.join( envPath, '.config.json' ), envConfig );
 };
 
 const command = async function() {
