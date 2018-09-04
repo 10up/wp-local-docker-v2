@@ -134,17 +134,18 @@ const deleteEnv = async function( env ) {
         let sudoOptions = {
             name: "WP Local Docker Generator"
         };
-        await new Promise( resolve => {
-            for ( let i = 0, len = envConfig.envHosts.length; i < len; i++ ) {
-                let envHost = envConfig.envHosts[ i ];
+
+        for ( let i = 0, len = envConfig.envHosts.length; i < len; i++ ) {
+            let envHost = envConfig.envHosts[ i ];
+            await new Promise( resolve => {
                 console.log( ` - Removing ${envHost}` );
                 sudo.exec(`10updocker-hosts remove ${envHost}`, sudoOptions, function (error, stdout, stderr) {
                     if (error) throw error;
                     console.log(stdout);
+                    resolve();
                 });
-                resolve();
-            }
-        });
+            });
+        }
 
         console.log( "Deleting Files" );
         await fs.remove( envPath );
