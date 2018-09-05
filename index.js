@@ -38,8 +38,7 @@ const init = async function() {
 
     // Show warning about not being configured unless we are trying to get help or run the configure command
     if ( configured === false && [ undefined, 'configure', 'help' ].indexOf( command ) === -1 ) {
-        console.error( 'Error: WP Local Docker not configured. Please run `10updocker configure`' );
-        process.exit(1);
+        await config.promptUnconfigured();
     }
 
     switch ( command ) {

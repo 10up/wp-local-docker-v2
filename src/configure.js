@@ -61,7 +61,7 @@ const set = async function( key, value ) {
     await write();
 };
 
-const configure = async function() {
+const prompt = async function() {
     let defaultDir = path.join( os.homedir(), 'wp-local-docker-sites' );
     let questions = [
         {
@@ -77,7 +77,42 @@ const configure = async function() {
 
     let answers = await inquirer.prompt( questions );
 
-    let sitesPath = path.resolve( answers.sitesPath );
+    return answers;
+};
+
+const promptUnconfigured = async function() {
+    let defaultDir = path.join( os.homedir(), 'wp-local-docker-sites' );
+    let questions = [
+        {
+            name: 'useDefaults',
+            type: 'confirm',
+            message: "WP Local Docker is not configured. Would you like to configure using default settings?",
+            default: '',
+            validate: promptValidators.validateNotEmpty,
+        }
+    ];
+
+    let answers = await inquirer.prompt( questions );
+
+    if ( answers.useDefaults === true ) {
+        await configureDefaults();
+    } else {
+        await command();
+    }
+};
+
+const configureDefaults = async function() {
+    let defaultDir = path.join( os.homedir(), 'wp-local-docker-sites' );
+
+    let configuration = {
+        'sitesPath': defaultDir,
+    };
+
+    await configure( configuration );
+};
+
+const configure = async function( configuration ) {
+    let sitesPath = path.resolve( configuration.sitesPath );
 
     // Attempt to create the sites directory
     try {
@@ -104,7 +139,8 @@ const configure = async function() {
 
 const command = async function() {
     // not really any options for this command, but setting up the same structure anyways
-    await configure();
+    let answers = await prompt();
+    await configure( answers );
 };
 
-module.exports = { command, checkIfConfigured, get, set, getConfigDirectory };
+module.exports = { command, promptUnconfigured, configureDefaults, checkIfConfigured, get, set, getConfigDirectory };
