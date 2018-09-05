@@ -2,9 +2,9 @@ const commandUtils = require( './command-utils' );
 const path = require('path');
 const fs = require( 'fs-extra' );
 const execSync = require('child_process').execSync;
-const prompt = require( 'prompt' );
+const inquirer = require( 'inquirer' );
 const promptValidators = require( './prompt-validators' );
-const mysql = require('mysql');
+const database = require( './database' );
 const envUtils = require( './env-utils' );
 const gateway = require( './gateway' );
 const sudo = require( 'sudo-prompt' );
@@ -92,82 +92,52 @@ const deleteEnv = async function( env ) {
     let envPath = await getPathOrError(env);
     let envSlug = envUtils.envSlug( env );
 
-    prompt.start();
+    let answers = await inquirer.prompt({
+        name: 'confirm',
+        type: 'confirm',
+        message: `Are you sure you want to delete the ${env} environment`,
+        validate: promptValidators.validateNotEmpty,
+        default: false,
+    });
 
-    let prompts = {
-        properties: {
-            confirmDelete: {
-                description: `Are you sure you want to delete the ${env} environment? (Y/n)`,
-                message: "You must choose either `Y` or `n`",
-                type: 'string',
-                required: true,
-                default: 'n',
-                enum: [ 'Y', 'y', 'N', 'n' ],
-                before: promptValidators.validateBool,
-            }
-        }
+    if ( answers.confirm === false ) {
+        return;
+    }
+
+    await gateway.startGlobal();
+
+    // Stop the environment, and ensure volumes are deleted with it
+    console.log( "Deleting containers" );
+    try {
+        execSync( `cd ${envPath} && docker-compose down -v`, { stdio: 'inherit' });
+    } catch (ex) {
+        // If the docker-compose file is already gone, this happens
+    }
+
+    console.log( "Removing host file entries" );
+    let envConfig = await fs.readJson( path.join( envPath, '.config.json' ));
+
+    let sudoOptions = {
+        name: "WP Local Docker Generator"
     };
 
-    prompt.get( prompts, async function( err, result ) {
-        if ( err ) {
-            console.log( '' );
-            process.exit();
-        }
-
-        if ( result.confirmDelete !== 'true' ) {
-            return;
-        }
-
-        await gateway.startGlobal();
-
-        // Stop the environment, and ensure volumes are deleted with it
-        console.log( "Deleting containers" );
-        try {
-            execSync( `cd ${envPath} && docker-compose down -v`, { stdio: 'inherit' });
-        } catch (ex) {
-            // If the docker-compose file is already gone, this happens
-        }
-
-        console.log( "Removing host file entries" );
-        let envConfig = await fs.readJson( path.join( envPath, '.config.json' ));
-
-        let sudoOptions = {
-            name: "WP Local Docker Generator"
-        };
-
-        for ( let i = 0, len = envConfig.envHosts.length; i < len; i++ ) {
-            let envHost = envConfig.envHosts[ i ];
-            await new Promise( resolve => {
-                console.log( ` - Removing ${envHost}` );
-                sudo.exec(`10updocker-hosts remove ${envHost}`, sudoOptions, function (error, stdout, stderr) {
-                    if (error) throw error;
-                    console.log(stdout);
-                    resolve();
-                });
+    for ( let i = 0, len = envConfig.envHosts.length; i < len; i++ ) {
+        let envHost = envConfig.envHosts[ i ];
+        await new Promise( resolve => {
+            console.log( ` - Removing ${envHost}` );
+            sudo.exec(`10updocker-hosts remove ${envHost}`, sudoOptions, function (error, stdout, stderr) {
+                if (error) throw error;
+                console.log(stdout);
+                resolve();
             });
-        }
-
-        console.log( "Deleting Files" );
-        await fs.remove( envPath );
-
-        console.log( 'Deleting Database' );
-        // @todo clean up/abstract to a database file
-        let connection = mysql.createConnection({
-            host: '127.0.0.1',
-            user: 'root',
-            password: 'password',
         });
+    }
 
-        await connection.query( `DROP DATABASE IF EXISTS \`${envSlug}\`;`, function( err, results ) {
-            if (err) {
-                console.log('error deleting database', err);
-                process.exit();
-                return;
-            }
+    console.log( "Deleting Files" );
+    await fs.remove( envPath );
 
-            connection.destroy();
-        } );
-    });
+    console.log( 'Deleting Database' );
+    await database.deleteDatabase( envSlug );
 };
 
 const startAll = async function() {
