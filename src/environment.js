@@ -60,7 +60,7 @@ const getAllEnvironments = async function() {
 
     // Make into full path
     dirContent = await async.map( dirContent, async item => {
-        path.join( sitesPath, item );
+        return path.join( sitesPath, item );
     });
 
     // Filter any that aren't directories
