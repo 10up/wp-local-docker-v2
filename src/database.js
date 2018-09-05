@@ -26,6 +26,22 @@ const create = async function( dbname ) {
     });
 };
 
+const deleteDatabase = async function( dbname ) {
+    let connection = getConnection();
+
+    await new Promise( ( resolve, reject ) => {
+        connection.query( `DROP DATABASE IF EXISTS \`${dbname}\`;`, function( err, results ) {
+            connection.destroy();
+
+            if ( err ) {
+                reject( Error( err ) );
+            }
+
+            resolve();
+        });
+    });
+};
+
 const assignPrivs = async function ( dbname ) {
     let connection = getConnection();
 
@@ -42,4 +58,6 @@ const assignPrivs = async function ( dbname ) {
     });
 };
 
-module.exports = { create, assignPrivs };
+
+
+module.exports = { create, deleteDatabase, assignPrivs };
