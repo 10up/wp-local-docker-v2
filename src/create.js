@@ -128,7 +128,43 @@ const createEnv = async function() {
             when: function( answers ) {
                 return answers.wordpress === true;
             }
-        }
+        },
+        {
+            name: 'title',
+            type: 'input',
+            message: "Site Name",
+            validate: promptValidators.validateNotEmpty,
+            when: function( answers ) {
+                return answers.wordpress === true;
+            }
+        },
+        {
+            name: 'username',
+            type: 'input',
+            message: "Admin Username",
+            validate: promptValidators.validateNotEmpty,
+            when: function( answers ) {
+                return answers.wordpress === true;
+            }
+        },
+        {
+            name: 'password',
+            type: 'input',
+            message: "Admin Password",
+            validate: promptValidators.validateNotEmpty,
+            when: function( answers ) {
+                return answers.wordpress === true;
+            }
+        },
+        {
+            name: 'email',
+            type: 'input',
+            message: "Admin Email",
+            validate: promptValidators.validateNotEmpty,
+            when: function( answers ) {
+                return answers.wordpress === true;
+            }
+        },
     ];
 
     let answers = await inquirer.prompt( questions );
@@ -239,18 +275,7 @@ const createEnv = async function() {
 
         await wordpress.configure( envSlug );
 
-        switch( answers.wordpressType ) {
-            case 'single':
-            case 'dev':
-                await wordpress.install( envSlug, envHost );
-                break;
-            case 'subdirectory':
-                await wordpress.installMultisiteSubdirectories( envSlug, envHost );
-                break;
-            case 'subdomain':
-                await wordpress.installMultisiteSubdomains( envSlug, envHost );
-                break;
-        }
+        await wordpress.install( envSlug, envHost, answers );
 
         await wordpress.setRewrites( envSlug );
 
@@ -276,6 +301,13 @@ const createEnv = async function() {
         'envHosts': [ envHost ]
     };
     await fs.writeJson( path.join( envPath, '.config.json' ), envConfig );
+
+    console.log();
+    console.log( "Successfully Created Site!");
+
+    if ( answers.wordpressType === 'subdomain' ) {
+        console.log( "Note: Subdomain multisites require any additional subdomains to be added manually to your hosts file!");
+    }
 };
 
 const command = async function() {
