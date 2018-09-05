@@ -78,6 +78,10 @@ const getAllEnvironments = async function() {
 };
 
 const start = async function( env ) {
+    if ( undefined === env || env.trim().length === 0 ) {
+        env = await envUtils.parseEnvFromCWD();
+    }
+
     let envPath = await getPathOrError(env);
 
     await gateway.startGlobal();
@@ -88,6 +92,10 @@ const start = async function( env ) {
 };
 
 const stop = async function( env ) {
+    if ( undefined === env || env.trim().length === 0 ) {
+        env = await envUtils.parseEnvFromCWD();
+    }
+
     let envPath = await getPathOrError(env);
 
     console.log( `Stopping docker containers for ${env}` );
@@ -96,6 +104,10 @@ const stop = async function( env ) {
 };
 
 const restart = async function( env ) {
+    if ( undefined === env || env.trim().length === 0 ) {
+        env = await envUtils.parseEnvFromCWD();
+    }
+
     let envPath = await getPathOrError(env);
 
     await gateway.startGlobal();
