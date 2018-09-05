@@ -26,6 +26,12 @@ Run '10updocker COMMAND help' for more information on a command.
     console.log( help );
 };
 
+const version = function() {
+    var pjson = require('./package.json');
+    console.log( 'WP Local Docker Generator' );
+    console.log( `Version ${pjson.version}` );
+};
+
 const init = async function() {
     let command = commandUtils.command();
     let configured = await config.checkIfConfigured();
@@ -68,6 +74,10 @@ const init = async function() {
             break;
         case 'logs':
             await require( './src/logs' ).command();
+            break;
+        case '--version':
+        case '-v':
+            version();
             break;
         default:
             help();
