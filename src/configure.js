@@ -1,7 +1,7 @@
 const os = require('os');
 const fs = require('fs-extra');
 const path = require('path');
-const prompt = require( 'prompt' );
+const inquirer = require( 'inquirer' );
 const promptValidators = require( './prompt-validators' );
 
 // Tracks current config
@@ -63,49 +63,43 @@ const set = async function( key, value ) {
 
 const configure = async function() {
     let defaultDir = path.join( os.homedir(), 'wp-local-docker-sites' );
-    let prompts = {
-        properties: {
-            sitesPath: {
-                description: "What directory would you like WP Local Docker to create environments within?",
-                message: "You must choose a directory to place environments",
-                type: 'string',
-                required: true,
-                default: defaultDir,
-                before: resolveHome
-            }
+    let questions = [
+        {
+            name: 'sitesPath',
+            input: 'input',
+            message: "What directory would you like WP Local Docker to create environments within?",
+            default: defaultDir,
+            validate: promptValidators.validateNotEmpty,
+            filter: resolveHome,
+            transformer: resolveHome,
         }
-    };
+    ];
 
-    prompt.get( prompts, async function( err, result ) {
-        if ( err ) {
-            console.log();  // so we don't end up cursor on the old prompt line
-            process.exit(1);
-        }
+    let answers = await inquirer.prompt( questions );
 
-        let sitesPath = path.resolve( result.sitesPath );
+    let sitesPath = path.resolve( answers.sitesPath );
 
-        // Attempt to create the sites directory
-        try {
-            await fs.ensureDir( sitesPath );
-        } catch (ex) {
-            console.error( "Error: Could not create directory for environments!" );
-            process.exit(1);
-        }
+    // Attempt to create the sites directory
+    try {
+        await fs.ensureDir( sitesPath );
+    } catch (ex) {
+        console.error( "Error: Could not create directory for environments!" );
+        process.exit(1);
+    }
 
-        // Make sure we can write to the sites directory
-        try {
-            let testfile = path.join( sitesPath, 'testfile' );
-            await fs.ensureFile( testfile );
-            await fs.remove( testfile );
-        } catch (ex) {
-            console.error( "Error: The environment directory is not writable" );
-            process.exit(1);
-        }
+    // Make sure we can write to the sites directory
+    try {
+        let testfile = path.join( sitesPath, 'testfile' );
+        await fs.ensureFile( testfile );
+        await fs.remove( testfile );
+    } catch (ex) {
+        console.error( "Error: The environment directory is not writable" );
+        process.exit(1);
+    }
 
-        await set( 'sitesPath', sitesPath );
+    await set( 'sitesPath', sitesPath );
 
-        console.log( 'Success!' );
-    });
+    console.log( 'Success!' );
 };
 
 const command = async function() {
