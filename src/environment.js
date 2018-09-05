@@ -8,6 +8,7 @@ const database = require( './database' );
 const envUtils = require( './env-utils' );
 const gateway = require( './gateway' );
 const sudo = require( 'sudo-prompt' );
+const async = require( 'asyncro' );
 
 const help = function() {
     let command = commandUtils.command();
@@ -49,15 +50,31 @@ const getPathOrError = async function( env ) {
 };
 
 const getAllEnvironments = async function() {
-    const isDirectory = source => fs.lstatSync(source).isDirectory();
-
     let sitesPath = await envUtils.sitesPath();
-    const dirs = fs.readdirSync( sitesPath )
-        .map( name => path.join( sitesPath, name ) )
-        .filter( isDirectory )
-        .map( name => path.basename( name ) );
+    let dirContent = await fs.readdir( sitesPath );
 
-    return dirs;
+    // Filter any "hidden" directories
+    dirContent = await async.filter( dirContent, async item => {
+        return item.indexOf( '.' ) === 0 ? false : true;
+    });
+
+    // Make into full path
+    dirContent = await async.map( dirContent, async item => {
+        path.join( sitesPath, item );
+    });
+
+    // Filter any that aren't directories
+    dirContent = await async.filter( dirContent, async item => {
+        let stat = await fs.stat( item );
+        return stat.isDirectory();
+    });
+
+    // Back to just the basename
+    dirContent = await async.map( dirContent, async item => {
+        return path.basename( item );
+    });
+
+    return dirContent;
 };
 
 const start = async function( env ) {
