@@ -1,6 +1,6 @@
 {
   "name": "wp-local-docker-generator",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "WP Local Docker Environment Manager",
   "main": "index.js",
   "scripts": {
