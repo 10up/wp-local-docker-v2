@@ -133,6 +133,9 @@ const createEnv = async function() {
             name: 'title',
             type: 'input',
             message: "Site Name",
+            default: function( answers ) {
+                return answers.hostname;
+            },
             validate: promptValidators.validateNotEmpty,
             when: function( answers ) {
                 return answers.wordpress === true;
@@ -142,6 +145,7 @@ const createEnv = async function() {
             name: 'username',
             type: 'input',
             message: "Admin Username",
+            default: 'admin',
             validate: promptValidators.validateNotEmpty,
             when: function( answers ) {
                 return answers.wordpress === true;
@@ -151,6 +155,7 @@ const createEnv = async function() {
             name: 'password',
             type: 'input',
             message: "Admin Password",
+            default: 'password',
             validate: promptValidators.validateNotEmpty,
             when: function( answers ) {
                 return answers.wordpress === true;
@@ -160,6 +165,7 @@ const createEnv = async function() {
             name: 'email',
             type: 'input',
             message: "Admin Email",
+            default: 'admin@example.com',
             validate: promptValidators.validateNotEmpty,
             when: function( answers ) {
                 return answers.wordpress === true;
