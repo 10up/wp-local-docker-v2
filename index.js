@@ -36,8 +36,8 @@ const init = async function() {
     let command = commandUtils.command();
     let configured = await config.checkIfConfigured();
 
-    // Show warning about not being configured unless we are trying to get help or run the configure command
-    if ( configured === false && [ undefined, 'configure', 'help' ].indexOf( command ) === -1 ) {
+    // Show warning about not being configured unless we are trying to get help, version, or configure commands
+    if ( configured === false && [ undefined, 'configure', 'help', '--version', '-v' ].indexOf( command ) === -1 ) {
         await config.promptUnconfigured();
     }
 
