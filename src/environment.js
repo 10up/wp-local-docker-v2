@@ -87,7 +87,9 @@ const start = async function( env ) {
     await gateway.startGlobal();
 
     console.log( `Starting docker containers for ${env}` );
-    execSync( `cd ${envPath} && docker-compose up -d`, { stdio: 'inherit' });
+    try {
+        execSync( `cd ${envPath} && docker-compose up -d`, { stdio: 'inherit' });
+    } catch (ex) {}
     console.log();
 };
 
@@ -99,7 +101,9 @@ const stop = async function( env ) {
     let envPath = await getPathOrError(env);
 
     console.log( `Stopping docker containers for ${env}` );
-    execSync( `cd ${envPath} && docker-compose down`, { stdio: 'inherit' });
+    try {
+        execSync( `cd ${envPath} && docker-compose down`, { stdio: 'inherit' });
+    } catch (ex) {}
     console.log();
 };
 
@@ -113,7 +117,11 @@ const restart = async function( env ) {
     await gateway.startGlobal();
 
     console.log( `Restarting docker containers for ${env}` );
-    execSync( `cd ${envPath} && docker-compose restart`, { stdio: 'inherit' });
+    try {
+        execSync( `cd ${envPath} && docker-compose restart`, { stdio: 'inherit' });
+    } catch (ex) {
+        // Usually because the environment isn't running
+    }
     console.log();
 };
 
