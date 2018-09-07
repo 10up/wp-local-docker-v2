@@ -1,3 +1,5 @@
+const execSync = require('child_process').execSync;
+
 const command = function() {
     let command = process.argv[2];
     if ( typeof command === "undefined" ) {
@@ -23,4 +25,20 @@ const subcommand = function() {
     return;
 };
 
-module.exports = { command, commandArgs, subcommand };
+const checkIfDockerRunning = function() {
+    var output;
+
+    try {
+        output = execSync( 'docker system info' );
+    } catch (er) {
+        return false;
+    }
+
+    if ( output.toString().toLowerCase().indexOf( 'version') === -1 ) {
+        return false;
+    }
+
+    return true;
+};
+
+module.exports = { command, commandArgs, subcommand, checkIfDockerRunning };

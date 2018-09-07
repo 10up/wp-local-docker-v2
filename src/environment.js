@@ -29,8 +29,6 @@ When 'all' is specified as the ENVIRONMENT, each environment will ${command}
     process.exit();
 };
 
-
-
 const getPathOrError = async function( env ) {
     if ( undefined === env || env.trim().length === 0 ) {
         help();

@@ -35,10 +35,19 @@ const version = function() {
 const init = async function() {
     let command = commandUtils.command();
     let configured = await config.checkIfConfigured();
+    let bypassCommands = [ undefined, 'configure', 'help', '--version', '-v' ];
 
     // Show warning about not being configured unless we are trying to get help, version, or configure commands
-    if ( configured === false && [ undefined, 'configure', 'help', '--version', '-v' ].indexOf( command ) === -1 ) {
+    if ( configured === false && bypassCommands.indexOf( command ) === -1 ) {
         await config.promptUnconfigured();
+    }
+
+    let isRunning = commandUtils.checkIfDockerRunning();
+
+    // Show warning if docker isn't running
+    if ( isRunning === false && bypassCommands.indexOf( command ) === -1 ) {
+        console.error( "Error: Docker doesn't appear to be running. Please start Docker and try again" );
+        process.exit();
     }
 
     switch ( command ) {
