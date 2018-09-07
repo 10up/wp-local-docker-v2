@@ -1,6 +1,6 @@
 {
   "name": "wp-local-docker",
-  "version": "0.1.9",
+  "version": "0.1.10",
   "description": "WP Local Docker",
   "main": "index.js",
   "scripts": {
