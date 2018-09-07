@@ -1,7 +1,7 @@
 {
-  "name": "wp-local-docker-generator",
-  "version": "0.1.7",
-  "description": "WP Local Docker Environment Manager",
+  "name": "wp-local-docker",
+  "version": "0.1.8",
+  "description": "WP Local Docker",
   "main": "index.js",
   "scripts": {
     "10updocker": "node index.js",
@@ -16,7 +16,6 @@
     "url": "git@gitlab.10up.com:chris.marslender/wp-local-docker-generator.git"
   },
   "author": "Chris Marslender",
-  "license": "MIT",
   "dependencies": {
     "@sindresorhus/slugify": "^0.3.0",
     "asyncro": "^3.0.0",
