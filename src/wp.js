@@ -23,7 +23,7 @@ const command = async function() {
 
     // Run the command
     try {
-        execSync( `cd ${envPath} && docker-compose exec --user www-data phpfpm wp "$@"`, { stdio: 'inherit' });
+        execSync( `cd ${envPath} && docker-compose exec --user www-data phpfpm wp "$*"`, { stdio: 'inherit' });
     } catch (ex) {
         console.log(ex);
         console.log(ex.toString());
