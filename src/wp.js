@@ -1,3 +1,4 @@
+const commandUtils = require( './command-utils' );
 const execSync = require('child_process').execSync;
 const envUtils = require('./env-utils');
 const gateway = require( './gateway' );
@@ -21,13 +22,13 @@ const command = async function() {
         }
     } catch (ex) {}
 
+    // Get everything after the wp command, so we can pass to the docker container
+    let command = commandUtils.commandArgs();
+
     // Run the command
     try {
-        execSync( `cd ${envPath} && docker-compose exec --user www-data phpfpm wp "$*"`, { stdio: 'inherit' });
-    } catch (ex) {
-        console.log(ex);
-        console.log(ex.toString());
-    }
+        execSync( `cd ${envPath} && docker-compose exec --user www-data phpfpm wp ${command}`, { stdio: 'inherit' });
+    } catch (ex) {}
 
     process.exit();
 };
