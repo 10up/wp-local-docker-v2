@@ -209,6 +209,14 @@ const restartAll = async function() {
     gateway.restartGlobal();
 };
 
+const deleteAll = async function() {
+    let envs = await getAllEnvironments();
+
+    for ( let i = 0, len = envs.length; i < len; i++ ) {
+        await deleteEnv( envs[ i ] );
+    }
+};
+
 const command = async function() {
     if ( commandUtils.subcommand() === 'help' || commandUtils.subcommand() === false ) {
         help();
@@ -225,7 +233,7 @@ const command = async function() {
                 break;
             case 'delete':
             case 'remove':
-                deleteEnv( commandUtils.commandArgs() );
+                commandUtils.subcommand() === 'all' ? deleteAll() : deleteEnv( commandUtils.commandArgs() );
                 break;
             default:
                 help();
