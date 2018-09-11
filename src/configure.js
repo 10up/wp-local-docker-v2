@@ -1,3 +1,4 @@
+const chalk = require( 'chalk' );
 const os = require('os');
 const fs = require('fs-extra');
 const path = require('path');
@@ -134,7 +135,8 @@ const configure = async function( configuration ) {
 
     await set( 'sitesPath', sitesPath );
 
-    console.log( 'Success!' );
+    console.log( chalk.green( 'Successfully Configured WP Local Docker!' ) );
+    console.log();
 };
 
 const command = async function() {

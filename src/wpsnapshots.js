@@ -1,10 +1,25 @@
+const chalk = require( 'chalk' );
 const commandUtils = require( './command-utils' );
 const fs = require( 'fs-extra' );
 const path = require( 'path' );
 const execSync = require('child_process').execSync;
 const envUtils = require('./env-utils');
 const gateway = require( './gateway' );
-const config = require( './configure' );
+const configure = require( './configure' );
+
+const getSnapshotsDir = function() {
+    return path.join( configure.getConfigDirectory(), 'wpsnapshots' );
+};
+
+const checkIfConfigured = async function() {
+    let wpsnapshotsDir = getSnapshotsDir();
+
+    if ( await fs.exists( path.join( wpsnapshotsDir, 'config.json' ) ) === false ) {
+        return false;
+    }
+
+    return true;
+};
 
 const command = async function() {
     // false catches the case when no subcommand is passed, and we just pass to snapshots to show usage
@@ -13,14 +28,14 @@ const command = async function() {
     let envPath = false;
 
     // Ensure that the wpsnapshots folder is created and owned by the current user versus letting docker create it so we can enforce proper ownership later
-    let wpsnapshotsDir = path.join( config.getConfigDirectory(), 'wpsnapshots' );
+    let wpsnapshotsDir = getSnapshotsDir();
     await fs.ensureDir( wpsnapshotsDir );
 
     // Except for a few whitelisted commands, enforce a configuration before proceeding
     if ( bypassCommands.indexOf( commandUtils.subcommand() ) === -1 ) {
         // Verify we have a configuration
-        if ( fs.existsSync( path.join( wpsnapshotsDir, 'config.json' ) ) === false ) {
-            console.error( "Error: WP Snapshots does not have a configuration file. Please run '10updocker wpsnapshots configure' before continuing." );
+        if ( await checkIfConfigured() === false ) {
+            console.error( chalk.red( "Error: WP Snapshots does not have a configuration file. Please run '10updocker wpsnapshots configure' before continuing." ) );
             process.exit();
         }
     }
@@ -30,7 +45,7 @@ const command = async function() {
         // @todo allow users to specify environment an alternate way
         let envSlug = await envUtils.parseEnvFromCWD();
         if ( envSlug === false ) {
-            console.error( "Error: Unable to determine which environment to use wp snapshots with. Please run this command from within your environment." );
+            console.error( chalk.red( "Error: Unable to determine which environment to use wp snapshots with. Please run this command from within your environment." ) );
             process.exit(1);
         }
         envPath = await envUtils.envPath( envSlug );
@@ -50,4 +65,4 @@ const command = async function() {
     } catch (ex) {}
 };
 
-module.exports = { command };
+module.exports = { command, checkIfConfigured, configure };

@@ -1,7 +1,9 @@
 #!/usr/bin/env node
 
+const chalk = require( 'chalk' );
 const commandUtils = require( './src/command-utils' );
 const config = require( './src/configure' );
+const snapshots = require( './src/wpsnapshots' );
 
 const help = function() {
     let help = `
@@ -36,21 +38,28 @@ const init = async function() {
     let command = commandUtils.command();
     let configured = await config.checkIfConfigured();
     let bypassCommands = [ undefined, 'configure', 'help', '--version', '-v' ];
+    let isBypass = bypassCommands.indexOf( command ) !== -1;
 
     // Show warning about not being configured unless we are trying to get help, version, or configure commands
-    if ( configured === false && bypassCommands.indexOf( command ) === -1 ) {
+    if ( configured === false && isBypass === false ) {
         await config.promptUnconfigured();
     }
 
     // Don't even run the command to check if docker is running if we have one of the commands that don't need it
-    if ( bypassCommands.indexOf( command ) === -1 ) {
+    if ( isBypass === false ) {
         let isRunning = commandUtils.checkIfDockerRunning();
 
         // Show warning if docker isn't running
         if ( isRunning === false ) {
-            console.error( "Error: Docker doesn't appear to be running. Please start Docker and try again" );
+            console.error( chalk.red( "Error: Docker doesn't appear to be running. Please start Docker and try again" ) );
             process.exit();
         }
+    }
+
+    if ( isBypass === false && await snapshots.checkIfConfigured() === false ) {
+        console.warn( chalk.bold.yellow( "Warning: " ) + chalk.yellow( "WP Snapshots is not configured" ) );
+        console.warn( chalk.yellow( "Run `10updocker wpsnapshots configure` to set up WP Snapshots" ) );
+        console.log();
     }
 
     switch ( command ) {
