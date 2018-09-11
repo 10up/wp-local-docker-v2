@@ -292,7 +292,7 @@ const createEnv = async function() {
 
     console.log( 'Adding entry to hosts file' );
     let sudoOptions = {
-        name: "WP Local Docker Generator"
+        name: "WP Local Docker"
     };
     await new Promise( resolve => {
         sudo.exec( `10updocker-hosts add ${envHost}`, sudoOptions, function( error, stdout, stderr ) {

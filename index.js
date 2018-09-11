@@ -30,7 +30,7 @@ Run '10updocker COMMAND help' for more information on a command.
 
 const version = function() {
     var pjson = require('./package.json');
-    console.log( 'WP Local Docker Generator' );
+    console.log( 'WP Local Docker' );
     console.log( `Version ${pjson.version}` );
 };
 

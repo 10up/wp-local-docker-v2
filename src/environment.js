@@ -154,7 +154,7 @@ const deleteEnv = async function( env ) {
         let envConfig = await fs.readJson( path.join( envPath, '.config.json' ));
 
         let sudoOptions = {
-            name: "WP Local Docker Generator"
+            name: "WP Local Docker"
         };
 
         for ( let i = 0, len = envConfig.envHosts.length; i < len; i++ ) {
