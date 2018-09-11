@@ -42,12 +42,15 @@ const init = async function() {
         await config.promptUnconfigured();
     }
 
-    let isRunning = commandUtils.checkIfDockerRunning();
+    // Don't even run the command to check if docker is running if we have one of the commands that don't need it
+    if ( bypassCommands.indexOf( command ) === -1 ) {
+        let isRunning = commandUtils.checkIfDockerRunning();
 
-    // Show warning if docker isn't running
-    if ( isRunning === false && bypassCommands.indexOf( command ) === -1 ) {
-        console.error( "Error: Docker doesn't appear to be running. Please start Docker and try again" );
-        process.exit();
+        // Show warning if docker isn't running
+        if ( isRunning === false ) {
+            console.error( "Error: Docker doesn't appear to be running. Please start Docker and try again" );
+            process.exit();
+        }
     }
 
     switch ( command ) {
