@@ -40,9 +40,9 @@ const init = async function() {
     let bypassCommands = [ undefined, 'configure', 'help', '--version', '-v' ];
     let isBypass = bypassCommands.indexOf( command ) !== -1;
 
-    // Show warning about not being configured unless we are trying to get help, version, or configure commands
+    // Configure using defaults if not configured already
     if ( configured === false && isBypass === false ) {
-        await config.promptUnconfigured();
+        await config.configureDefaults();
     }
 
     // Don't even run the command to check if docker is running if we have one of the commands that don't need it
