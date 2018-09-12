@@ -56,7 +56,7 @@ const init = async function() {
         }
     }
 
-    await commandUtils.checkForUpdates();
+    //await commandUtils.checkForUpdates();
 
     if ( isBypass === false && await snapshots.checkIfConfigured() === false ) {
         console.warn( chalk.bold.yellow( "Warning: " ) + chalk.yellow( "WP Snapshots is not configured" ) );
