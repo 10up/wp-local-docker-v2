@@ -1,5 +1,15 @@
 version: '3'
 services:
+  # Run a local dnsmasq server for the containers that will resolve DNS queries and
+  # route any *.test domains to the gateway container
+  dns:
+    image: andyshinn/dnsmasq
+    cap_add:
+      - NET_ADMIN
+    command: "-A /test/10.0.0.3 --log-facility=-"
+    networks:
+      wplocaldocker:
+        ipv4_address: 10.0.0.2
   gateway:
     image: 10up/nginx-proxy
     ports:
@@ -8,7 +18,8 @@ services:
     volumes:
       - "/var/run/docker.sock:/tmp/docker.sock:ro"
     networks:
-      - wplocaldocker
+      wplocaldocker:
+        ipv4_address: 10.0.0.3
   mysql:
     image: mysql:5
     volumes:

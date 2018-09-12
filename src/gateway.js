@@ -15,7 +15,8 @@ const ensureNetworkExists = function() {
         }
 
         console.log( " - Creating network" );
-        execSync('docker network create wplocaldocker');
+        // --ip-range is only half of the subnet, so that we have a bunch of addresses in front to assign manually
+        execSync('docker network create wplocaldocker --subnet=10.0.0.0/16 --gateway 10.0.0.1 --ip-range 10.0.128.0/17');
     } catch (ex) {}
 };
 

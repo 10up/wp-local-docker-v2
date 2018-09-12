@@ -216,6 +216,9 @@ const createEnv = async function() {
         'networks': [
             'default',
             'wplocaldocker'
+        ],
+        'dns': [
+            '10.0.0.2'
         ]
     };
 
