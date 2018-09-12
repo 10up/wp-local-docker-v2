@@ -10,6 +10,7 @@ const environment = require( './environment.js' );
 const wordpress = require( './wordpress');
 const envUtils = require( './env-utils' );
 const sudo = require( 'sudo-prompt' );
+const config = require( './configure' );
 
 const help = function() {
     let help = `
@@ -293,17 +294,19 @@ const createEnv = async function() {
         }
     }
 
-    console.log( 'Adding entry to hosts file' );
-    let sudoOptions = {
-        name: "WP Local Docker"
-    };
-    await new Promise( resolve => {
-        sudo.exec( `10updocker-hosts add ${envHost}`, sudoOptions, function( error, stdout, stderr ) {
-            if (error) throw error;
-            console.log(stdout);
-            resolve();
+    if ( await config.get( 'manageHosts' ) === true ) {
+        console.log( 'Adding entry to hosts file' );
+        let sudoOptions = {
+            name: "WP Local Docker"
+        };
+        await new Promise( resolve => {
+            sudo.exec( `10updocker-hosts add ${envHost}`, sudoOptions, function( error, stdout, stderr ) {
+                if (error) throw error;
+                console.log(stdout);
+                resolve();
+            });
         });
-    });
+    }
 
     // Track things we might need to know later in order to clean up the environment
     let envConfig = {

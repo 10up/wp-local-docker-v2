@@ -67,12 +67,18 @@ const prompt = async function() {
     let questions = [
         {
             name: 'sitesPath',
-            input: 'input',
+            type: 'input',
             message: "What directory would you like WP Local Docker to create environments within?",
             default: defaultDir,
             validate: promptValidators.validateNotEmpty,
             filter: resolveHome,
             transformer: resolveHome,
+        },
+        {
+            name: 'manageHosts',
+            type: 'confirm',
+            message: "Would you like WP Local Docker to manage your hosts file?",
+            default: true,
         }
     ];
 
@@ -107,6 +113,7 @@ const configureDefaults = async function() {
 
     let configuration = {
         'sitesPath': defaultDir,
+        'manageHosts': true,
     };
 
     await configure( configuration );
@@ -134,6 +141,7 @@ const configure = async function( configuration ) {
     }
 
     await set( 'sitesPath', sitesPath );
+    await set( 'manageHosts', configuration.manageHosts );
 
     console.log( chalk.green( 'Successfully Configured WP Local Docker!' ) );
     console.log();

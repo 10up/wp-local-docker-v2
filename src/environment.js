@@ -9,6 +9,7 @@ const envUtils = require( './env-utils' );
 const gateway = require( './gateway' );
 const sudo = require( 'sudo-prompt' );
 const async = require( 'asyncro' );
+config = require( './configure' );
 
 const help = function() {
     let command = commandUtils.command();
@@ -149,27 +150,29 @@ const deleteEnv = async function( env ) {
         // If the docker-compose file is already gone, this happens
     }
 
-    try {
-        console.log( "Removing host file entries" );
-        let envConfig = await fs.readJson( path.join( envPath, '.config.json' ));
+    if ( await config.get( 'manageHosts' ) === true ) {
+        try {
+            console.log( "Removing host file entries" );
+            let envConfig = await fs.readJson( path.join( envPath, '.config.json' ));
 
-        let sudoOptions = {
-            name: "WP Local Docker"
-        };
+            let sudoOptions = {
+                name: "WP Local Docker"
+            };
 
-        for ( let i = 0, len = envConfig.envHosts.length; i < len; i++ ) {
-            let envHost = envConfig.envHosts[ i ];
-            await new Promise( resolve => {
-                console.log( ` - Removing ${envHost}` );
-                sudo.exec(`10updocker-hosts remove ${envHost}`, sudoOptions, function (error, stdout, stderr) {
-                    if (error) throw error;
-                    console.log(stdout);
-                    resolve();
+            for ( let i = 0, len = envConfig.envHosts.length; i < len; i++ ) {
+                let envHost = envConfig.envHosts[ i ];
+                await new Promise( resolve => {
+                    console.log( ` - Removing ${envHost}` );
+                    sudo.exec(`10updocker-hosts remove ${envHost}`, sudoOptions, function (error, stdout, stderr) {
+                        if (error) throw error;
+                        console.log(stdout);
+                        resolve();
+                    });
                 });
-            });
+            }
+        } catch (err) {
+            console.error( "Error: Something went wrong deleting host file entries. There may still be remnants in /etc/hosts" );
         }
-    } catch (err) {
-        console.error( "Error: Something went wrong deleting host file entries. There may still be remnants in /etc/hosts" );
     }
 
     console.log( "Deleting Files" );
