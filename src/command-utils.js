@@ -1,4 +1,8 @@
 const execSync = require('child_process').execSync;
+const envUtils = require( './env-utils' );
+const path = require( 'path' );
+const checkForUpdate = require('update-check');
+const chalk = require( 'chalk' );
 
 const command = function() {
     let command = process.argv[2];
@@ -41,4 +45,19 @@ const checkIfDockerRunning = function() {
     return true;
 };
 
-module.exports = { command, commandArgs, subcommand, checkIfDockerRunning };
+const checkForUpdates = async function() {
+    let pkg = require( path.join( envUtils.rootPath, 'package' ) );
+    let update = null;
+
+    try {
+        update = await checkForUpdate(pkg);
+    } catch (err) {
+        console.error( chalk.yellow( `Failed to automatically check for updates. Please ensure WP Local Docker is up to date.` ) );
+    }
+
+    if ( update ) {
+        console.warn( chalk.yellow( `WP Local Docker version ${update.latest} is now available. Please update!` ) );
+    }
+};
+
+module.exports = { command, commandArgs, subcommand, checkIfDockerRunning, checkForUpdates };
