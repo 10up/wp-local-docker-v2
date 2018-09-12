@@ -63,13 +63,16 @@ const set = async function( key, value ) {
 };
 
 const prompt = async function() {
+    let currentDir = await get( 'sitesPath' );
+    let currentHosts = await get( 'manageHosts' );
+
     let defaultDir = path.join( os.homedir(), 'wp-local-docker-sites' );
     let questions = [
         {
             name: 'sitesPath',
             type: 'input',
             message: "What directory would you like WP Local Docker to create environments within?",
-            default: defaultDir,
+            default: currentDir || defaultDir,
             validate: promptValidators.validateNotEmpty,
             filter: resolveHome,
             transformer: resolveHome,
@@ -78,7 +81,7 @@ const prompt = async function() {
             name: 'manageHosts',
             type: 'confirm',
             message: "Would you like WP Local Docker to manage your hosts file?",
-            default: true,
+            default: currentHosts !== undefined ? currentHosts : true,
         }
     ];
 
