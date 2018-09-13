@@ -7,7 +7,7 @@ const environment = require( './environment' );
 const command = async function() {
     let envSlug = await envUtils.parseEnvFromCWD();
     if ( envSlug === false ) {
-        console.error( "Error: Unable to determine which environment to use wp snapshots with. Please run this command from within your environment." );
+        console.error( "Error: Unable to determine which environment to use WP CLI with. Please run this command from within your environment's directory." );
         process.exit(1);
     }
 
