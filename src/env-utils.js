@@ -20,11 +20,12 @@
 const slugify = require( '@sindresorhus/slugify' );
 const path = require( 'path' );
 const config = require( './configure' );
-
 const rootPath = path.dirname( require.main.filename );
 const srcPath = path.join( rootPath, 'src' );
 const cacheVolume = 'wplocaldockerCache';
 const globalPath = path.join( rootPath, 'global' );
+const async = require( 'asyncro' );
+const fs = require( 'fs-extra' );
 
 const sitesPath = async function() {
     return await config.get( 'sitesPath' );
@@ -59,4 +60,32 @@ const parseEnvFromCWD = async function() {
     return cwd;
 };
 
-module.exports = { rootPath, srcPath, sitesPath, cacheVolume, globalPath, envSlug, envPath, parseEnvFromCWD };
+const getAllEnvironments = async function() {
+    let sitePath = await sitesPath();
+    let dirContent = await fs.readdir( sitePath );
+
+    // Filter any "hidden" directories
+    dirContent = await async.filter( dirContent, async item => {
+        return item.indexOf( '.' ) === 0 ? false : true;
+    });
+
+    // Make into full path
+    dirContent = await async.map( dirContent, async item => {
+        return path.join( sitePath, item );
+    });
+
+    // Filter any that aren't directories
+    dirContent = await async.filter( dirContent, async item => {
+        let stat = await fs.stat( item );
+        return stat.isDirectory();
+    });
+
+    // Back to just the basename
+    dirContent = await async.map( dirContent, async item => {
+        return path.basename( item );
+    });
+
+    return dirContent;
+};
+
+module.exports = { rootPath, srcPath, sitesPath, cacheVolume, globalPath, envSlug, envPath, parseEnvFromCWD, getAllEnvironments };

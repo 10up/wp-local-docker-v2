@@ -8,7 +8,6 @@ const database = require( './database' );
 const envUtils = require( './env-utils' );
 const gateway = require( './gateway' );
 const sudo = require( 'sudo-prompt' );
-const async = require( 'asyncro' );
 config = require( './configure' );
 
 const help = function() {
@@ -48,33 +47,7 @@ const getPathOrError = async function( env ) {
     return envPath;
 };
 
-const getAllEnvironments = async function() {
-    let sitesPath = await envUtils.sitesPath();
-    let dirContent = await fs.readdir( sitesPath );
 
-    // Filter any "hidden" directories
-    dirContent = await async.filter( dirContent, async item => {
-        return item.indexOf( '.' ) === 0 ? false : true;
-    });
-
-    // Make into full path
-    dirContent = await async.map( dirContent, async item => {
-        return path.join( sitesPath, item );
-    });
-
-    // Filter any that aren't directories
-    dirContent = await async.filter( dirContent, async item => {
-        let stat = await fs.stat( item );
-        return stat.isDirectory();
-    });
-
-    // Back to just the basename
-    dirContent = await async.map( dirContent, async item => {
-        return path.basename( item );
-    });
-
-    return dirContent;
-};
 
 const start = async function( env ) {
     if ( undefined === env || env.trim().length === 0 ) {
@@ -183,7 +156,7 @@ const deleteEnv = async function( env ) {
 };
 
 const startAll = async function() {
-    let envs = await getAllEnvironments();
+    let envs = await envUtils.getAllEnvironments();
 
     await gateway.startGlobal();
 
@@ -193,7 +166,7 @@ const startAll = async function() {
 };
 
 const stopAll = async function() {
-    let envs = await getAllEnvironments();
+    let envs = await envUtils.getAllEnvironments();
 
     for ( let i = 0, len = envs.length; i < len; i++ ) {
         await stop( envs[ i ] );
@@ -203,7 +176,7 @@ const stopAll = async function() {
 };
 
 const restartAll = async function() {
-    let envs = await getAllEnvironments();
+    let envs = await envUtils.getAllEnvironments();
 
     for ( let i = 0, len = envs.length; i < len; i++ ) {
         await restart( envs[ i ] );
@@ -213,7 +186,7 @@ const restartAll = async function() {
 };
 
 const deleteAll = async function() {
-    let envs = await getAllEnvironments();
+    let envs = await envUtils.getAllEnvironments();
 
     for ( let i = 0, len = envs.length; i < len; i++ ) {
         await deleteEnv( envs[ i ] );
