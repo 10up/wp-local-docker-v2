@@ -42,8 +42,7 @@ const command = async function() {
 
     // These commands can be run without being in the context of a WP install
     if ( noPathCommands.indexOf( commandUtils.subcommand() ) === -1 ) {
-        // @todo allow users to specify environment an alternate way
-        let envSlug = await envUtils.parseEnvFromCWD();
+        let envSlug = await envUtils.parseOrPromptEnv();
         if ( envSlug === false ) {
             console.error( chalk.red( "Error: Unable to determine which environment to use wp snapshots with. Please run this command from within your environment." ) );
             process.exit(1);

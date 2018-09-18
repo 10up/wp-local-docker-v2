@@ -26,6 +26,8 @@ const cacheVolume = 'wplocaldockerCache';
 const globalPath = path.join( rootPath, 'global' );
 const async = require( 'asyncro' );
 const fs = require( 'fs-extra' );
+const inquirer = require( 'inquirer' );
+const chalk = require( 'chalk' );
 
 const sitesPath = async function() {
     return await config.get( 'sitesPath' );
@@ -88,4 +90,32 @@ const getAllEnvironments = async function() {
     return dirContent;
 };
 
-module.exports = { rootPath, srcPath, sitesPath, cacheVolume, globalPath, envSlug, envPath, parseEnvFromCWD, getAllEnvironments };
+const promptEnv = async function() {
+    let environments = await getAllEnvironments();
+
+    let questions = [
+        {
+            name: 'envSlug',
+            type: 'list',
+            message: "What environment would you like to use?",
+            choices: environments,
+        }
+    ];
+
+    console.log( chalk.bold.white( "Unable to determine environment from current directory" ) );
+    let answers = await inquirer.prompt( questions );
+
+    return answers.envSlug;
+};
+
+const parseOrPromptEnv = async function () {
+    let envSlug = await parseEnvFromCWD();
+
+    if ( envSlug === false ) {
+        envSlug = await promptEnv();
+    }
+
+    return envSlug;
+};
+
+module.exports = { rootPath, srcPath, sitesPath, cacheVolume, globalPath, envSlug, envPath, parseEnvFromCWD, getAllEnvironments, promptEnv, parseOrPromptEnv };

@@ -5,7 +5,7 @@ const gateway = require( './gateway' );
 const environment = require( './environment' );
 
 const command = async function() {
-    let envSlug = await envUtils.parseEnvFromCWD();
+    let envSlug = await envUtils.parseOrPromptEnv();
     if ( envSlug === false ) {
         console.error( "Error: Unable to determine which environment to use wp snapshots with. Please run this command from within your environment." );
         process.exit(1);
