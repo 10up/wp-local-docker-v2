@@ -30,9 +30,8 @@ When 'all' is specified as the ENVIRONMENT, each environment will ${command}
 };
 
 const getPathOrError = async function( env ) {
-    if ( undefined === env || env.trim().length === 0 ) {
-        help();
-        process.exit(1);
+    if ( env === false || undefined === env || env.trim().length === 0 ) {
+        env = await envUtils.promptEnv();
     }
 
     console.log( `Locating project files for ${env}` );
