@@ -29,10 +29,11 @@ const parseHostname = function( value ) {
     // Get rid of any spaces
     value = value.replace( /\s/i, '' );
 
-    // get rid of any trailing slashes that might exist
-    value = value.replace( /\/$/i, '' );
+    let parts = value.split( '/' );
 
-    return value;
+    let hostname = parts[0];
+
+    return hostname;
 };
 
 module.exports = { validateNotEmpty, validateBool, parseHostname };

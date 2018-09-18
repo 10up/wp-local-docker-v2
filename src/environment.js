@@ -160,10 +160,10 @@ const deleteEnv = async function( env ) {
             };
 
             for ( let i = 0, len = envConfig.envHosts.length; i < len; i++ ) {
-                let envHost = envConfig.envHosts[ i ];
+                let envHosts = envConfig.envHosts.join( ' ' );
                 await new Promise( resolve => {
-                    console.log( ` - Removing ${envHost}` );
-                    sudo.exec(`10updocker-hosts remove ${envHost}`, sudoOptions, function (error, stdout, stderr) {
+                    console.log( ` - Removing ${envHosts}` );
+                    sudo.exec(`10updocker-hosts remove ${envHosts}`, sudoOptions, function (error, stdout, stderr) {
                         if (error) throw error;
                         console.log(stdout);
                         resolve();

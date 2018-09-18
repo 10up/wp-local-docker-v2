@@ -86,9 +86,29 @@ const createEnv = async function() {
         {
             name: 'hostname',
             type: 'input',
-            message: "What hostname would you like to use for your site? (Ex: docker.test)",
+            message: "What is the primary hostname for your site? (Ex: docker.test)",
             validate: promptValidators.validateNotEmpty,
             filter: promptValidators.parseHostname,
+        },
+        {
+            name: 'addMoreHosts',
+            type: 'confirm',
+            message: "Are there additional domains the site should respond to?",
+            default: false,
+        },
+        {
+            name: 'extraHosts',
+            type: 'input',
+            message: "Enter additional hostnames separated by spaces (Ex: docker1.test docker2.test)",
+            filter: async function( value ) {
+                let answers = value.split( " " ).map( function( value ) {
+                    return value.trim();
+                }).filter( function( value ) {
+                    return value.length > 0;
+                }).map( promptValidators.parseHostname );
+
+                return answers;
+            }
         },
         {
             name: 'phpVersion',
@@ -189,12 +209,27 @@ const createEnv = async function() {
 
     await gateway.startGlobal();
 
-    // Additional nginx config based on selections above
-    baseConfig.services.nginx.environment.VIRTUAL_HOST = answers.hostname;
+    let allHosts = [ answers.hostname ];
+    let starHosts = [];
 
-    if ( answers.wordpressType === 'subdomain' ) {
-        baseConfig.services.nginx.environment.VIRTUAL_HOST += `,*.${answers.hostname}`;
+    if ( answers.addMoreHosts === true ) {
+        answers.extraHosts.forEach( function( host ) {
+            allHosts.push( host );
+        });
     }
+
+    // Remove duplicates
+    allHosts = allHosts.filter( function( item, pos, self ) {
+        return self.indexOf(item) === pos;
+    });
+
+    allHosts.forEach( function( host ) {
+        starHosts.push(`*.${host}`);
+    });
+
+    // Additional nginx config based on selections above
+    baseConfig.services.nginx.environment.VIRTUAL_HOST = allHosts.concat(starHosts).join( ',' );
+
     // Map a different config for Develop version of WP
     if ( answers.wordpressType === 'dev' ) {
         baseConfig.services.nginx.volumes.push( './config/nginx/develop.conf:/etc/nginx/conf.d/default.conf' );
@@ -300,7 +335,8 @@ const createEnv = async function() {
             name: "WP Local Docker"
         };
         await new Promise( resolve => {
-            sudo.exec( `10updocker-hosts add ${envHost}`, sudoOptions, function( error, stdout, stderr ) {
+            let hostsstring = allHosts.join( ' ' );
+            sudo.exec( `10updocker-hosts add ${hostsstring}`, sudoOptions, function( error, stdout, stderr ) {
                 if (error) throw error;
                 console.log(stdout);
                 resolve();
@@ -310,7 +346,7 @@ const createEnv = async function() {
 
     // Track things we might need to know later in order to clean up the environment
     let envConfig = {
-        'envHosts': [ envHost ]
+        'envHosts': allHosts
     };
     await fs.writeJson( path.join( envPath, '.config.json' ), envConfig );
 
