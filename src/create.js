@@ -108,6 +108,9 @@ const createEnv = async function() {
                 }).map( promptValidators.parseHostname );
 
                 return answers;
+            },
+            when: function( answers ) {
+                return answers.addMoreHosts === true;
             }
         },
         {
