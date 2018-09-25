@@ -11,6 +11,7 @@ const wordpress = require( './wordpress');
 const envUtils = require( './env-utils' );
 const sudo = require( 'sudo-prompt' );
 const config = require( './configure' );
+const chalk = require( 'chalk' );
 
 const help = function() {
     let help = `
@@ -340,7 +341,12 @@ const createEnv = async function() {
         await new Promise( resolve => {
             let hostsstring = allHosts.join( ' ' );
             sudo.exec( `10updocker-hosts add ${hostsstring}`, sudoOptions, function( error, stdout, stderr ) {
-                if (error) throw error;
+                if (error) {
+                    console.error( chalk.bold.yellow( "Warning: " ) + `Something went wrong adding host file entries. You may need to add the /etc/hosts entries manually.` );
+                    resolve();
+                    return;
+                }
+
                 console.log(stdout);
                 resolve();
             });

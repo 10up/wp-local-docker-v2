@@ -9,6 +9,7 @@ const envUtils = require( './env-utils' );
 const gateway = require( './gateway' );
 const sudo = require( 'sudo-prompt' );
 config = require( './configure' );
+const chalk = require( 'chalk' );
 
 const help = function() {
     let command = commandUtils.command();
@@ -141,14 +142,19 @@ const deleteEnv = async function( env ) {
                 await new Promise( resolve => {
                     console.log( ` - Removing ${envHosts}` );
                     sudo.exec(`10updocker-hosts remove ${envHosts}`, sudoOptions, function (error, stdout, stderr) {
-                        if (error) throw error;
+                        if (error) {
+                            console.error( chalk.bold.yellow( "Warning: ") + "Something went wrong deleting host file entries. There may still be remnants in /etc/hosts" );
+                            resolve();
+                            return;
+                        }
                         console.log(stdout);
                         resolve();
                     });
                 });
             }
         } catch (err) {
-            console.error( "Error: Something went wrong deleting host file entries. There may still be remnants in /etc/hosts" );
+            // Unfound config, etc
+            console.error( chalk.bold.yellow( "Warning: ") + "Something went wrong deleting host file entries. There may still be remnants in /etc/hosts" );
         }
     }
 
