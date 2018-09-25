@@ -66,11 +66,6 @@ const getAllEnvironments = async function() {
     let sitePath = await sitesPath();
     let dirContent = await fs.readdir( sitePath );
 
-    // Filter any "hidden" directories
-    dirContent = await async.filter( dirContent, async item => {
-        return item.indexOf( '.' ) === 0 ? false : true;
-    });
-
     // Make into full path
     dirContent = await async.map( dirContent, async item => {
         return path.join( sitePath, item );
@@ -80,6 +75,13 @@ const getAllEnvironments = async function() {
     dirContent = await async.filter( dirContent, async item => {
         let stat = await fs.stat( item );
         return stat.isDirectory();
+    });
+
+    // Filter any that don't have the .config.json file (which indicates its probably not a WP Local Docker Environment)
+    dirContent = await async.filter( dirContent, async item => {
+        let configFile = path.join( item, '.config.json' );
+
+        return await fs.exists( configFile );
     });
 
     // Back to just the basename
