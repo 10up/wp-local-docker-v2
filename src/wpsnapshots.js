@@ -7,12 +7,12 @@ const envUtils = require('./env-utils');
 const gateway = require( './gateway' );
 const configure = require( './configure' );
 
-const getSnapshotsDir = function() {
-    return path.join( configure.getConfigDirectory(), 'wpsnapshots' );
+const getSnapshotsDir = async function() {
+    return await configure.get( 'snapshotsPath' );
 };
 
 const checkIfConfigured = async function() {
-    let wpsnapshotsDir = getSnapshotsDir();
+    let wpsnapshotsDir = await getSnapshotsDir();
 
     if ( await fs.exists( path.join( wpsnapshotsDir, 'config.json' ) ) === false ) {
         return false;
@@ -28,7 +28,7 @@ const command = async function() {
     let envPath = false;
 
     // Ensure that the wpsnapshots folder is created and owned by the current user versus letting docker create it so we can enforce proper ownership later
-    let wpsnapshotsDir = getSnapshotsDir();
+    let wpsnapshotsDir = await getSnapshotsDir();
     await fs.ensureDir( wpsnapshotsDir );
 
     // Except for a few whitelisted commands, enforce a configuration before proceeding

@@ -65,8 +65,11 @@ const set = async function( key, value ) {
 const prompt = async function() {
     let currentDir = await get( 'sitesPath' );
     let currentHosts = await get( 'manageHosts' );
+    let currentSnapshots = await get( 'snapshotsPath' );
 
     let defaultDir = path.join( os.homedir(), 'wp-local-docker-sites' );
+    let defaultSnapshotsDir = path.join( os.homedir(), '.wpsnapshots' );
+
     let questions = [
         {
             name: 'sitesPath',
@@ -78,11 +81,20 @@ const prompt = async function() {
             transformer: resolveHome,
         },
         {
+            name: 'snapshotsPath',
+            type: 'input',
+            message: "What directory would you like to store WP Snapshots data within?",
+            default: currentSnapshots || defaultSnapshotsDir,
+            validate: promptValidators.validateNotEmpty,
+            filter: resolveHome,
+            transformer: resolveHome,
+        },
+        {
             name: 'manageHosts',
             type: 'confirm',
             message: "Would you like WP Local Docker to manage your hosts file?",
             default: currentHosts !== undefined ? currentHosts : true,
-        }
+        },
     ];
 
     let answers = await inquirer.prompt( questions );
@@ -113,10 +125,12 @@ const promptUnconfigured = async function() {
 
 const configureDefaults = async function() {
     let defaultDir = path.join( os.homedir(), 'wp-local-docker-sites' );
+    let defaultSnapshotsDir = path.join( os.homedir(), '.wpsnapshots' );
 
     let configuration = {
         'sitesPath': defaultDir,
         'manageHosts': true,
+        'snapshotsPath': defaultSnapshotsDir,
     };
 
     await configure( configuration );
@@ -124,6 +138,7 @@ const configureDefaults = async function() {
 
 const configure = async function( configuration ) {
     let sitesPath = path.resolve( configuration.sitesPath );
+    let snapshotsPath = path.resolve( configuration.snapshotsPath );
 
     // Attempt to create the sites directory
     try {
@@ -143,8 +158,20 @@ const configure = async function( configuration ) {
         process.exit(1);
     }
 
+    // Make sure we can write to the snapshots
+    try {
+        let testfile = path.join( snapshotsPath, 'testfile' );
+        await fs.ensureFile( testfile );
+        await fs.remove( testfile );
+    } catch (ex) {
+        console.error( "Error: The snapshots directory is not writable" );
+        process.exit(1);
+    }
+
     await set( 'sitesPath', sitesPath );
+    await set( 'snapshotsPath', snapshotsPath );
     await set( 'manageHosts', configuration.manageHosts );
+
 
     console.log( chalk.green( 'Successfully Configured WP Local Docker!' ) );
     console.log();
