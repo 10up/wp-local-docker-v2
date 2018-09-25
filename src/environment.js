@@ -97,13 +97,18 @@ const restart = async function( env ) {
 };
 
 const deleteEnv = async function( env ) {
-    let envPath = await getPathOrError(env);
+    // Need to call this outside of getPathOrError since we need the slug itself for some functions
+    if ( env === false || undefined === env || env.trim().length === 0 ) {
+        env = await envUtils.promptEnv();
+    }
+
+    let envPath = await getPathOrError( env );
     let envSlug = envUtils.envSlug( env );
 
     let answers = await inquirer.prompt({
         name: 'confirm',
         type: 'confirm',
-        message: `Are you sure you want to delete the ${env} environment`,
+        message: `Are you sure you want to delete the ${envSlug} environment`,
         validate: promptValidators.validateNotEmpty,
         default: false,
     });
