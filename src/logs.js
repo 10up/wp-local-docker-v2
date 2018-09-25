@@ -7,7 +7,7 @@ const environment = require( './environment' );
 const command = async function() {
     let envSlug = await envUtils.parseOrPromptEnv();
     if ( envSlug === false ) {
-        console.error( "Error: Unable to determine which environment to use wp snapshots with. Please run this command from within your environment." );
+        console.error( "Error: Unable to determine which environment to show logs from. Please run this command from within your environment." );
         process.exit(1);
     }
 
