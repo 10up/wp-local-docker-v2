@@ -17,11 +17,7 @@ const getConfigFilePath = function() {
 };
 
 const checkIfConfigured = async function() {
-    if ( await fs.exists( getConfigFilePath() ) ) {
-        return true;
-    }
-
-    return false;
+    return await fs.exists( getConfigFilePath() );
 };
 
 const resolveHome = function( input ) {
@@ -45,11 +41,13 @@ const read = async function() {
 };
 
 const get = async function( key ) {
+    let defaults = getDefaults();
+
     if ( config === null ) {
         await read();
     }
 
-    return config[ key ];
+    return ( typeof config[ key ] === "undefined" ) ? defaults[ key ] : config[ key ];
 };
 
 const set = async function( key, value ) {
@@ -62,20 +60,27 @@ const set = async function( key, value ) {
     await write();
 };
 
+const getDefaults = function() {
+    return {
+        sitesPath: path.join( os.homedir(), 'wp-local-docker-sites' ),
+        snapshotsPath: path.join( os.homedir(), '.wpsnapshots' ),
+        manageHosts: true,
+    };
+};
+
 const prompt = async function() {
+    let defaults = getDefaults();
+
     let currentDir = await get( 'sitesPath' );
     let currentHosts = await get( 'manageHosts' );
     let currentSnapshots = await get( 'snapshotsPath' );
-
-    let defaultDir = path.join( os.homedir(), 'wp-local-docker-sites' );
-    let defaultSnapshotsDir = path.join( os.homedir(), '.wpsnapshots' );
 
     let questions = [
         {
             name: 'sitesPath',
             type: 'input',
             message: "What directory would you like WP Local Docker to create environments within?",
-            default: currentDir || defaultDir,
+            default: currentDir || defaults.sitesPath,
             validate: promptValidators.validateNotEmpty,
             filter: resolveHome,
             transformer: resolveHome,
@@ -84,7 +89,7 @@ const prompt = async function() {
             name: 'snapshotsPath',
             type: 'input',
             message: "What directory would you like to store WP Snapshots data within?",
-            default: currentSnapshots || defaultSnapshotsDir,
+            default: currentSnapshots || defaults.snapshotsPath,
             validate: promptValidators.validateNotEmpty,
             filter: resolveHome,
             transformer: resolveHome,
@@ -93,7 +98,7 @@ const prompt = async function() {
             name: 'manageHosts',
             type: 'confirm',
             message: "Would you like WP Local Docker to manage your hosts file?",
-            default: currentHosts !== undefined ? currentHosts : true,
+            default: currentHosts !== undefined ? currentHosts : defaults.manageHosts,
         },
     ];
 
@@ -103,7 +108,6 @@ const prompt = async function() {
 };
 
 const promptUnconfigured = async function() {
-    let defaultDir = path.join( os.homedir(), 'wp-local-docker-sites' );
     let questions = [
         {
             name: 'useDefaults',
@@ -124,16 +128,9 @@ const promptUnconfigured = async function() {
 };
 
 const configureDefaults = async function() {
-    let defaultDir = path.join( os.homedir(), 'wp-local-docker-sites' );
-    let defaultSnapshotsDir = path.join( os.homedir(), '.wpsnapshots' );
+    let defaults = getDefaults();
 
-    let configuration = {
-        'sitesPath': defaultDir,
-        'manageHosts': true,
-        'snapshotsPath': defaultSnapshotsDir,
-    };
-
-    await configure( configuration );
+    await configure( defaults );
 };
 
 const configure = async function( configuration ) {
