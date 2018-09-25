@@ -35,7 +35,7 @@ const command = async function() {
     if ( bypassCommands.indexOf( commandUtils.subcommand() ) === -1 ) {
         // Verify we have a configuration
         if ( await checkIfConfigured() === false ) {
-            console.error( chalk.red( "Error: WP Snapshots does not have a configuration file. Please run '10updocker wpsnapshots configure' before continuing." ) );
+            console.error( chalk.red( "Error: " ) + "WP Snapshots does not have a configuration file. Please run '10updocker wpsnapshots configure' before continuing." );
             process.exit();
         }
     }
@@ -44,7 +44,7 @@ const command = async function() {
     if ( noPathCommands.indexOf( commandUtils.subcommand() ) === -1 ) {
         let envSlug = await envUtils.parseOrPromptEnv();
         if ( envSlug === false ) {
-            console.error( chalk.red( "Error: Unable to determine which environment to use wp snapshots with. Please run this command from within your environment." ) );
+            console.error( chalk.red( "Error: " ) + "Unable to determine which environment to use wp snapshots with. Please run this command from within your environment." );
             process.exit(1);
         }
         envPath = await envUtils.envPath( envSlug );
