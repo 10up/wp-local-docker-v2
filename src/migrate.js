@@ -106,6 +106,11 @@ const command = async function() {
         let old = commandUtils.getArg(1);
         let env = commandUtils.getArg(2);
 
+        // So that we don't prompt at every step...
+        if ( env === false || undefined === env || env.trim().length === 0 ) {
+            env = await envUtils.promptEnv();
+        }
+
         await validateOldEnv( old );
         let envPath = await envUtils.getPathOrError( env );
 
