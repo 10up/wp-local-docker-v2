@@ -62,6 +62,16 @@ const start = async function( env ) {
     try {
         execSync( `cd ${envPath} && docker-compose up -d`, { stdio: 'inherit' });
     } catch (ex) {}
+
+    let envHosts = await envUtils.getEnvHosts( envPath );
+    if ( envHosts.length > 0 ) {
+        console.log();
+        console.log( "Environment configured for the following domains:" );
+        for ( let i = 0, len = envHosts.length; i < len; i++ ) {
+            console.log( envHosts[ i ] );
+        }
+    }
+
     console.log();
 };
 
@@ -131,14 +141,13 @@ const deleteEnv = async function( env ) {
     if ( await config.get( 'manageHosts' ) === true ) {
         try {
             console.log( "Removing host file entries" );
-            let envConfig = await fs.readJson( path.join( envPath, '.config.json' ));
 
             let sudoOptions = {
                 name: "WP Local Docker"
             };
 
-            for ( let i = 0, len = envConfig.envHosts.length; i < len; i++ ) {
-                let envHosts = envConfig.envHosts.join( ' ' );
+            let envHosts = await envUtils.getEnvHosts( envPath );
+            for ( let i = 0, len = envHosts.length; i < len; i++ ) {
                 await new Promise( resolve => {
                     console.log( ` - Removing ${envHosts}` );
                     sudo.exec(`10updocker-hosts remove ${envHosts}`, sudoOptions, function (error, stdout, stderr) {

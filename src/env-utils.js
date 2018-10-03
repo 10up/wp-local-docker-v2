@@ -120,4 +120,14 @@ const parseOrPromptEnv = async function () {
     return envSlug;
 };
 
-module.exports = { rootPath, srcPath, sitesPath, cacheVolume, globalPath, envSlug, envPath, parseEnvFromCWD, getAllEnvironments, promptEnv, parseOrPromptEnv };
+const getEnvHosts = async function( envPath ) {
+    try {
+        let envConfig = await fs.readJson( path.join( envPath, '.config.json' ));
+
+        return ( "object" === typeof envConfig && undefined !== envConfig.envHosts ) ? envConfig.envHosts : [];
+    } catch (ex) {
+        return [];
+    }
+};
+
+module.exports = { rootPath, srcPath, sitesPath, cacheVolume, globalPath, envSlug, envPath, parseEnvFromCWD, getAllEnvironments, promptEnv, parseOrPromptEnv, getEnvHosts };
