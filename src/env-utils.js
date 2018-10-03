@@ -130,4 +130,21 @@ const getEnvHosts = async function( envPath ) {
     }
 };
 
-module.exports = { rootPath, srcPath, sitesPath, cacheVolume, globalPath, envSlug, envPath, parseEnvFromCWD, getAllEnvironments, promptEnv, parseOrPromptEnv, getEnvHosts };
+const getPathOrError = async function( env ) {
+    if ( env === false || undefined === env || env.trim().length === 0 ) {
+        env = await promptEnv();
+    }
+
+    console.log( `Locating project files for ${env}` );
+
+    let _envPath = await envPath( env );
+    if ( ! await fs.pathExists( _envPath ) ) {
+        console.error( `ERROR: Cannot find ${env} environment!` );
+        help();
+        process.exit(1);
+    }
+
+    return _envPath;
+};
+
+module.exports = { rootPath, srcPath, sitesPath, cacheVolume, globalPath, envSlug, envPath, parseEnvFromCWD, getAllEnvironments, promptEnv, parseOrPromptEnv, getEnvHosts, getPathOrError };

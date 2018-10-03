@@ -29,6 +29,16 @@ const subcommand = function() {
     return;
 };
 
+const getArg = function( number ) {
+    // +2 for the path to node, and the "10updocker" main arg/command
+    let arg = process.argv[ number + 2 ];
+    if ( typeof arg === "undefined" ) {
+        return;
+    }
+
+    return arg;
+};
+
 const checkIfDockerRunning = function() {
     var output;
 
@@ -60,4 +70,4 @@ const checkForUpdates = async function() {
     }
 };
 
-module.exports = { command, commandArgs, subcommand, checkIfDockerRunning, checkForUpdates };
+module.exports = { command, commandArgs, subcommand, getArg, checkIfDockerRunning, checkForUpdates };

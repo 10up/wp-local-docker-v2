@@ -91,6 +91,9 @@ const init = async function() {
         case 'logs':
             await require( './src/logs' ).command();
             break;
+        case 'migrate':
+            await require( './src/migrate' ).command();
+            break;
         case '--version':
         case '-v':
             version();

@@ -30,31 +30,12 @@ When 'all' is specified as the ENVIRONMENT, each environment will ${command}
     process.exit();
 };
 
-const getPathOrError = async function( env ) {
-    if ( env === false || undefined === env || env.trim().length === 0 ) {
-        env = await envUtils.promptEnv();
-    }
-
-    console.log( `Locating project files for ${env}` );
-
-    let envPath = await envUtils.envPath( env );
-    if ( ! await fs.pathExists( envPath ) ) {
-        console.error( `ERROR: Cannot find ${env} environment!` );
-        help();
-        process.exit(1);
-    }
-
-    return envPath;
-};
-
-
-
 const start = async function( env ) {
     if ( undefined === env || env.trim().length === 0 ) {
         env = await envUtils.parseEnvFromCWD();
     }
 
-    let envPath = await getPathOrError(env);
+    let envPath = await envUtils.getPathOrError(env);
 
     await gateway.startGlobal();
 
@@ -80,7 +61,7 @@ const stop = async function( env ) {
         env = await envUtils.parseEnvFromCWD();
     }
 
-    let envPath = await getPathOrError(env);
+    let envPath = await envUtils.getPathOrError(env);
 
     console.log( `Stopping docker containers for ${env}` );
     try {
@@ -94,7 +75,7 @@ const restart = async function( env ) {
         env = await envUtils.parseEnvFromCWD();
     }
 
-    let envPath = await getPathOrError(env);
+    let envPath = await envUtils.getPathOrError(env);
 
     await gateway.startGlobal();
 
@@ -108,12 +89,12 @@ const restart = async function( env ) {
 };
 
 const deleteEnv = async function( env ) {
-    // Need to call this outside of getPathOrError since we need the slug itself for some functions
+    // Need to call this outside of envUtils.getPathOrError since we need the slug itself for some functions
     if ( env === false || undefined === env || env.trim().length === 0 ) {
         env = await envUtils.promptEnv();
     }
 
-    let envPath = await getPathOrError( env );
+    let envPath = await envUtils.getPathOrError( env );
     let envSlug = envUtils.envSlug( env );
 
     let answers = await inquirer.prompt({
