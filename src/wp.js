@@ -25,9 +25,12 @@ const command = async function() {
     // Get everything after the wp command, so we can pass to the docker container
     let command = commandUtils.commandArgs();
 
+    // Check for TTY
+    let ttyFlag = process.stdin.isTTY ? '' : '-T';
+
     // Run the command
     try {
-        execSync( `cd ${envPath} && docker-compose exec --user www-data phpfpm wp ${command}`, { stdio: 'inherit' });
+        execSync( `cd ${envPath} && docker-compose exec ${ttyFlag} --user www-data phpfpm wp ${command}`, { stdio: 'inherit' });
     } catch (ex) {}
 
     process.exit();
