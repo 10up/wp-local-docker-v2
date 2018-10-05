@@ -66,7 +66,7 @@ const checkForUpdates = async function() {
     }
 
     if ( update ) {
-        console.warn( chalk.yellow( `WP Local Docker version ${update.latest} is now available. Please update!` ) );
+        console.warn( chalk.yellow( `WP Local Docker version ${update.latest} is now available. Please run \`npm update -g wp-local-docker\` to update!` ) );
     }
 };
 
