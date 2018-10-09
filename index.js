@@ -16,6 +16,7 @@ Commands:
   delete        Deletes a specific docker environment
   image         Manages docker images used by this environment
   logs          Shows logs from the specified container in your current environment (Defaults to all containers)
+  migrate       Migrates a V1 WP Local Docker environment to a new V2 environment.
   restart       Restarts a specific docker environment
   shell         Opens a shell for a specified container in your current environment (Defaults to the phpfpm container)
   start         Starts a specific docker environment
