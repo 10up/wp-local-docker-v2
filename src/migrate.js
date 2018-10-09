@@ -13,11 +13,14 @@ const help = function() {
     let help = `
 Usage:  10updocker migrate OLD_PATH [ENVIRONMENT]
 
-Migrate a WP Local Docker V1 environment into a new WP Local Docker V2 environment. 
+Migrate a WP Local Docker V1 environment into a new WP Local Docker V2 environment. Before running this command, create a new environment using the \`10updocker create\` command.
 
 OLD_PATH: Should be the path to the old WP Local Docker environment
 ENVIRONMENT: The environment to migrate the V1 data into.
 
+
+Example:
+  10updocker migrate ~/sites/mysite
 `;
     console.log( help );
     process.exit();
