@@ -40,6 +40,13 @@ const validateOldEnv = async function( oldEnv ) {
     return true;
 };
 
+const stopOldEnv = async function( oldEnv ) {
+    console.log( "Ensuring old environment is not running..." );
+    try {
+        execSync( `cd ${oldEnv} && docker-compose down`, { stdio: 'ignore' });
+    } catch(ex) {}
+};
+
 // Kind of like the one for gateway, but not using docker compose and adapted for this purpose
 const waitForDB = function( containerName ) {
     let readyMatch = 'ready for connections';
@@ -48,7 +55,7 @@ const waitForDB = function( containerName ) {
             console.log( "Waiting for mysql..." );
             exec( `docker logs ${containerName}`, (error, stdout, stderr) => {
                 if ( error ) {
-                    console.error( "Erro exporting database!" );
+                    console.error( "Error exporting database!" );
                     process.exit();
                 }
 
@@ -67,7 +74,9 @@ const exportOldDatabase = async function( oldEnv, exportDir ) {
     let base = `mysql-${parts.name}`;
 
     // Just in case this failed and are retrying
-    try { execSync( `docker stop ${base}`); } catch(ex) {}
+    try {
+        execSync( `docker stop ${base} && docker rm ${base}`, { stdio: 'ignore' });
+    } catch(ex) {}
 
     try {
         execSync( `docker run -d --rm --name ${base} -v ${dataDir}:/var/lib/mysql -v ${exportDir}:/tmp/export mysql:5`, { stdio: 'inherit' });
@@ -115,6 +124,8 @@ const command = async function() {
         }
 
         await validateOldEnv( old );
+        await stopOldEnv( old );
+
         let envPath = await envUtils.getPathOrError( env );
 
         // So that the DB is already in the folder mounted to docker
