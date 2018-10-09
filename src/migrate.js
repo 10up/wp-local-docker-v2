@@ -115,7 +115,7 @@ const command = async function() {
     if ( commandUtils.subcommand() === 'help' || commandUtils.subcommand() === undefined ) {
         help();
     } else {
-        let old = commandUtils.getArg(1);
+        let old = path.resolve( commandUtils.getArg(1) );
         let env = commandUtils.getArg(2);
 
         // So that we don't prompt at every step...
