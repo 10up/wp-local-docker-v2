@@ -33,7 +33,7 @@ Updates any docker images used by your environment to the latest versions availa
 };
 
 const update = function( image ) {
-    execSync( `docker pull ${image}`, { stdio: 'inherit' });
+    try { execSync( `docker pull ${image}`, { stdio: 'inherit' }); } catch (ex) {}
     console.log();
 };
 
