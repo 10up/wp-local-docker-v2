@@ -14,7 +14,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git@gitlab.10up.com:chris.marslender/wp-local-docker-generator.git"
+    "url": "git@github.com:10up/wp-local-docker-v2.git"
   },
   "author": "Chris Marslender",
   "dependencies": {
