@@ -6,4 +6,4 @@ WP Local Docker is an easy to use Docker based local development environment for
 
 ## Documentation
 
-Documentation is available at [https://10up.github.io/wp-local-docker/](https://10up.github.io/wp-local-docker/)
+Documentation is available at [https://10up.github.io/wp-local-docker-docs/](https://10up.github.io/wp-local-docker-docs/)
