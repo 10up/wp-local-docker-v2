@@ -53,6 +53,12 @@ const parseEnvFromCWD = async function() {
         return false;
     }
 
+    // Make sure that a .config.json file exists here
+    let configFile = path.join( cwd, '.config.json' );
+    if ( ! await fs.exists( configFile ) ) {
+        return false;
+    }
+
     // Strip the base sitepath from the path
     cwd = cwd.replace( await sitesPath(), '' ).replace( /^\//i, '' );
 
