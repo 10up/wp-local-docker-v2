@@ -8,7 +8,7 @@ let started = false;
 const ensureNetworkExists = function() {
     try {
         console.log( "Ensuring global network exists" );
-        let networks = execSync( "docker network ls --filter name=wplocaldocker" ).toString();
+        let networks = execSync( "docker network ls --filter name=^wplocaldocker$" ).toString();
         if ( networks.indexOf( 'wplocaldocker' ) !== -1 ) {
             console.log( " - Network exists" );
             return;
