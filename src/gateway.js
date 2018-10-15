@@ -85,7 +85,7 @@ const waitForDB = function() {
     return new Promise( resolve => {
         let interval = setInterval(() => {
             console.log( "Waiting for mysql..." );
-            let mysql = execSync( `cd ${envUtils.globalPath} && docker-compose logs mysql` ).toString();
+            let mysql = execSync( `docker-compose logs mysql`, { cwd: envUtils.globalPath } ).toString();
 
             if ( mysql.indexOf( readyMatch ) !== -1 ) {
                 if ( occurrences( mysql, firstTimeMatch, false ) !== 0 ) {
@@ -108,7 +108,7 @@ const waitForDB = function() {
 
 const startGateway = async function() {
     console.log( "Ensuring global services are running" );
-    execSync( `cd ${envUtils.globalPath} && docker-compose up -d`, { stdio: 'inherit' });
+    execSync( `docker-compose up -d`, { stdio: 'inherit', cwd: envUtils.globalPath });
 
     await waitForDB();
     console.log();
@@ -116,13 +116,13 @@ const startGateway = async function() {
 
 const stopGateway = function() {
     console.log( "Stopping global services" );
-    execSync( `cd ${envUtils.globalPath} && docker-compose down`, { stdio: 'inherit' });
+    execSync( `docker-compose down`, { stdio: 'inherit', cwd: envUtils.globalPath });
     console.log();
 };
 
 const restartGateway = function() {
     console.log( "Restarting global services" );
-    execSync( `cd ${envUtils.globalPath} && docker-compose restart`, { stdio: 'inherit' });
+    execSync( `docker-compose restart`, { stdio: 'inherit', cwd: envUtils.globalPath });
     console.log();
 };
 

@@ -16,7 +16,7 @@ const command = async function() {
 
     // Check if the container is running, otherwise, start up the stacks
     try {
-        let output = execSync( `cd ${envPath} && docker-compose ps` ).toString();
+        let output = execSync( `docker-compose ps`, {cwd: envPath} ).toString();
         if ( output.indexOf( container ) === -1 ) {
             await gateway.startGlobal();
             await environment.start( envSlug );
@@ -24,7 +24,7 @@ const command = async function() {
     } catch (ex) {}
 
     try {
-        execSync( `cd ${envPath} && docker-compose exec ${container} bash`, { stdio: 'inherit' });
+        execSync( `docker-compose exec ${container} bash`, { stdio: 'inherit', cwd: envPath });
     } catch (ex) {}
 
     process.exit();

@@ -43,7 +43,7 @@ const validateOldEnv = async function( oldEnv ) {
 const stopOldEnv = async function( oldEnv ) {
     console.log( "Ensuring old environment is not running..." );
     try {
-        execSync( `cd ${oldEnv} && docker-compose down`, { stdio: 'ignore' });
+        execSync( `docker-compose down`, { stdio: 'ignore', cwd: oldEnv });
     } catch(ex) {}
 };
 
@@ -75,7 +75,8 @@ const exportOldDatabase = async function( oldEnv, exportDir ) {
 
     // Just in case this failed and are retrying
     try {
-        execSync( `docker stop ${base} && docker rm ${base}`, { stdio: 'ignore' });
+        execSync( `docker stop ${base}`, { stdio: 'ignore' });
+		execSync( `docker rm ${base}`, { stdio: 'ignore' });
     } catch(ex) {}
 
     try {
@@ -93,7 +94,7 @@ const importNewDatabase = async function( env ) {
 
     try {
         console.log( "Importing DB to new Environment" );
-        execSync( `cd ${envPath} && docker-compose exec --user www-data phpfpm wp db import /var/www/html/import/database.sql`, { stdio: 'inherit' });
+        execSync( `docker-compose exec --user www-data phpfpm wp db import /var/www/html/import/database.sql`, { stdio: 'inherit', cwd: envPath });
     } catch (ex) {}
 };
 

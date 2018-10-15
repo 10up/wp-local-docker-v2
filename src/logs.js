@@ -17,7 +17,7 @@ const command = async function() {
     // Check if the container is running, otherwise, start up the stacks
     // If we're listening for output on all containers (subcommand is '') don't start, just attach
     try {
-        let output = execSync( `cd ${envPath} && docker-compose ps` ).toString();
+        let output = execSync( `docker-compose ps`, { cwd: envPath } ).toString();
         if ( container && output.indexOf( container ) === -1 ) {
             await gateway.startGlobal();
             await environment.start( envSlug );
@@ -25,7 +25,7 @@ const command = async function() {
     } catch (ex) {}
 
     try {
-        execSync( `cd ${envPath} && docker-compose logs -f ${container}`, { stdio: 'inherit' });
+        execSync( `docker-compose logs -f ${container}`, { stdio: 'inherit', cwd: envPath });
     } catch (ex) {}
 
     process.exit();
