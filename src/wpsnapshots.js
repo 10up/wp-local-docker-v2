@@ -56,7 +56,7 @@ const command = async function() {
     // @todo update the image version once new images are merged
     try{
         if ( envPath === false ) {
-            execSync( `docker run -it --rm -v ${wpsnapshotsDir}:/home/wpsnapshots/.wpsnapshots 10up/wpsnapshots:dev ${command}`, { stdio: 'inherit' });
+            execSync( `docker run -it --rm -v "${wpsnapshotsDir}:/home/wpsnapshots/.wpsnapshots" 10up/wpsnapshots:dev ${command}`, { stdio: 'inherit' });
         } else {
             await gateway.startGlobal();
             execSync( `docker run -it --rm --network wplocaldocker -v ${envPath}/wordpress:/var/www/html -v ${wpsnapshotsDir}:/home/wpsnapshots/.wpsnapshots 10up/wpsnapshots:dev --db_user=root ${command}`, { stdio: 'inherit' });
