@@ -10,7 +10,8 @@ const globalImages = [
 ];
 const images = [
     '10up/phpfpm:latest',
-    '10up/phpfpm:7.2',
+    '10up/phpfpm:7.3',
+	'10up/phpfpm:7.2',
     '10up/phpfpm:7.1',
     '10up/phpfpm:7.0',
     '10up/phpfpm:5.6',

@@ -118,8 +118,8 @@ const createEnv = async function() {
             name: 'phpVersion',
             type: 'list',
             message: "What version of PHP would you like to use?",
-            choices: [ '7.2', '7.1', '7.0', '5.6', '5.5' ],
-            default: '7.2',
+            choices: [ '7.3', '7.2', '7.1', '7.0', '5.6', '5.5' ],
+            default: '7.3',
         },
         {
             name: 'elasticsearch',
