@@ -35,11 +35,19 @@ const start = async function( env ) {
         env = await envUtils.parseEnvFromCWD();
     }
 
+	// Need to call this outside of envUtils.getPathOrError since we need the slug itself for some functions
+	if ( env === false || undefined === env || env.trim().length === 0 ) {
+		env = await envUtils.promptEnv();
+	}
+
     let envPath = await envUtils.getPathOrError(env);
+
+    // If we got the path from the cwd, we don't have a slug yet, so get it
+	let envSlug = envUtils.envSlug( env );
 
     await gateway.startGlobal();
 
-    console.log( `Starting docker containers for ${env}` );
+    console.log( `Starting docker containers for ${envSlug}` );
     try {
         execSync( `docker-compose up -d`, { stdio: 'inherit', cwd: envPath });
     } catch (ex) {}
@@ -61,9 +69,17 @@ const stop = async function( env ) {
         env = await envUtils.parseEnvFromCWD();
     }
 
+	// Need to call this outside of envUtils.getPathOrError since we need the slug itself for some functions
+	if ( env === false || undefined === env || env.trim().length === 0 ) {
+		env = await envUtils.promptEnv();
+	}
+
     let envPath = await envUtils.getPathOrError(env);
 
-    console.log( `Stopping docker containers for ${env}` );
+    // If we got the path from the cwd, we don't have a slug yet, so get it
+	let envSlug = envUtils.envSlug( env );
+
+    console.log( `Stopping docker containers for ${envSlug}` );
     try {
         execSync( `docker-compose down`, { stdio: 'inherit', cwd: envPath });
     } catch (ex) {}
@@ -75,11 +91,19 @@ const restart = async function( env ) {
         env = await envUtils.parseEnvFromCWD();
     }
 
+	// Need to call this outside of envUtils.getPathOrError since we need the slug itself for some functions
+	if ( env === false || undefined === env || env.trim().length === 0 ) {
+		env = await envUtils.promptEnv();
+	}
+
     let envPath = await envUtils.getPathOrError(env);
+
+    // If we got the path from the cwd, we don't have a slug yet, so get it
+	let envSlug = envUtils.envSlug( env );
 
     await gateway.startGlobal();
 
-    console.log( `Restarting docker containers for ${env}` );
+    console.log( `Restarting docker containers for ${envSlug}` );
     try {
         execSync( `docker-compose restart`, { stdio: 'inherit', cwd: envPath });
     } catch (ex) {
