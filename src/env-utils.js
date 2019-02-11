@@ -53,17 +53,17 @@ const parseEnvFromCWD = async function() {
         return false;
     }
 
-    // Make sure that a .config.json file exists here
-    let configFile = path.join( cwd, '.config.json' );
-    if ( ! await fs.exists( configFile ) ) {
-        return false;
-    }
-
     // Strip the base sitepath from the path
     cwd = cwd.replace( await sitesPath(), '' ).replace( /^\//i, '' );
 
     // First segment is now the envSlug, get rid of the rest
     cwd = cwd.split( '/' )[0];
+
+	// Make sure that a .config.json file exists here
+	let configFile = path.join( await sitesPath(), cwd, '.config.json' );
+	if ( ! await fs.exists( configFile ) ) {
+		return false;
+	}
 
     return cwd;
 };
