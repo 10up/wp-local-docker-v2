@@ -190,9 +190,9 @@ const command = async function() {
 const createProxyConfig = ( proxy, curConfig ) => {
 
     let proxyMarkup = 'location @production {' + "\r\n"
-    				+ '        resolver 8.8.8.8;' + "\r\n"
-    				+ '        proxy_pass ' + proxy + '/$uri;' + "\r\n"
-    				+ '    }';
+		+ '        resolver 8.8.8.8;' + "\r\n"
+		+ '        proxy_pass ' + proxy + '/$uri;' + "\r\n"
+		+ '    }';
 
     let proxyMapObj = {
         '#{TRY_PROXY}': 'try_files $uri @production;',

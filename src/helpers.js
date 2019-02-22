@@ -7,7 +7,7 @@
  *
  * @param string string 	The string to remove slashes from
  */
-const unleadingslashit = function( string ) {
+const unleadingslashit = function ( string ) {
 	return string.replace( /^\/+/g, '' );
 }
 
@@ -16,7 +16,7 @@ const unleadingslashit = function( string ) {
  *
  * @param string string 	The string to remove slashes from
  */
-const untrailingslashit = function( string ) {
+const untrailingslashit = function ( string ) {
 	return string.replace( /\/$/, '' );
 }
 
@@ -25,8 +25,8 @@ const untrailingslashit = function( string ) {
  *
  * @param string string     The string to remove slashes from
  */
-const removeEndSlashes = function( string ) {
-    return unleadingslashit( untrailingslashit( string ) );
+const removeEndSlashes = function ( string ) {
+	return unleadingslashit( untrailingslashit( string ) );
 }
 
 module.exports = { unleadingslashit, untrailingslashit, removeEndSlashes }
