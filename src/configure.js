@@ -202,7 +202,7 @@ const createProxyConfig = ( proxy, curConfig ) => {
     let re = new RegExp( Object.keys( proxyMapObj ).join( "|" ), "gi" );
 
     let newConfig = curConfig.replace( re, function( matched ) {
-        return proxyMapObj[matched]
+        return proxyMapObj[matched];
     } );
 
     return curConfig.replace( curConfig, newConfig );
