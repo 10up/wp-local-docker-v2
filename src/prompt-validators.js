@@ -36,4 +36,20 @@ const parseHostname = function( value ) {
     return hostname;
 };
 
-module.exports = { validateNotEmpty, validateBool, parseHostname };
+/**
+ * Check to make sure proxy URLs have a protcol attached
+ *
+ * @param  string value 	Proxy URL to check against
+ * @return string       	The validated/modified proxy URL
+ */
+const parseProxyUrl = function( value ) {
+	let re = /^https?:\/\//i;
+
+	if ( value.length > 3 && ! re.test( value ) ) {
+		value = 'http://' + value;
+	}
+
+	return value;
+}
+
+module.exports = { validateNotEmpty, validateBool, parseHostname, parseProxyUrl };

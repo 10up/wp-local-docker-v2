@@ -152,4 +152,14 @@ const getPathOrError = async function( env ) {
     return _envPath;
 };
 
-module.exports = { rootPath, srcPath, sitesPath, cacheVolume, globalPath, envSlug, envPath, parseEnvFromCWD, getAllEnvironments, promptEnv, parseOrPromptEnv, getEnvHosts, getPathOrError };
+/**
+ * Format the default Proxy URL based on entered hostname
+ *
+ * @param  string value 	The user entered hostname
+ * @return string       	The formatted default proxy URL
+ */
+const createDefaultProxy = function( value ) {
+	return  'http://' + value.substring( 0, value.lastIndexOf( '.' ) + 1 ) + 'com';
+}
+
+module.exports = { rootPath, srcPath, sitesPath, cacheVolume, globalPath, envSlug, envPath, parseEnvFromCWD, getAllEnvironments, promptEnv, parseOrPromptEnv, getEnvHosts, getPathOrError, createDefaultProxy };

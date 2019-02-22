@@ -124,9 +124,10 @@ const createEnv = async function() {
             type: 'input',
             message: "Proxy URL",
             default: function( answers ) {
-                return 'https://' + answers.hostname.substring( 0, answers.hostname.lastIndexOf( '.' ) + 1 ) + 'com';
+                return envUtils.createDefaultProxy( answers.hostname );
             },
             validate: promptValidators.validateNotEmpty,
+            filter: promptValidators.parseProxyUrl,
             when: function( answers ) {
                 return answers.mediaProxy === true;
             }
@@ -279,8 +280,11 @@ const createEnv = async function() {
         ]
     };
 
+    let nginxConfig = 'default.conf';
+
     if ( answers.wordpressType == 'dev' ) {
         baseConfig.services.phpfpm.volumes.push('./config/php-fpm/wp-cli.develop.yml:/var/www/.wp-cli/config.yml');
+        nginxConfig = 'develop.conf';
     } else {
         baseConfig.services.phpfpm.volumes.push('./config/php-fpm/wp-cli.local.yml:/var/www/.wp-cli/config.yml');
     }
@@ -325,21 +329,23 @@ const createEnv = async function() {
         });
     });
 
+
+    // Media proxy is selected
     if ( answers.mediaProxy === true ) {
         // Write the proxy to the config files
         console.log( "Writing proxy configuration..." );
 
         await new Promise( resolve => {
-            fs.readFile( path.join( envPath, 'config', 'nginx', 'default.conf' ), 'utf8', function( err, curConfig ) {
+            fs.readFile( path.join( envPath, 'config', 'nginx', nginxConfig ), 'utf8', function( err, curConfig ) {
                 if ( err ) {
-                    console.error( chalk.bold.red( "Error: " ) + "Failed to read configuration file. Error: " + err );
+                    console.error( chalk.bold.yellow( "Warning: " ) + "Failed to read nginx configuration file. Your media proxy has not been set. Error: " + err );
                     resolve();
                     return;
                 }
 
-                fs.writeFile( path.join( envPath, 'config', 'nginx', 'default.conf' ), config.createProxyConfig( answers.proxy, curConfig ), 'utf8', function ( err ) {
+                fs.writeFile( path.join( envPath, 'config', 'nginx', nginxConfig ), config.createProxyConfig( answers.proxy, curConfig ), 'utf8', function ( err ) {
                     if ( err ) {
-                        console.error( chalk.bold.red( "Error: " ) + "Failed to write configuration file. Error: " + err );
+                        console.error( chalk.bold.yellow( "Warning: " ) + "Failed to write configuration file. Your media proxy has not been set. Error: " + err );
                         resolve();
                         return;
                     }
