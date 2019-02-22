@@ -115,6 +115,23 @@ const createEnv = async function() {
             }
         },
         {
+            name: 'mediaProxy',
+            type: 'confirm',
+            message: "Do you want to set a proxy for media assets? (i.e. Serving /uploads/ directory assets from a production site)",
+        },
+        {
+            name: 'proxy',
+            type: 'input',
+            message: "Proxy URL",
+            default: function( answers ) {
+                return 'https://' + answers.hostname.substring( 0, answers.hostname.lastIndexOf( '.' ) + 1 ) + 'com';
+            },
+            validate: promptValidators.validateNotEmpty,
+            when: function( answers ) {
+                return answers.mediaProxy === true;
+            }
+        },
+        {
             name: 'phpVersion',
             type: 'list',
             message: "What version of PHP would you like to use?",
