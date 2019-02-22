@@ -115,8 +115,8 @@ const createEnv = async function() {
             }
         },
         {
-            name: 'mediaProxy',
-            type: 'confirm',
+			name: 'mediaProxy',
+			type: 'confirm',
 			message: "Do you want to set a proxy for media assets? (i.e. Serving /uploads/ directory assets from a production site)",
 			default: false,
         },
