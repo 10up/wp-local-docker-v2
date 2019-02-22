@@ -17,6 +17,7 @@
  *  envSlug     Accepts a hostname or envSlug and returns a consistent envSlug
  *  envPath     Path within `sitesPath` for the given environment
  */
+
 const slugify = require( '@sindresorhus/slugify' );
 const path = require( 'path' );
 const config = require( './configure' );
@@ -28,6 +29,7 @@ const async = require( 'asyncro' );
 const fs = require( 'fs-extra' );
 const inquirer = require( 'inquirer' );
 const chalk = require( 'chalk' );
+const helper = require( './helpers' );
 
 const sitesPath = async function() {
     return await config.get( 'sitesPath' );
@@ -159,7 +161,7 @@ const getPathOrError = async function( env ) {
  * @return string       	The formatted default proxy URL
  */
 const createDefaultProxy = function( value ) {
-    let proxyUrl = 'http://' + value;
+    let proxyUrl = 'http://' + helper.removeSlashes( value );
     let proxyUrlTLD = proxyUrl.lastIndexOf( '.' );
 
     if ( proxyUrlTLD === -1 ) {

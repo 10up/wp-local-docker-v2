@@ -1,3 +1,5 @@
+const helper = require( './helpers' );
+
 const validateNotEmpty = function( value ) {
     return ( value.trim().length !== 0 ) ? true : "This field is required";
 };
@@ -49,7 +51,7 @@ const parseProxyUrl = function( value ) {
         value = 'http://' + value;
     }
 
-    return value;
+    return helper.removeSlashes( value );
 }
 
 module.exports = { validateNotEmpty, validateBool, parseHostname, parseProxyUrl };
