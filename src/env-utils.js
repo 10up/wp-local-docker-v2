@@ -159,7 +159,16 @@ const getPathOrError = async function( env ) {
  * @return string       	The formatted default proxy URL
  */
 const createDefaultProxy = function( value ) {
-    return  'http://' + value.substring( 0, value.lastIndexOf( '.' ) + 1 ) + 'com';
+	let proxyUrl = 'http://' + value;
+    let proxyUrlTLD = proxyUrl.lastIndexOf( '.' );
+
+	if ( proxyUrlTLD === -1 ) {
+		proxyUrl = proxyUrl + '.com';
+	} else {
+        proxyUrl = proxyUrl.substring( 0, proxyUrlTLD + 1 ) + 'com';
+    }
+
+    return proxyUrl;
 }
 
 module.exports = { rootPath, srcPath, sitesPath, cacheVolume, globalPath, envSlug, envPath, parseEnvFromCWD, getAllEnvironments, promptEnv, parseOrPromptEnv, getEnvHosts, getPathOrError, createDefaultProxy };
