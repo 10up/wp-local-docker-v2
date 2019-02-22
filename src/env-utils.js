@@ -17,6 +17,7 @@
  *  envSlug     Accepts a hostname or envSlug and returns a consistent envSlug
  *  envPath     Path within `sitesPath` for the given environment
  */
+
 const slugify = require( '@sindresorhus/slugify' );
 const path = require( 'path' );
 const config = require( './configure' );
@@ -28,6 +29,7 @@ const async = require( 'asyncro' );
 const fs = require( 'fs-extra' );
 const inquirer = require( 'inquirer' );
 const chalk = require( 'chalk' );
+const helper = require( './helpers' );
 
 const sitesPath = async function() {
     return await config.get( 'sitesPath' );
@@ -152,4 +154,23 @@ const getPathOrError = async function( env ) {
     return _envPath;
 };
 
-module.exports = { rootPath, srcPath, sitesPath, cacheVolume, globalPath, envSlug, envPath, parseEnvFromCWD, getAllEnvironments, promptEnv, parseOrPromptEnv, getEnvHosts, getPathOrError };
+/**
+ * Format the default Proxy URL based on entered hostname
+ *
+ * @param  string value 	The user entered hostname
+ * @return string       	The formatted default proxy URL
+ */
+const createDefaultProxy = function( value ) {
+    let proxyUrl = 'http://' + helper.removeEndSlashes( value );
+    let proxyUrlTLD = proxyUrl.lastIndexOf( '.' );
+
+    if ( proxyUrlTLD === -1 ) {
+        proxyUrl = proxyUrl + '.com';
+    } else {
+        proxyUrl = proxyUrl.substring( 0, proxyUrlTLD + 1 ) + 'com';
+    }
+
+    return proxyUrl;
+}
+
+module.exports = { rootPath, srcPath, sitesPath, cacheVolume, globalPath, envSlug, envPath, parseEnvFromCWD, getAllEnvironments, promptEnv, parseOrPromptEnv, getEnvHosts, getPathOrError, createDefaultProxy };

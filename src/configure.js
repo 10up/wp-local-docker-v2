@@ -180,4 +180,32 @@ const command = async function() {
     await configure( answers );
 };
 
-module.exports = { command, promptUnconfigured, configureDefaults, checkIfConfigured, get, set, getConfigDirectory };
+/**
+ * Create the NGINX directive to set a media URL proxy
+ *
+ * @param  string proxy     	The URL to set the proxy to
+ * @param  string curConfig 	Complete content of the existing config file
+ * @return string          		New content for the config file
+ */
+const createProxyConfig = ( proxy, curConfig ) => {
+
+    let proxyMarkup = 'location @production {' + "\r\n"
+		+ '        resolver 8.8.8.8;' + "\r\n"
+		+ '        proxy_pass ' + proxy + '/$uri;' + "\r\n"
+		+ '    }';
+
+    let proxyMapObj = {
+        '#{TRY_PROXY}': 'try_files $uri @production;',
+        '#{PROXY_URL}': proxyMarkup
+    };
+
+    let re = new RegExp( Object.keys( proxyMapObj ).join( "|" ), "gi" );
+
+    let newConfig = curConfig.replace( re, function( matched ) {
+        return proxyMapObj[matched];
+    } );
+
+    return curConfig.replace( curConfig, newConfig );
+};
+
+module.exports = { command, promptUnconfigured, configureDefaults, checkIfConfigured, get, set, getConfigDirectory, createProxyConfig };

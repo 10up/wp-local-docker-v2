@@ -115,6 +115,25 @@ const createEnv = async function() {
             }
         },
         {
+			name: 'mediaProxy',
+            type: 'confirm',
+            message: "Do you want to set a proxy for media assets? (i.e. Serving /uploads/ directory assets from a production site)",
+            default: false,
+        },
+        {
+            name: 'proxy',
+            type: 'input',
+            message: "Proxy URL",
+            default: function( answers ) {
+                return envUtils.createDefaultProxy( answers.hostname );
+            },
+            validate: promptValidators.validateNotEmpty,
+            filter: promptValidators.parseProxyUrl,
+            when: function( answers ) {
+                return answers.mediaProxy === true;
+            }
+        },
+        {
             name: 'phpVersion',
             type: 'list',
             message: "What version of PHP would you like to use?",
@@ -205,6 +224,9 @@ const createEnv = async function() {
     let envSlug = envUtils.envSlug( envHost );
     let envPath = await envUtils.envPath( envHost );
 
+    // Default nginx configuration file
+    let nginxConfig = 'default.conf';
+
     if ( await fs.exists( envPath ) === true ) {
         console.log();
         console.error( `Error: ${envHost} environment already exists. To recreate the environment, please delete it first by running \`10updocker delete ${envHost}\`` );
@@ -234,13 +256,6 @@ const createEnv = async function() {
     // Additional nginx config based on selections above
     baseConfig.services.nginx.environment.VIRTUAL_HOST = allHosts.concat(starHosts).join( ',' );
 
-    // Map a different config for Develop version of WP
-    if ( answers.wordpressType === 'dev' ) {
-        baseConfig.services.nginx.volumes.push( './config/nginx/develop.conf:/etc/nginx/conf.d/default.conf' );
-    } else {
-        baseConfig.services.nginx.volumes.push( './config/nginx/default.conf:/etc/nginx/conf.d/default.conf' );
-    }
-
     baseConfig.services.phpfpm = {
         'image': '10up/phpfpm:' + answers.phpVersion,
         'volumes': [
@@ -264,9 +279,13 @@ const createEnv = async function() {
 
     if ( answers.wordpressType == 'dev' ) {
         baseConfig.services.phpfpm.volumes.push('./config/php-fpm/wp-cli.develop.yml:/var/www/.wp-cli/config.yml');
+        nginxConfig = 'develop.conf';
     } else {
         baseConfig.services.phpfpm.volumes.push('./config/php-fpm/wp-cli.local.yml:/var/www/.wp-cli/config.yml');
     }
+
+    // Map the nginx configuraiton file
+    baseConfig.services.nginx.volumes.push( './config/nginx/' + nginxConfig + ':/etc/nginx/conf.d/default.conf' );
 
     if ( answers.elasticsearch === true ) {
         baseConfig.services.phpfpm.depends_on.push( 'elasticsearch' );
@@ -307,6 +326,34 @@ const createEnv = async function() {
             resolve();
         });
     });
+
+
+    // Media proxy is selected
+    if ( answers.mediaProxy === true ) {
+        // Write the proxy to the config files
+        console.log( "Writing proxy configuration..." );
+
+        await new Promise( resolve => {
+            fs.readFile( path.join( envPath, 'config', 'nginx', nginxConfig ), 'utf8', function( err, curConfig ) {
+                if ( err ) {
+                    console.error( chalk.bold.yellow( "Warning: " ) + "Failed to read nginx configuration file. Your media proxy has not been set. Error: " + err );
+                    resolve();
+                    return;
+                }
+
+                fs.writeFile( path.join( envPath, 'config', 'nginx', nginxConfig ), config.createProxyConfig( answers.proxy, curConfig ), 'utf8', function ( err ) {
+                    if ( err ) {
+                        console.error( chalk.bold.yellow( "Warning: " ) + "Failed to write configuration file. Your media proxy has not been set. Error: " + err );
+                        resolve();
+                        return;
+                    }
+                } );
+
+                console.log( "Proxy configured" );
+                resolve();
+            } );
+        } );
+    }
 
     // Create database
     console.log( "Creating database" );
