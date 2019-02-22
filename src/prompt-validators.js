@@ -43,13 +43,13 @@ const parseHostname = function( value ) {
  * @return string       	The validated/modified proxy URL
  */
 const parseProxyUrl = function( value ) {
-	let re = /^https?:\/\//i;
+    let re = /^https?:\/\//i;
 
-	if ( value.length > 3 && ! re.test( value ) ) {
-		value = 'http://' + value;
-	}
+    if ( value.length > 3 && ! re.test( value ) ) {
+        value = 'http://' + value;
+    }
 
-	return value;
+    return value;
 }
 
 module.exports = { validateNotEmpty, validateBool, parseHostname, parseProxyUrl };
