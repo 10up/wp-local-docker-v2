@@ -325,6 +325,32 @@ const createEnv = async function() {
         });
     });
 
+    if ( answers.mediaProxy === true ) {
+        // Write the proxy to the config files
+        console.log( "Writing proxy configuration..." );
+
+        await new Promise( resolve => {
+            fs.readFile( path.join( envPath, 'config', 'nginx', 'default.conf' ), 'utf8', function( err, curConfig ) {
+                if ( err ) {
+                    console.error( chalk.bold.red( "Error: " ) + "Failed to read configuration file. Error: " + err );
+                    resolve();
+                    return;
+                }
+
+                fs.writeFile( path.join( envPath, 'config', 'nginx', 'default.conf' ), config.createProxyConfig( answers.proxy, curConfig ), 'utf8', function ( err ) {
+                    if ( err ) {
+                        console.error( chalk.bold.red( "Error: " ) + "Failed to write configuration file. Error: " + err );
+                        resolve();
+                        return;
+                    }
+                } );
+
+                console.log( "Proxy configured" );
+                resolve();
+            } );
+        } );
+    }
+
     // Create database
     console.log( "Creating database" );
     await database.create( envSlug );
