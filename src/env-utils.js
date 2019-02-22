@@ -161,7 +161,7 @@ const getPathOrError = async function( env ) {
  * @return string       	The formatted default proxy URL
  */
 const createDefaultProxy = function( value ) {
-    let proxyUrl = 'http://' + helper.removeSlashes( value );
+    let proxyUrl = 'http://' + helper.removeEndSlashes( value );
     let proxyUrlTLD = proxyUrl.lastIndexOf( '.' );
 
     if ( proxyUrlTLD === -1 ) {

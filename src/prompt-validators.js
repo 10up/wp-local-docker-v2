@@ -51,7 +51,7 @@ const parseProxyUrl = function( value ) {
         value = 'http://' + value;
     }
 
-    return helper.removeSlashes( value );
+    return helper.removeEndSlashes( value );
 }
 
 module.exports = { validateNotEmpty, validateBool, parseHostname, parseProxyUrl };
