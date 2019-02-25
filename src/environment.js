@@ -10,6 +10,8 @@ const gateway = require( './gateway' );
 const sudo = require( 'sudo-prompt' );
 config = require( './configure' );
 const chalk = require( 'chalk' );
+const readYaml = require( 'read-yaml' );
+const writeYaml = require( 'write-yaml' );
 
 const help = function() {
     let command = commandUtils.command();
@@ -179,6 +181,51 @@ const deleteEnv = async function( env ) {
     await database.deleteDatabase( envSlug );
 };
 
+const upgradeEnv = async function( env ) {
+	if ( undefined === env || env.trim().length === 0 ) {
+		env = await envUtils.parseEnvFromCWD();
+	}
+
+	// Need to call this outside of envUtils.getPathOrError since we need the slug itself for some functions
+	if ( env === false || undefined === env || env.trim().length === 0 ) {
+		env = await envUtils.promptEnv();
+	}
+
+	let envPath = await envUtils.getPathOrError(env);
+
+	// If we got the path from the cwd, we don't have a slug yet, so get it
+	let envSlug = envUtils.envSlug( env );
+
+	let yaml = readYaml.sync( path.join( envPath, 'docker-compose.yml' ) );
+
+	let services = [ 'nginx', 'phpfpm', 'elasticsearch' ];
+
+	// Update defined services to have all cached volumes
+	for ( let service of services ) {
+		for ( let key in yaml.services[ service ].volumes ) {
+			let volume = yaml.services[ service ].volumes[ key ];
+			let parts = volume.split( ':' );
+			if ( 3 !== parts.length ) {
+				parts.push( 'cached' );
+			}
+
+			yaml.services[ service ].volumes[ key ] = parts.join( ':' );
+		}
+	}
+
+	await new Promise( resolve => {
+		writeYaml( path.join( envPath, 'docker-compose.yml' ), yaml, { 'lineWidth': 500 }, function( err ) {
+			if ( err ) {
+				console.log(err);
+			}
+			console.log( `Finished updating ${envSlug}` );
+			resolve();
+		});
+	});
+
+	start( envSlug );
+};
+
 const startAll = async function() {
     let envs = await envUtils.getAllEnvironments();
 
@@ -234,6 +281,9 @@ const command = async function() {
             case 'delete':
             case 'remove':
                 commandUtils.subcommand() === 'all' ? deleteAll() : deleteEnv( commandUtils.commandArgs() );
+                break;
+            case 'upgrade':
+                upgradeEnv( commandUtils.commandArgs() );
                 break;
             default:
                 help();
