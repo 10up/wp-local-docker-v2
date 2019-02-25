@@ -71,6 +71,7 @@ const init = async function() {
         case 'restart':
         case 'delete':
         case 'remove':
+        case 'upgrade':
             await require('./src/environment').command();
             break;
         case 'snapshots':

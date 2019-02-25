@@ -179,6 +179,24 @@ const deleteEnv = async function( env ) {
     await database.deleteDatabase( envSlug );
 };
 
+const upgradeEnv = async function( env ) {
+	if ( undefined === env || env.trim().length === 0 ) {
+		env = await envUtils.parseEnvFromCWD();
+	}
+
+	// Need to call this outside of envUtils.getPathOrError since we need the slug itself for some functions
+	if ( env === false || undefined === env || env.trim().length === 0 ) {
+		env = await envUtils.promptEnv();
+	}
+
+	let envPath = await envUtils.getPathOrError(env);
+
+	// If we got the path from the cwd, we don't have a slug yet, so get it
+	let envSlug = envUtils.envSlug( env );
+
+	// @todo do the upgrade routine here
+};
+
 const startAll = async function() {
     let envs = await envUtils.getAllEnvironments();
 
@@ -234,6 +252,9 @@ const command = async function() {
             case 'delete':
             case 'remove':
                 commandUtils.subcommand() === 'all' ? deleteAll() : deleteEnv( commandUtils.commandArgs() );
+                break;
+            case 'upgrade':
+                upgradeEnv( commandUtils.commandArgs() );
                 break;
             default:
                 help();
