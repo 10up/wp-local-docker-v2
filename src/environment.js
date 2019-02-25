@@ -222,6 +222,8 @@ const upgradeEnv = async function( env ) {
 			resolve();
 		});
 	});
+
+	start( envSlug );
 };
 
 const startAll = async function() {
