@@ -46,23 +46,27 @@ const envPath = async function( env ) {
 };
 
 const parseEnvFromCWD = async function() {
-    let cwd = process.cwd();
-    if ( cwd.indexOf( await sitesPath() ) === -1 ) {
+    // Compare both of these as all lowercase to account for any misconfigurations
+    let cwd = process.cwd().toLowerCase();
+    let sitesPathValue = await sitesPath();
+    sitesPathValue = sitesPathValue.toLowerCase();
+
+    if ( cwd.indexOf( sitesPathValue ) === -1 ) {
         return false;
     }
 
-    if ( cwd === await sitesPath() ) {
+    if ( cwd === sitesPathValue ) {
         return false;
     }
 
     // Strip the base sitepath from the path
-    cwd = cwd.replace( await sitesPath(), '' ).replace( /^\//i, '' );
+    cwd = cwd.replace( sitesPathValue, '' ).replace( /^\//i, '' );
 
     // First segment is now the envSlug, get rid of the rest
     cwd = cwd.split( '/' )[0];
 
 	// Make sure that a .config.json file exists here
-	let configFile = path.join( await sitesPath(), cwd, '.config.json' );
+	let configFile = path.join( sitesPathValue, cwd, '.config.json' );
 	if ( ! await fs.exists( configFile ) ) {
 		return false;
 	}
