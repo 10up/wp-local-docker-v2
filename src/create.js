@@ -37,7 +37,7 @@ const createEnv = async function() {
                     "443"
                 ],
                 'volumes': [
-                    './wordpress:/var/www/html'
+                    './wordpress:/var/www/html:cached'
                 ],
                 'depends_on': [
                     'phpfpm',
@@ -259,11 +259,11 @@ const createEnv = async function() {
     baseConfig.services.phpfpm = {
         'image': '10up/phpfpm:' + answers.phpVersion,
         'volumes': [
-            './wordpress:/var/www/html',
-            './config/php-fpm/php.ini:/usr/local/etc/php/php.ini',
-            './config/php-fpm/docker-php-ext-xdebug.ini:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini',
-            `${envUtils.cacheVolume}:/var/www/.wp-cli/cache`,
-            '~/.ssh:/root/.ssh'
+            './wordpress:/var/www/html:cached',
+            './config/php-fpm/php.ini:/usr/local/etc/php/php.ini:cached',
+            './config/php-fpm/docker-php-ext-xdebug.ini:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini:cached',
+            `${envUtils.cacheVolume}:/var/www/.wp-cli/cache:cached`,
+            '~/.ssh:/root/.ssh:cached'
         ],
         'depends_on': [
             'memcached',
@@ -278,14 +278,14 @@ const createEnv = async function() {
     };
 
     if ( answers.wordpressType == 'dev' ) {
-        baseConfig.services.phpfpm.volumes.push('./config/php-fpm/wp-cli.develop.yml:/var/www/.wp-cli/config.yml');
+        baseConfig.services.phpfpm.volumes.push('./config/php-fpm/wp-cli.develop.yml:/var/www/.wp-cli/config.yml:cached');
         nginxConfig = 'develop.conf';
     } else {
-        baseConfig.services.phpfpm.volumes.push('./config/php-fpm/wp-cli.local.yml:/var/www/.wp-cli/config.yml');
+        baseConfig.services.phpfpm.volumes.push('./config/php-fpm/wp-cli.local.yml:/var/www/.wp-cli/config.yml:cached');
     }
 
     // Map the nginx configuraiton file
-    baseConfig.services.nginx.volumes.push( './config/nginx/' + nginxConfig + ':/etc/nginx/conf.d/default.conf' );
+    baseConfig.services.nginx.volumes.push( './config/nginx/' + nginxConfig + ':/etc/nginx/conf.d/default.conf:cached' );
 
     if ( answers.elasticsearch === true ) {
         baseConfig.services.phpfpm.depends_on.push( 'elasticsearch' );
@@ -296,8 +296,8 @@ const createEnv = async function() {
                 '9200'
             ],
             'volumes': [
-                './config/elasticsearch/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml',
-                './config/elasticsearch/plugins:/usr/share/elasticsearch/plugins',
+                './config/elasticsearch/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:cached',
+                './config/elasticsearch/plugins:/usr/share/elasticsearch/plugins:cached',
                 'elasticsearchData:/usr/share/elasticsearch/data:delegated'
             ],
             'environment': {
