@@ -10,6 +10,8 @@ const gateway = require( './gateway' );
 const sudo = require( 'sudo-prompt' );
 config = require( './configure' );
 const chalk = require( 'chalk' );
+const readYaml = require( 'read-yaml' );
+const writeYaml = require( 'write-yaml' );
 
 const help = function() {
     let command = commandUtils.command();
@@ -194,7 +196,32 @@ const upgradeEnv = async function( env ) {
 	// If we got the path from the cwd, we don't have a slug yet, so get it
 	let envSlug = envUtils.envSlug( env );
 
-	// @todo do the upgrade routine here
+	let yaml = readYaml.sync( path.join( envPath, 'docker-compose.yml' ) );
+
+	let services = [ 'nginx', 'phpfpm'];
+
+	// Update defined services to have all cached volumes
+	for ( let service of services ) {
+		for ( let key in yaml.services[ service ].volumes ) {
+			let volume = yaml.services[ service ].volumes[ key ];
+			let parts = volume.split( ':' );
+			if ( 3 !== parts.length ) {
+				parts.push( 'cached' );
+			}
+
+			yaml.services[ service ].volumes[ key ] = parts.join( ':' );
+		}
+	}
+
+	await new Promise( resolve => {
+		writeYaml( path.join( envPath, 'docker-compose.yml' ), yaml, { 'lineWidth': 500 }, function( err ) {
+			if ( err ) {
+				console.log(err);
+			}
+			console.log( `Finished updating ${envSlug}` );
+			resolve();
+		});
+	});
 };
 
 const startAll = async function() {
