@@ -202,6 +202,9 @@ const upgradeEnv = async function( env ) {
 
 	// Update defined services to have all cached volumes
 	for ( let service of services ) {
+		if ( ! yaml.services[ service ] ) {
+			continue;
+		}
 		for ( let key in yaml.services[ service ].volumes ) {
 			let volume = yaml.services[ service ].volumes[ key ];
 			let parts = volume.split( ':' );
