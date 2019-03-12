@@ -23,8 +23,8 @@ const checkIfConfigured = async function() {
 
 const command = async function() {
     // false catches the case when no subcommand is passed, and we just pass to snapshots to show usage
-    let bypassCommands = [ undefined, 'configure', 'help', 'list' ];
-    let noPathCommands = [ undefined, 'configure', 'help', 'list', 'delete', 'search', 'download' ];
+    let bypassCommands = [ undefined, 'configure', 'help', 'list', 'create-repository' ];
+    let noPathCommands = [ undefined, 'configure', 'help', 'list', 'create-repository', 'delete', 'search', 'download' ];
     let envPath = false;
 
     // Ensure that the wpsnapshots folder is created and owned by the current user versus letting docker create it so we can enforce proper ownership later
