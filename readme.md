@@ -9,7 +9,7 @@
 Documentation is available at [https://10up.github.io/wp-local-docker-docs/](https://10up.github.io/wp-local-docker-docs/).
 
 ## Support Level
-**Beta:** This project is quite new and we're not sure what our ongoing support level for this will be.  Bug reports, feature requests, questions, and pull requests are welcome.  If you like this project please let us know, but be cautious using this in a Production environment!
+**Beta:** This project is quite new and we're not sure what our ongoing support level for this will be. Bug reports, feature requests, questions, and pull requests are welcome. This project is not intended for use in a production environment. If you like this project please let us know!
 
 ## Like what you see?
 
