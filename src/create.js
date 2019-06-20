@@ -327,6 +327,26 @@ const createEnv = async function() {
         });
     });
 
+    // Write wp-cli config
+    console.log( "Generating wp-cli.yml file..." );
+    await new Promise( resolve => {
+        yaml(
+            path.join( envPath, 'wp-cli.yml' ),
+            {
+                ssh: 'docker-compose:www-data@phpfpm'
+            },
+            {
+                lineWidth: 500
+            },
+            function( err ) {
+                if ( err ) {
+                    console.error( err );
+                }
+                console.log( 'done' );
+                resolve();
+            }
+        );
+    });
 
     // Media proxy is selected
     if ( answers.mediaProxy === true ) {
