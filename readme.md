@@ -2,14 +2,14 @@
 
 > WP Local Docker is an easy to use Docker based local development environment for WordPress development that works on Mac, Windows, and Linux. 
 
-[![Support Level](https://img.shields.io/badge/support-beta-blueviolet.svg)](#support-level) [![MIT License](https://img.shields.io/github/license/10up/wp-local-docker-v2.svg)](https://github.com/10up/wp-local-docker-v2/blob/master/LICENSE)
+[![Support Level](https://img.shields.io/badge/support-active-green.svg)](#support-level) [![MIT License](https://img.shields.io/github/license/10up/wp-local-docker-v2.svg)](https://github.com/10up/wp-local-docker-v2/blob/master/LICENSE)
 
 ## Documentation
 
 Documentation is available at [https://10up.github.io/wp-local-docker-docs/](https://10up.github.io/wp-local-docker-docs/).
 
 ## Support Level
-**Beta:** This project is quite new and we're not sure what our ongoing support level for this will be. Bug reports, feature requests, questions, and pull requests are welcome. This project is not intended for use in a production environment. If you like this project please let us know!
+**Active:** 10up is actively working on this, and we expect to continue work for the foreseeable future including keeping tested up to the most recent version of WordPress.  Bug reports, feature requests, questions, and pull requests are welcome.
 
 ## Like what you see?
 
