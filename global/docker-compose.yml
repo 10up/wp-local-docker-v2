@@ -64,6 +64,8 @@ services:
       - 'elasticsearchData:/usr/share/elasticsearch/data:delegated'
     mem_limit: 1024M
     mem_reservation: 1024M
+    networks:
+      - wplocaldocker
     environment: 
       ES_JAVA_OPTS: '-Xms450m -Xmx450m'
 networks:
