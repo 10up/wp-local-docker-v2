@@ -279,7 +279,7 @@ const createEnv = async function() {
         baseConfig.services.phpfpm.volumes.push('./config/php-fpm/wp-cli.local.yml:/var/www/.wp-cli/config.yml:cached');
     }
 
-    // Map the nginx configuraiton file
+    // Map the nginx configuration file
     baseConfig.services.nginx.volumes.push( './config/nginx/' + nginxConfig + ':/etc/nginx/conf.d/default.conf:cached' );
 
     // Create webroot/config
