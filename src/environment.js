@@ -198,7 +198,7 @@ const upgradeEnv = async function( env ) {
 
 	let yaml = readYaml.sync( path.join( envPath, 'docker-compose.yml' ) );
 
-	let services = [ 'nginx', 'phpfpm', 'elasticsearch' ];
+	let services = [ 'nginx', 'phpfpm' ];
 
 	// Update defined services to have all cached volumes
 	for ( let service of services ) {

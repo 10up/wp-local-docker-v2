@@ -141,11 +141,6 @@ const createEnv = async function() {
             default: '7.3',
         },
         {
-            name: 'elasticsearch',
-            type: 'confirm',
-            message: "Do you need Elasticsearch",
-        },
-        {
             name: 'wordpress',
             type: 'confirm',
             message: "Do you want to install WordPress?",
@@ -286,27 +281,6 @@ const createEnv = async function() {
 
     // Map the nginx configuraiton file
     baseConfig.services.nginx.volumes.push( './config/nginx/' + nginxConfig + ':/etc/nginx/conf.d/default.conf:cached' );
-
-    if ( answers.elasticsearch === true ) {
-        baseConfig.services.phpfpm.depends_on.push( 'elasticsearch' );
-
-        baseConfig.services.elasticsearch = {
-            image: 'docker.elastic.co/elasticsearch/elasticsearch:5.6.5',
-            'expose': [
-                '9200'
-            ],
-            'volumes': [
-                './config/elasticsearch/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:cached',
-                './config/elasticsearch/plugins:/usr/share/elasticsearch/plugins:cached',
-                'elasticsearchData:/usr/share/elasticsearch/data:delegated'
-            ],
-            'environment': {
-                ES_JAVA_OPTS: '-Xms750m -Xmx750m'
-            }
-        };
-
-        volumeConfig.volumes.elasticsearchData = {};
-    }
 
     // Create webroot/config
     console.log( "Copying required files..." );
