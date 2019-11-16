@@ -37,7 +37,7 @@ const createEnv = async function() {
                     "443"
                 ],
                 'volumes': [
-                    './wordpress:/var/www/html:cached'
+                    './project:/var/www/html:cached'
                 ],
                 'depends_on': [
                     'phpfpm',
@@ -137,7 +137,7 @@ const createEnv = async function() {
             name: 'phpVersion',
             type: 'list',
             message: "What version of PHP would you like to use?",
-            choices: [ '7.3', '7.2', '7.1', '7.0', '5.6', '5.5' ],
+            choices: [ '7.4', '7.3', '7.2' ],
             default: '7.3',
         },
         {
@@ -252,11 +252,10 @@ const createEnv = async function() {
     baseConfig.services.nginx.environment.VIRTUAL_HOST = allHosts.concat(starHosts).join( ',' );
 
     baseConfig.services.phpfpm = {
-        'image': '10up/phpfpm:' + answers.phpVersion,
+        'image': 'dustinrue/wp-php-fpm-dev:' + answers.phpVersion,
         'volumes': [
-            './wordpress:/var/www/html:cached',
-            './config/php-fpm/php.ini:/usr/local/etc/php/php.ini:cached',
-            './config/php-fpm/docker-php-ext-xdebug.ini:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini:cached',
+            './project:/var/www/html:cached',
+            './config/php-fpm/docker-php-ext-xdebug.ini:/etc/php.d/docker-php-ext-xdebug.ini:cached',
             `${envUtils.cacheVolume}:/var/www/.wp-cli/cache:cached`,
             '~/.ssh:/root/.ssh:cached'
         ],
@@ -285,7 +284,7 @@ const createEnv = async function() {
     // Create webroot/config
     console.log( "Copying required files..." );
 
-    await fs.ensureDir( path.join( envPath, 'wordpress' ) );
+    await fs.ensureDir( path.join( envPath, 'project' ) );
     await fs.copy( path.join( envUtils.srcPath, 'config' ), path.join( envPath, 'config' ) );
 
     // Write Docker Compose
@@ -307,7 +306,7 @@ const createEnv = async function() {
         yaml(
             path.join( envPath, 'wp-cli.yml' ),
             {
-                ssh: 'docker-compose:www-data@phpfpm'
+                ssh: 'docker-compose:phpfpm'
             },
             {
                 lineWidth: 500

@@ -9,17 +9,13 @@ const globalImages = [
     'phpmyadmin/phpmyadmin'
 ];
 const images = [
-    '10up/phpfpm:latest',
-    '10up/phpfpm:7.3',
-	'10up/phpfpm:7.2',
-    '10up/phpfpm:7.1',
-    '10up/phpfpm:7.0',
-    '10up/phpfpm:5.6',
-    '10up/phpfpm:5.5',
+    'dustinrue/wp-php-fpm-dev:7.4',
+    'dustinrue/wp-php-fpm-dev:7.3',
+    'dustinrue/wp-php-fpm-dev:7.2',
     '10up/wpsnapshots:dev',
     'memcached:latest',
     'nginx:latest',
-    'docker.elastic.co/elasticsearch/elasticsearch:5.6.5',
+    'docker.elastic.co/elasticsearch/elasticsearch:5.6.16',
     'hitwe/phpmemcachedadmin'
 ];
 
