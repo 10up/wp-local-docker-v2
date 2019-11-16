@@ -252,10 +252,9 @@ const createEnv = async function() {
     baseConfig.services.nginx.environment.VIRTUAL_HOST = allHosts.concat(starHosts).join( ',' );
 
     baseConfig.services.phpfpm = {
-        'image': 'docker.10up.com/10up-systems/official-docker/centos-8/wp-php-fpm-dev:' + answers.phpVersion + '-latest',
+        'image': 'dustinrue/wp-php-fpm-dev:' + answers.phpVersion,
         'volumes': [
             './project:/var/www/html:cached',
-            './config/php-fpm/php.ini:/etc/php.ini:cached',
             './config/php-fpm/docker-php-ext-xdebug.ini:/etc/php.d/docker-php-ext-xdebug.ini:cached',
             `${envUtils.cacheVolume}:/var/www/.wp-cli/cache:cached`,
             '~/.ssh:/root/.ssh:cached'
@@ -307,7 +306,7 @@ const createEnv = async function() {
         yaml(
             path.join( envPath, 'wp-cli.yml' ),
             {
-                ssh: 'docker-compose:www-data@phpfpm'
+                ssh: 'docker-compose:phpfpm'
             },
             {
                 lineWidth: 500
