@@ -9,7 +9,7 @@
     "10updocker-hosts": "./hosts.js"
   },
   "bin": {
-    "10updocker": "./index.js",
+    "10updocker-dev": "./index.js",
     "10updocker-hosts": "./hosts.js"
   },
   "repository": {
