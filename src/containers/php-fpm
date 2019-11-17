@@ -4,6 +4,8 @@ FROM dustinrue/wp-php-fpm-dev:${PHP_VERSION}
 ARG CALLING_USER=www-data
 ARG CALLING_UID=33
 
+LABEL "com.10up.wp-local-docker"="user-image"
+
 USER root
 
 RUN useradd ${CALLING_USER} -u ${CALLING_UID}
