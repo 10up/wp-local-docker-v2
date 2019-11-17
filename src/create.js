@@ -254,6 +254,9 @@ const createEnv = async function() {
 
     baseConfig.services.phpfpm = {
         'image': 'dustinrue/wp-php-fpm-dev:' + answers.phpVersion,
+        'environment': {
+            'ENABLE_XDEBUG': "false"
+        },
         'volumes': [
             './project:/var/www/html:cached',
             './config/php-fpm/docker-php-ext-xdebug.ini:/etc/php.d/docker-php-ext-xdebug.ini:cached',
