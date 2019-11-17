@@ -295,4 +295,4 @@ const command = async function() {
     }
 };
 
-module.exports = { command, start, stop, restart, help };
+module.exports = { command, start, stop, stopAll, restart, help };
