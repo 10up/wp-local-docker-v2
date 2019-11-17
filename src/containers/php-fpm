@@ -1,0 +1,15 @@
+ARG PHP_VERSION=7.3
+FROM dustinrue/wp-php-fpm-dev:${PHP_VERSION}
+
+ARG CALLING_USER=www-data
+ARG CALLING_UID=33
+
+USER root
+
+RUN useradd ${CALLING_USER} -u ${CALLING_UID}
+RUN mkdir -p /run/php-fpm
+RUN chown ${CALLING_USER} /run/php-fpm
+RUN chown ${CALLING_USER} /var/log/php-fpm
+RUN touch /usr/local/etc/msmtprc && chown ${CALLING_USER} $_
+
+USER ${CALLING_USER}
