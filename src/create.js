@@ -12,6 +12,7 @@ const envUtils = require( './env-utils' );
 const sudo = require( 'sudo-prompt' );
 const config = require( './configure' );
 const chalk = require( 'chalk' );
+const os = require('os');
 
 const help = function() {
     let help = `
@@ -271,6 +272,24 @@ const createEnv = async function() {
         ]
     };
 
+    // unlike Mac and Windows, Docker is a first class citizen on Linux
+    // and doesn't have any kind of translation layer between users and the
+    // file system. Because of the phpfpm container will be running as the 
+    // wrong user. Here we setup the docker-compose.yml file to rebuild the
+    // phpfpm container so that it runs as the user who created the project.
+    if ( os.platform() == "linux" ) {
+        baseConfig.services.phpfpm.image = `wp-php-fpm-dev-${process.env.USER}`;
+        baseConfig.services.phpfpm.build = {
+            'dockerfile': '.containers/php-fpm',
+            'context': '.',
+            'args': {
+                'PHP_VERSION': answers.phpVersion,
+                'CALLING_USER': process.env.USER,
+                'CALLING_UID': process.getuid()
+            }
+        }
+    }
+
     if ( answers.wordpressType == 'dev' ) {
         baseConfig.services.phpfpm.volumes.push('./config/php-fpm/wp-cli.develop.yml:/var/www/.wp-cli/config.yml:cached');
         nginxConfig = 'develop.conf';
@@ -286,6 +305,8 @@ const createEnv = async function() {
 
     await fs.ensureDir( path.join( envPath, 'project' ) );
     await fs.copy( path.join( envUtils.srcPath, 'config' ), path.join( envPath, 'config' ) );
+    await fs.ensureDir( path.join( envPath, '.containers' ) );
+    await fs.copy( path.join( envUtils.srcPath, 'containers'), path.join( envPath, '.containers' ) );
 
     // Write Docker Compose
     console.log( "Generating docker-compose.yml file..." );
