@@ -261,7 +261,7 @@ const createEnv = async function() {
             './project:/var/www/html:cached',
             './config/php-fpm/docker-php-ext-xdebug.ini:/etc/php.d/docker-php-ext-xdebug.ini:cached',
             `${envUtils.cacheVolume}:/var/www/.wp-cli/cache:cached`,
-            '~/.ssh:/root/.ssh:cached'
+            
         ],
         'depends_on': [
             'memcached',
@@ -275,13 +275,13 @@ const createEnv = async function() {
         ]
     };
 
-    // unlike Mac and Windows, Docker is a first class citizen on Linux
+    // Unlike Mac and Windows, Docker is a first class citizen on Linux
     // and doesn't have any kind of translation layer between users and the
     // file system. Because of this the phpfpm container will be running as the 
     // wrong user. Here we setup the docker-compose.yml file to rebuild the
     // phpfpm container so that it runs as the user who created the project.
     if ( os.platform() == "linux" ) {
-        baseConfig.services.phpfpm.image = `wp-php-fpm-dev-${process.env.USER}`;
+        baseConfig.services.phpfpm.image = `wp-php-fpm-dev-${answers.phpVersion}-${process.env.USER}`;
         baseConfig.services.phpfpm.build = {
             'dockerfile': '.containers/php-fpm',
             'context': '.',
@@ -291,6 +291,11 @@ const createEnv = async function() {
                 'CALLING_UID': process.getuid()
             }
         }
+        baseConfig.services.phpfpm.volumes.push( `~/.ssh:/home/${process.env.USER}/.ssh:cached` );
+    }
+    else {
+        // the official containers for this project will have a www-data user. 
+        baseConfig.services.phpfpm.volumes.push( `~/.ssh:/home/www-data/.ssh:cached` );
     }
 
     if ( answers.wordpressType == 'dev' ) {
