@@ -14,8 +14,8 @@ const downloadDevelop = async function( env ) {
 
     console.log( "Downloading WordPress Develop" );
     execSync( `docker-compose exec phpfpm git clone git://develop.git.wordpress.org/ .`, { stdio: 'inherit', cwd: envPath });
-    execSync( `docker run -t --rm -v ${envPath}/project:/usr/src/app -v ${envUtils.cacheVolume}:/var/www/.npm 10up/wpcorebuild:latest npm install`, { stdio: 'inherit', cwd: envPath });
-    execSync( `docker run -t --rm -v ${envPath}/project:/usr/src/app 10up/wpcorebuild:latest grunt`, { stdio: 'inherit', cwd: envPath });
+    execSync( `docker run -t --rm -v ${envPath}/wordpress:/usr/src/app -v ${envUtils.cacheVolume}:/var/www/.npm 10up/wpcorebuild:latest npm install`, { stdio: 'inherit', cwd: envPath });
+    execSync( `docker run -t --rm -v ${envPath}/wordpress:/usr/src/app 10up/wpcorebuild:latest grunt`, { stdio: 'inherit', cwd: envPath });
 };
 
 const configure = async function( env ) {

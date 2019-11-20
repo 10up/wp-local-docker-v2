@@ -38,7 +38,7 @@ const createEnv = async function() {
                     "443"
                 ],
                 'volumes': [
-                    './project:/var/www/html:cached'
+                    './wordpress:/var/www/html:cached'
                 ],
                 'depends_on': [
                     'phpfpm',
@@ -258,7 +258,7 @@ const createEnv = async function() {
             'ENABLE_XDEBUG': "false"
         },
         'volumes': [
-            './project:/var/www/html:cached',
+            './wordpress:/var/www/html:cached',
             './config/php-fpm/docker-php-ext-xdebug.ini:/etc/php.d/docker-php-ext-xdebug.ini:cached',
             `${envUtils.cacheVolume}:/var/www/.wp-cli/cache:cached`,
             
@@ -311,7 +311,7 @@ const createEnv = async function() {
     // Create webroot/config
     console.log( "Copying required files..." );
 
-    await fs.ensureDir( path.join( envPath, 'project' ) );
+    await fs.ensureDir( path.join( envPath, 'wordpress' ) );
     await fs.copy( path.join( envUtils.srcPath, 'config' ), path.join( envPath, 'config' ) );
     await fs.ensureDir( path.join( envPath, '.containers' ) );
     await fs.copy( path.join( envUtils.srcPath, 'containers'), path.join( envPath, '.containers' ) );
