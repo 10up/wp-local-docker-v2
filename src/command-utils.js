@@ -3,6 +3,7 @@ const envUtils = require( './env-utils' );
 const path = require( 'path' );
 const checkForUpdate = require('update-check');
 const chalk = require( 'chalk' );
+const shellEscape = require( 'shell-escape' );
 
 const command = function() {
     let command = process.argv[2];
@@ -14,9 +15,7 @@ const command = function() {
 };
 
 const commandArgs = function() {
-    let args = Array.prototype.slice.call( process.argv, 3 ).join( ' ' );
-
-    return args;
+    return shellEscape( Array.prototype.slice.call( process.argv, 3 ) );
 };
 
 const subcommand = function() {
