@@ -1,6 +1,6 @@
 {
-  "name": "wp-local-docker-v3",
-  "version": "3.0.0-alpha",
+  "name": "wp-local-docker",
+  "version": "2.6.0",
   "description": "WP Local Docker",
   "license": "MIT",
   "main": "index.js",
