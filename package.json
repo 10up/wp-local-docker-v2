@@ -5,11 +5,11 @@
   "license": "MIT",
   "main": "index.js",
   "scripts": {
-    "10updocker-dev": "node index.js",
+    "10updocker": "node index.js",
     "10updocker-hosts": "./hosts.js"
   },
   "bin": {
-    "10updocker-dev": "./index.js",
+    "10updocker": "./index.js",
     "10updocker-hosts": "./hosts.js"
   },
   "repository": {
