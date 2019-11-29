@@ -293,7 +293,7 @@ const createEnv = async function() {
             'dockerfile': '.containers/php-fpm',
             'context': '.',
             'args': {
-                'PHP_VERSION': answers.phpVersion,
+                'PHP_IMAGE': images[`php${answers.phpVersion}`],
                 'CALLING_USER': process.env.USER,
                 'CALLING_UID': process.getuid()
             }
