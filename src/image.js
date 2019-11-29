@@ -7,25 +7,26 @@ const os = require('os');
 const execSync = require('child_process').execSync;
 
 // These have to exist, so we don't bother checking if they exist on the system first
-const globalImages = [
-    '10up/nginx-proxy:latest',
-    'mysql:5',
-    'schickling/mailcatcher',
-    'phpmyadmin/phpmyadmin'
-];
-const images = [
-    'dustinrue/wp-php-fpm-dev:7.4',
-    'dustinrue/wp-php-fpm-dev:7.3',
-    'dustinrue/wp-php-fpm-dev:7.2',
-    'dustinrue/wp-php-fpm-dev:7.1',
-    'dustinrue/wp-php-fpm-dev:7.0',
-    'dustinrue/wp-php-fpm-dev:5.6',
-    '10up/wpsnapshots:dev',
-    'memcached:latest',
-    'nginx:latest',
-    'docker.elastic.co/elasticsearch/elasticsearch:5.6.16',
-    'hitwe/phpmemcachedadmin'
-];
+const globalImages = {
+    'nginx-proxy': '10up/nginx-proxy:latest',
+    'mysql': 'mysql:5',
+    'mailcatcher': 'schickling/mailcatcher',
+    'phpmyadmin': 'phpmyadmin/phpmyadmin'
+};
+
+const images = {
+    'php7.4': 'dustinrue/wp-php-fpm-dev:7.4',
+    'php7.3': 'dustinrue/wp-php-fpm-dev:7.3',
+    'php7.2': 'dustinrue/wp-php-fpm-dev:7.2',
+    'php7.1': 'dustinrue/wp-php-fpm-dev:7.1',
+    'php7.0': 'dustinrue/wp-php-fpm-dev:7.0',
+    'php5.6': 'dustinrue/wp-php-fpm-dev:5.6',
+    'wpsnapshots': '10up/wpsnapshots:dev',
+    'memcached': 'memcached:latest',
+    'nginx': 'nginx:latest',
+    'elasticsearch': 'docker.elastic.co/elasticsearch/elasticsearch:5.6.16',
+    'phpmemcachedadmin': 'hitwe/phpmemcachedadmin'
+};
 
 const help = function() {
     let help = `
@@ -60,8 +61,13 @@ const updateIfUsed = function( image ) {
 };
 
 const updateAll = function() {
-    globalImages.map( update );
-    images.map( updateIfUsed );
+    for (const [ image_name, image_url ] of Object.entries( globalImages ) ) {
+        update( image_url );
+    }
+    
+    for (const [image_name, image_url] of Object.entries( images) ) {
+        updateIfUsed( image_url );
+    }
 
     // delete the built containers on linux so it can be rebuilt with the (possibly) updated
     // phpfpm container
@@ -106,4 +112,4 @@ const command = async function() {
     }
 };
 
-module.exports = { command };
+module.exports = { command, globalImages, images };

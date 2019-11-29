@@ -1,5 +1,5 @@
-ARG PHP_VERSION=7.3
-FROM dustinrue/wp-php-fpm-dev:${PHP_VERSION}
+ARG PHP_IMAGE=dustinrue/wp-php-fpm-dev:7.3
+FROM ${PHP_IMAGE}
 
 ARG CALLING_USER=www-data
 ARG CALLING_UID=33

@@ -13,6 +13,7 @@ const sudo = require( 'sudo-prompt' );
 const config = require( './configure' );
 const chalk = require( 'chalk' );
 const os = require('os');
+const images = require('./image').images;
 
 const help = function() {
     let help = `
@@ -30,10 +31,10 @@ const createEnv = async function() {
         'version': '2',
         'services': {
             'memcached': {
-                'image': 'memcached:latest'
+                'image': images['memcached'],
             },
             'nginx': {
-                'image': 'nginx:latest',
+                'image': images['nginx'],
                 'expose': [
                     "80",
                     "443"
@@ -55,7 +56,7 @@ const createEnv = async function() {
                 }
             },
             'memcacheadmin': {
-                'image': 'hitwe/phpmemcachedadmin',
+                'image': images['phpmemcachedadmin'],
                 'expose': [
                     '80'
                 ],
@@ -259,7 +260,7 @@ const createEnv = async function() {
     baseConfig.services.nginx.environment.VIRTUAL_HOST = allHosts.concat(starHosts).join( ',' );
 
     baseConfig.services.phpfpm = {
-        'image': 'dustinrue/wp-php-fpm-dev:' + answers.phpVersion,
+        'image': images[`php${answers.phpVersion}`],
         'environment': {
             'ENABLE_XDEBUG': "false"
         },
@@ -318,7 +319,7 @@ const createEnv = async function() {
         baseConfig.services.phpfpm.depends_on.push( 'elasticsearch' );
 
         baseConfig.services.elasticsearch = {
-            image: 'docker.elastic.co/elasticsearch/elasticsearch:5.6.16',
+            image: images['elasticsearch'],
             'expose': [
                 '9200'
             ],
