@@ -13,6 +13,7 @@ const sudo = require( 'sudo-prompt' );
 const config = require( './configure' );
 const chalk = require( 'chalk' );
 const os = require('os');
+const images = require('./image').images;
 
 const help = function() {
     let help = `
@@ -26,13 +27,14 @@ Creates a new docker environment interactively.
 
 const createEnv = async function() {
     var baseConfig = {
-        'version': '3',
+        // use version 2 so we can use limits
+        'version': '2',
         'services': {
             'memcached': {
-                'image': 'memcached:latest'
+                'image': images['memcached'],
             },
             'nginx': {
-                'image': 'nginx:latest',
+                'image': images['nginx'],
                 'expose': [
                     "80",
                     "443"
@@ -54,7 +56,7 @@ const createEnv = async function() {
                 }
             },
             'memcacheadmin': {
-                'image': 'hitwe/phpmemcachedadmin',
+                'image': images['phpmemcachedadmin'],
                 'expose': [
                     '80'
                 ],
@@ -138,8 +140,13 @@ const createEnv = async function() {
             name: 'phpVersion',
             type: 'list',
             message: "What version of PHP would you like to use?",
-            choices: [ '7.4', '7.3', '7.2' ],
+            choices: [ '7.4', '7.3', '7.2', '7.1', '7.0', '5.6' ],
             default: '7.3',
+        },
+        {
+            name: 'elasticsearch',
+            type: 'confirm',
+            message: "Do you need Elasticsearch",
         },
         {
             name: 'wordpress',
@@ -253,7 +260,7 @@ const createEnv = async function() {
     baseConfig.services.nginx.environment.VIRTUAL_HOST = allHosts.concat(starHosts).join( ',' );
 
     baseConfig.services.phpfpm = {
-        'image': 'dustinrue/wp-php-fpm-dev:' + answers.phpVersion,
+        'image': images[`php${answers.phpVersion}`],
         'environment': {
             'ENABLE_XDEBUG': "false"
         },
@@ -307,6 +314,30 @@ const createEnv = async function() {
 
     // Map the nginx configuraiton file
     baseConfig.services.nginx.volumes.push( './config/nginx/' + nginxConfig + ':/etc/nginx/conf.d/default.conf:cached' );
+
+    if ( answers.elasticsearch === true ) {
+        baseConfig.services.phpfpm.depends_on.push( 'elasticsearch' );
+
+        baseConfig.services.elasticsearch = {
+            image: images['elasticsearch'],
+            'expose': [
+                '9200'
+            ],
+            'volumes': [
+                './config/elasticsearch/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:cached',
+                './config/elasticsearch/plugins:/usr/share/elasticsearch/plugins:cached',
+                'elasticsearchData:/usr/share/elasticsearch/data:delegated'
+            ],
+            'mem_limit': '1024M',
+            'mem_reservation': '1024M',
+            'environment': {
+                ES_JAVA_OPTS: '-Xms450m -Xmx450m'
+            }
+        };
+
+        volumeConfig.volumes.elasticsearchData = {};
+    }
+
 
     // Create webroot/config
     console.log( "Copying required files..." );

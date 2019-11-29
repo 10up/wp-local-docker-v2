@@ -1,15 +1,15 @@
 {
-  "name": "wp-local-docker-v3",
-  "version": "3.0.0-alpha",
+  "name": "wp-local-docker",
+  "version": "2.6.0",
   "description": "WP Local Docker",
   "license": "MIT",
   "main": "index.js",
   "scripts": {
-    "10updocker-dev": "node index.js",
+    "10updocker": "node index.js",
     "10updocker-hosts": "./hosts.js"
   },
   "bin": {
-    "10updocker-dev": "./index.js",
+    "10updocker": "./index.js",
     "10updocker-hosts": "./hosts.js"
   },
   "repository": {
