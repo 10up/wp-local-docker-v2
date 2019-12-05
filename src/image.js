@@ -25,7 +25,7 @@ const images = {
     'memcached': 'memcached:latest',
     'nginx': 'nginx:latest',
     'elasticsearch': 'docker.elastic.co/elasticsearch/elasticsearch:5.6.16',
-    'phpmemcachedadmin': 'hitwe/phpmemcachedadmin'
+    'phpmemcachedadmin': 'hitwe/phpmemcachedadmin:v2.0.2'
 };
 
 const help = function() {
