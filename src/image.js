@@ -15,12 +15,12 @@ const globalImages = {
 };
 
 const images = {
-    'php7.4': 'dustinrue/wp-php-fpm-dev:7.4',
-    'php7.3': 'dustinrue/wp-php-fpm-dev:7.3',
-    'php7.2': 'dustinrue/wp-php-fpm-dev:7.2',
-    'php7.1': 'dustinrue/wp-php-fpm-dev:7.1',
-    'php7.0': 'dustinrue/wp-php-fpm-dev:7.0',
-    'php5.6': 'dustinrue/wp-php-fpm-dev:5.6',
+    'php7.4': '10up/wp-php-fpm-dev:7.4',
+    'php7.3': '10up/wp-php-fpm-dev:7.3',
+    'php7.2': '10up/wp-php-fpm-dev:7.2',
+    'php7.1': '10up/wp-php-fpm-dev:7.1',
+    'php7.0': '10up/wp-php-fpm-dev:7.0',
+    'php5.6': '10up/wp-php-fpm-dev:5.6',
     'wpsnapshots': '10up/wpsnapshots:dev',
     'memcached': 'memcached:latest',
     'nginx': 'nginx:latest',
