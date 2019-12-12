@@ -23,7 +23,7 @@ services:
   mysql:
     image: mysql:5
     volumes:
-      - "./config/mysql/config.cnf:/etc/mysql/mariadb.conf.d/wp-local-docker.cnf:ro"
+      - "./config/mysql/config.cnf:/etc/mysql/mysql.conf.d/wp-local-docker.cnf:ro"
       - "mysqlData:/var/lib/mysql"
     ports:
       - "3306:3306"
