@@ -252,9 +252,11 @@ const upgradeEnvTwoDotSix = async function( env ) {
 
 	let yaml = readYaml.sync( path.join( envPath, 'docker-compose.yml' ) );
 
-
 	// Create a new object for the upgrade yaml.
 	let upgraded = Object.assign( {}, yaml );
+
+	// Set docker-compose version.
+	upgraded.version = '2';
 
 	// Upgrade image.
 	let phpVersion = yaml.services.phpfpm.image.split(':').pop();
