@@ -376,6 +376,7 @@ const command = async function() {
                 commandUtils.subcommand() === 'all' ? deleteAll() : deleteEnv( commandUtils.commandArgs() );
                 break;
             case 'upgrade':
+				upgradeEnv( commandUtils.commandArgs() );
                 upgradeEnvTwoDotSix( commandUtils.commandArgs() );
                 break;
             default:
