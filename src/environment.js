@@ -12,6 +12,7 @@ config = require( './configure' );
 const chalk = require( 'chalk' );
 const readYaml = require( 'read-yaml' );
 const writeYaml = require( 'write-yaml' );
+const images = require('./image').images;
 
 const help = function() {
     let command = commandUtils.command();
@@ -267,7 +268,7 @@ const upgradeEnvTwoDotSix = async function( env ) {
 
 		process.exit(1);
 	}
-	upgraded.services.phpfpm.image = `10up/wp-php-fpm-dev:${phpVersion}`;
+	upgraded.services.phpfpm.image = images[`php${phpVersion}`];
 
 	// Upgrade volume mounts.
 	const deprecatedVolumes = [
