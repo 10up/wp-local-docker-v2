@@ -208,7 +208,7 @@ const upgradeEnv = async function( env ) {
 		for ( let key in yaml.services[ service ].volumes ) {
 			let volume = yaml.services[ service ].volumes[ key ];
 			let parts = volume.split( ':' );
-			if ( 3 !== parts.length ) {
+			if ( 2 === parts.length ) {
 				parts.push( 'cached' );
 			}
 
