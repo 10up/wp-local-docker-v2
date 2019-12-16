@@ -1,4 +1,4 @@
-version: '3'
+version: '2.4'
 services:
   # Run a local dnsmasq server for the containers that will resolve DNS queries and
   # route any *.test domains to the gateway container
@@ -23,6 +23,7 @@ services:
   mysql:
     image: mysql:5
     volumes:
+      - "./config/mysql/config.cnf:/etc/mysql/mysql.conf.d/wp-local-docker.cnf:ro"
       - "mysqlData:/var/lib/mysql"
     ports:
       - "3306:3306"
@@ -30,6 +31,8 @@ services:
       MYSQL_ROOT_PASSWORD: password
       MYSQL_USER: wordpress
       MYSQL_PASSWORD: password
+    mem_limit: 1024M
+    mem_reservation: 1024M
     networks:
       - wplocaldocker
   mailcatcher:
@@ -57,3 +60,4 @@ networks:
       name: "wplocaldocker"
 volumes:
   mysqlData:
+  elasticsearchData:

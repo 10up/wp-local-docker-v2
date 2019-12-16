@@ -1,0 +1,9 @@
+[mysqld]
+max_allowed_packet = 1G
+innodb_buffer_pool_size = 512M
+query_cache_size = 0M
+tmp_table_size = 32M
+max_heap_table_size = 32M
+query_cache_type = 0
+innodb_file_per_table
+max_connections = 20

@@ -30,7 +30,7 @@ const command = async function() {
 
     // Run the command
     try {
-        execSync( `docker-compose exec ${ttyFlag} --user www-data phpfpm wp ${command}`, { stdio: 'inherit', cwd: envPath });
+        execSync( `docker-compose exec ${ttyFlag} phpfpm wp ${command}`, { stdio: 'inherit', cwd: envPath });
     } catch (ex) {}
 
     process.exit();
