@@ -251,7 +251,17 @@ const upgradeEnvTwoDotSix = async function( env ) {
 	// If we got the path from the cwd, we don't have a slug yet, so get it
 	let envSlug = envUtils.envSlug( env );
 
+	// Create a backup of the old yaml.
 	let yaml = readYaml.sync( path.join( envPath, 'docker-compose.yml' ) );
+	await new Promise( resolve => {
+		writeYaml( path.join( envPath, 'docker-compose.yml.bak' ), yaml, { 'lineWidth': 500 }, function( err ) {
+			if ( err ) {
+				console.log(err);
+			}
+			console.log( `Created backup of previous configuration ${envSlug}` );
+			resolve();
+		});
+	});
 
 	// Create a new object for the upgrade yaml.
 	let upgraded = Object.assign( {}, yaml );
@@ -276,8 +286,8 @@ const upgradeEnvTwoDotSix = async function( env ) {
 		'./config/php-fpm/docker-php-ext-xdebug.ini:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini:cached',
 		'~/.ssh:/root/.ssh:cached'
 	];
-	const { volumes } = yaml.services.phpfpm;
-	upgraded.services.phpfpm.volumes = [ ...volumes ].reduce( ( acc, curr ) => {
+	const volumes = [ ...upgraded.services.phpfpm.volumes ];
+	upgraded.services.phpfpm.volumes = volumes.reduce( ( acc, curr ) => {
 		if ( deprecatedVolumes.includes( curr ) ) {
 			if ( 1 === deprecatedVolumes.indexOf( curr ) ) {
 				acc.push( './config/php-fpm/docker-php-ext-xdebug.ini:/etc/php.d/docker-php-ext-xdebug.ini:cached' );
@@ -298,26 +308,18 @@ const upgradeEnvTwoDotSix = async function( env ) {
 		'ENABLE_XDEBUG': 'false'
 	};
 
-	await Promise.all([
-		new Promise( resolve => {
-			writeYaml( path.join( envPath, 'docker-compose.yml.bak' ), yaml, { 'lineWidth': 500 }, function( err ) {
-				if ( err ) {
-					console.log(err);
-				}
-				console.log( `Created backup of previous configuration ${envSlug}` );
-				resolve();
-			});
-		}),
-		new Promise( resolve => {
-			writeYaml( path.join( envPath, 'docker-compose.yml' ), upgraded, { 'lineWidth': 500 }, function( err ) {
-				if ( err ) {
-					console.log(err);
-				}
-				console.log( `Finished updating ${envSlug}` );
-				resolve();
-			});
-		}),
-	]);
+	console.log( yaml.version );
+	console.log( upgraded.version );
+
+	await new Promise( resolve => {
+		writeYaml( path.join( envPath, 'docker-compose.yml' ), upgraded, { 'lineWidth': 500 }, function( err ) {
+			if ( err ) {
+				console.log(err);
+			}
+			console.log( `Finished updating ${envSlug}` );
+			resolve();
+		});
+	});
 
 	start( envSlug );
 }
