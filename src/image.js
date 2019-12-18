@@ -1,40 +1,50 @@
 const commandUtils = require( './command-utils' );
+const gateway = require( './gateway' );
+const environment = require( './environment' );
+const inquirer = require( 'inquirer' );
+const promptValidators = require( './prompt-validators' );
+const os = require('os');
 const execSync = require('child_process').execSync;
 
 // These have to exist, so we don't bother checking if they exist on the system first
-const globalImages = [
-    '10up/nginx-proxy:latest',
-    'mysql:5',
-    'schickling/mailcatcher',
-    'phpmyadmin/phpmyadmin'
-];
-const images = [
-    '10up/phpfpm:latest',
-    '10up/phpfpm:7.3',
-	'10up/phpfpm:7.2',
-    '10up/phpfpm:7.1',
-    '10up/phpfpm:7.0',
-    '10up/phpfpm:5.6',
-    '10up/phpfpm:5.5',
-    '10up/wpsnapshots:dev',
-    'memcached:latest',
-    'nginx:latest',
-    'docker.elastic.co/elasticsearch/elasticsearch:5.6.5',
-    'hitwe/phpmemcachedadmin'
-];
+const globalImages = {
+    'nginx-proxy': '10up/nginx-proxy:latest',
+    'mysql': 'mysql:5',
+    'mailcatcher': 'schickling/mailcatcher',
+    'phpmyadmin': 'phpmyadmin/phpmyadmin'
+};
+
+const images = {
+    'php7.4': '10up/wp-php-fpm-dev:7.4',
+    'php7.3': '10up/wp-php-fpm-dev:7.3',
+    'php7.2': '10up/wp-php-fpm-dev:7.2',
+    'php7.1': '10up/wp-php-fpm-dev:7.1',
+    'php7.0': '10up/wp-php-fpm-dev:7.0',
+    'php5.6': '10up/wp-php-fpm-dev:5.6',
+    'wpsnapshots': '10up/wpsnapshots:dev',
+    'memcached': 'memcached:latest',
+    'nginx': 'nginx:latest',
+    'elasticsearch': 'docker.elastic.co/elasticsearch/elasticsearch:5.6.16',
+    'phpmemcachedadmin': 'hitwe/phpmemcachedadmin:v2.0.2'
+};
 
 const help = function() {
     let help = `
 Usage: 10updocker image update
 
-Updates any docker images used by your environment to the latest versions available for the specified tag
+Updates any docker images used by your environment to the latest versions available for the specified tag. All environments must be stopped to update images.
 `;
     console.log( help );
     process.exit();
 };
 
 const update = function( image ) {
-    try { execSync( `docker pull ${image}`, { stdio: 'inherit' }); } catch (ex) {}
+    try { 
+        execSync( `docker pull ${image}`, { stdio: 'inherit' });
+    } 
+    catch (ex) {
+
+    }
     console.log();
 };
 
@@ -51,15 +61,50 @@ const updateIfUsed = function( image ) {
 };
 
 const updateAll = function() {
-    globalImages.map( update );
-    images.map( updateIfUsed );
+    for (const [ image_name, image_url ] of Object.entries( globalImages ) ) {
+        update( image_url );
+    }
+    
+    for (const [image_name, image_url] of Object.entries( images) ) {
+        updateIfUsed( image_url );
+    }
+
+    // delete the built containers on linux so it can be rebuilt with the (possibly) updated
+    // phpfpm container
+    if ( os.platform() == "linux" ) {
+        console.log( 'Removing previously built images so they can be built again' );
+        execSync( `docker image rm $(docker image ls -qf label=com.10up.wp-local-docker=user-image)` );
+    }
 };
+
+const stopAll = async function() {
+    await environment.stopAll();
+    await gateway.stopGlobal();
+}
+
+const confirm = async function() {
+    let answers = await inquirer.prompt({
+        name: 'confirm',
+        type: 'confirm',
+        message: `Updating images requires all environments to be stopped. Is that okay?`,
+        validate: promptValidators.validateNotEmpty,
+        default: false,
+    });
+
+    return answers.confirm;
+}
 
 const command = async function() {
     switch ( commandUtils.subcommand() ) {
         case 'update':
-            updateAll();
-            console.log( 'done' );
+            if ( await confirm() ) {
+                await stopAll();
+                updateAll();
+                console.log( 'Finished. You can now start your environments again.' );
+            }
+            else {
+                console.log( 'Image update canceled' );
+            }
             break;
         default:
             await help();
@@ -67,4 +112,4 @@ const command = async function() {
     }
 };
 
-module.exports = { command };
+module.exports = { command, globalImages, images };

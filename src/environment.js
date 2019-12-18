@@ -12,6 +12,7 @@ config = require( './configure' );
 const chalk = require( 'chalk' );
 const readYaml = require( 'read-yaml' );
 const writeYaml = require( 'write-yaml' );
+const images = require('./image').images;
 
 const help = function() {
     let command = commandUtils.command();
@@ -20,7 +21,7 @@ const help = function() {
 Usage:  10updocker ${command} ENVIRONMENT
         10updocker ${command} all
 
-${command.charAt(0).toUpperCase()}${command.substr(1)} one or more environments 
+${command.charAt(0).toUpperCase()}${command.substr(1)} one or more environments
 
 ENVIRONMENT can be set to either the slug version of the hostname (same as the directory name) or the hostname.
     - docker.test
@@ -208,7 +209,7 @@ const upgradeEnv = async function( env ) {
 		for ( let key in yaml.services[ service ].volumes ) {
 			let volume = yaml.services[ service ].volumes[ key ];
 			let parts = volume.split( ':' );
-			if ( 3 !== parts.length ) {
+			if ( 2 === parts.length ) {
 				parts.push( 'cached' );
 			}
 
@@ -228,6 +229,100 @@ const upgradeEnv = async function( env ) {
 
 	start( envSlug );
 };
+
+/**
+ * Upgrades WP Local Docker to v2.6.0
+ *
+ * @param {String} env Environment
+ * @return {void}
+ */
+const upgradeEnvTwoDotSix = async function( env ) {
+	if ( undefined === env || env.trim().length === 0 ) {
+		env = await envUtils.parseEnvFromCWD();
+	}
+
+	// Need to call this outside of envUtils.getPathOrError since we need the slug itself for some functions
+	if ( env === false || undefined === env || env.trim().length === 0 ) {
+		env = await envUtils.promptEnv();
+	}
+
+	let envPath = await envUtils.getPathOrError(env);
+
+	// If we got the path from the cwd, we don't have a slug yet, so get it
+	let envSlug = envUtils.envSlug( env );
+
+	// Create a backup of the old yaml.
+	let yaml = readYaml.sync( path.join( envPath, 'docker-compose.yml' ) );
+	await new Promise( resolve => {
+		writeYaml( path.join( envPath, 'docker-compose.yml.bak' ), yaml, { 'lineWidth': 500 }, function( err ) {
+			if ( err ) {
+				console.log(err);
+			}
+			console.log( `Created backup of previous configuration ${envSlug}` );
+			resolve();
+		});
+	});
+
+	// Create a new object for the upgrade yaml.
+	let upgraded = Object.assign( {}, yaml );
+
+	// Set docker-compose version.
+	upgraded.version = '2';
+
+	// Upgrade image.
+	let phpVersion = yaml.services.phpfpm.image.split(':').pop();
+
+	if ( '5.5' === phpVersion ) {
+		console.warn( 'Support for PHP v5.5 was removed in the latest version of WP Local Docker.' );
+		console.error( 'This environment cannot be upgraded.  No changes were made.' );
+
+		process.exit(1);
+	}
+	upgraded.services.phpfpm.image = images[`php${phpVersion}`];
+
+	// Upgrade volume mounts.
+	const deprecatedVolumes = [
+		'./config/php-fpm/php.ini:/usr/local/etc/php/php.ini:cached',
+		'./config/php-fpm/docker-php-ext-xdebug.ini:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini:cached',
+		'~/.ssh:/root/.ssh:cached'
+	];
+	const volumes = [ ...upgraded.services.phpfpm.volumes ];
+	upgraded.services.phpfpm.volumes = volumes.reduce( ( acc, curr ) => {
+		if ( deprecatedVolumes.includes( curr ) ) {
+			if ( 1 === deprecatedVolumes.indexOf( curr ) ) {
+				acc.push( './config/php-fpm/docker-php-ext-xdebug.ini:/etc/php.d/docker-php-ext-xdebug.ini:cached' );
+				return acc;
+			}
+			if ( 2 === deprecatedVolumes.indexOf( curr ) ) {
+				acc.push( '~/.ssh:/home/www-data/.ssh:cached' );
+				return acc;
+			}
+			return acc;
+		}
+		acc.push( curr );
+		return acc;
+	}, [] );
+
+	// Add new environmental variables.
+	upgraded.services.phpfpm.environment = {
+		'ENABLE_XDEBUG': 'false'
+	};
+
+	console.log( yaml.version );
+	console.log( upgraded.version );
+
+	await new Promise( resolve => {
+		writeYaml( path.join( envPath, 'docker-compose.yml' ), upgraded, { 'lineWidth': 500 }, function( err ) {
+			if ( err ) {
+				console.log(err);
+			}
+			console.log( `Finished updating ${envSlug}` );
+			resolve();
+		});
+	});
+
+	start( envSlug );
+}
 
 const startAll = async function() {
     let envs = await envUtils.getAllEnvironments();
@@ -286,7 +381,8 @@ const command = async function() {
                 commandUtils.subcommand() === 'all' ? deleteAll() : deleteEnv( commandUtils.commandArgs() );
                 break;
             case 'upgrade':
-                upgradeEnv( commandUtils.commandArgs() );
+				upgradeEnv( commandUtils.commandArgs() );
+                upgradeEnvTwoDotSix( commandUtils.commandArgs() );
                 break;
             default:
                 help();
@@ -295,4 +391,4 @@ const command = async function() {
     }
 };
 
-module.exports = { command, start, stop, restart, help };
+module.exports = { command, start, stop, stopAll, restart, help };

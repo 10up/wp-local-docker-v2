@@ -85,7 +85,10 @@ const waitForDB = function() {
     return new Promise( resolve => {
         let interval = setInterval(() => {
             console.log( "Waiting for mysql..." );
-            let mysql = execSync( `docker-compose logs mysql`, { cwd: envUtils.globalPath } ).toString();
+            // FIXME: Only tailing on the logs is bad, we should ping instead
+            // Using tail to prevent an edge case where things hang due to large
+            // number of logs
+            let mysql = execSync( `docker-compose logs --tail 50 mysql`, { cwd: envUtils.globalPath } ).toString();
 
             if ( mysql.indexOf( readyMatch ) !== -1 ) {
                 if ( occurrences( mysql, firstTimeMatch, false ) !== 0 ) {

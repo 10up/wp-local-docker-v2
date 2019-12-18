@@ -3,6 +3,7 @@ const envUtils = require( './env-utils' );
 const path = require( 'path' );
 const checkForUpdate = require('update-check');
 const chalk = require( 'chalk' );
+const shellEscape = require( 'shell-escape' );
 
 const command = function() {
     let command = process.argv[2];
@@ -13,10 +14,15 @@ const command = function() {
     return process.argv[2].toLowerCase();
 };
 
-const commandArgs = function() {
-    let args = Array.prototype.slice.call( process.argv, 3 ).join( ' ' );
-
-    return args;
+/**
+ * Get the command args, maybe shell escaping them. Set false for no escape.
+ * @param bool escape 
+ * @returns string
+ */
+const commandArgs = function(escape = true) {
+    return (escape) ? 
+      shellEscape( Array.prototype.slice.call( process.argv, 3 ) ) : 
+      Array.prototype.slice.call( process.argv, 3 );
 };
 
 const subcommand = function() {

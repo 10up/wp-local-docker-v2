@@ -12,6 +12,8 @@ const envUtils = require( './env-utils' );
 const sudo = require( 'sudo-prompt' );
 const config = require( './configure' );
 const chalk = require( 'chalk' );
+const os = require('os');
+const images = require('./image').images;
 
 const help = function() {
     let help = `
@@ -25,13 +27,14 @@ Creates a new docker environment interactively.
 
 const createEnv = async function() {
     var baseConfig = {
-        'version': '3',
+        // use version 2 so we can use limits
+        'version': '2',
         'services': {
             'memcached': {
-                'image': 'memcached:latest'
+                'image': images['memcached'],
             },
             'nginx': {
-                'image': 'nginx:latest',
+                'image': images['nginx'],
                 'expose': [
                     "80",
                     "443"
@@ -53,7 +56,7 @@ const createEnv = async function() {
                 }
             },
             'memcacheadmin': {
-                'image': 'hitwe/phpmemcachedadmin',
+                'image': images['phpmemcachedadmin'],
                 'expose': [
                     '80'
                 ],
@@ -137,7 +140,7 @@ const createEnv = async function() {
             name: 'phpVersion',
             type: 'list',
             message: "What version of PHP would you like to use?",
-            choices: [ '7.3', '7.2', '7.1', '7.0', '5.6', '5.5' ],
+            choices: [ '7.4', '7.3', '7.2', '7.1', '7.0', '5.6' ],
             default: '7.3',
         },
         {
@@ -257,13 +260,15 @@ const createEnv = async function() {
     baseConfig.services.nginx.environment.VIRTUAL_HOST = allHosts.concat(starHosts).join( ',' );
 
     baseConfig.services.phpfpm = {
-        'image': '10up/phpfpm:' + answers.phpVersion,
+        'image': images[`php${answers.phpVersion}`],
+        'environment': {
+            'ENABLE_XDEBUG': "false"
+        },
         'volumes': [
             './wordpress:/var/www/html:cached',
-            './config/php-fpm/php.ini:/usr/local/etc/php/php.ini:cached',
-            './config/php-fpm/docker-php-ext-xdebug.ini:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini:cached',
+            './config/php-fpm/docker-php-ext-xdebug.ini:/etc/php.d/docker-php-ext-xdebug.ini:cached',
             `${envUtils.cacheVolume}:/var/www/.wp-cli/cache:cached`,
-            '~/.ssh:/root/.ssh:cached'
+            
         ],
         'depends_on': [
             'memcached',
@@ -276,6 +281,29 @@ const createEnv = async function() {
             '10.0.0.2'
         ]
     };
+
+    // Unlike Mac and Windows, Docker is a first class citizen on Linux
+    // and doesn't have any kind of translation layer between users and the
+    // file system. Because of this the phpfpm container will be running as the 
+    // wrong user. Here we setup the docker-compose.yml file to rebuild the
+    // phpfpm container so that it runs as the user who created the project.
+    if ( os.platform() == "linux" ) {
+        baseConfig.services.phpfpm.image = `wp-php-fpm-dev-${answers.phpVersion}-${process.env.USER}`;
+        baseConfig.services.phpfpm.build = {
+            'dockerfile': '.containers/php-fpm',
+            'context': '.',
+            'args': {
+                'PHP_IMAGE': images[`php${answers.phpVersion}`],
+                'CALLING_USER': process.env.USER,
+                'CALLING_UID': process.getuid()
+            }
+        }
+        baseConfig.services.phpfpm.volumes.push( `~/.ssh:/home/${process.env.USER}/.ssh:cached` );
+    }
+    else {
+        // the official containers for this project will have a www-data user. 
+        baseConfig.services.phpfpm.volumes.push( `~/.ssh:/home/www-data/.ssh:cached` );
+    }
 
     if ( answers.wordpressType == 'dev' ) {
         baseConfig.services.phpfpm.volumes.push('./config/php-fpm/wp-cli.develop.yml:/var/www/.wp-cli/config.yml:cached');
@@ -291,7 +319,7 @@ const createEnv = async function() {
         baseConfig.services.phpfpm.depends_on.push( 'elasticsearch' );
 
         baseConfig.services.elasticsearch = {
-            image: 'docker.elastic.co/elasticsearch/elasticsearch:5.6.5',
+            image: images['elasticsearch'],
             'expose': [
                 '9200'
             ],
@@ -300,19 +328,24 @@ const createEnv = async function() {
                 './config/elasticsearch/plugins:/usr/share/elasticsearch/plugins:cached',
                 'elasticsearchData:/usr/share/elasticsearch/data:delegated'
             ],
+            'mem_limit': '1024M',
+            'mem_reservation': '1024M',
             'environment': {
-                ES_JAVA_OPTS: '-Xms750m -Xmx750m'
+                ES_JAVA_OPTS: '-Xms450m -Xmx450m'
             }
         };
 
         volumeConfig.volumes.elasticsearchData = {};
     }
 
+
     // Create webroot/config
     console.log( "Copying required files..." );
 
     await fs.ensureDir( path.join( envPath, 'wordpress' ) );
     await fs.copy( path.join( envUtils.srcPath, 'config' ), path.join( envPath, 'config' ) );
+    await fs.ensureDir( path.join( envPath, '.containers' ) );
+    await fs.copy( path.join( envUtils.srcPath, 'containers'), path.join( envPath, '.containers' ) );
 
     // Write Docker Compose
     console.log( "Generating docker-compose.yml file..." );
@@ -333,7 +366,7 @@ const createEnv = async function() {
         yaml(
             path.join( envPath, 'wp-cli.yml' ),
             {
-                ssh: 'docker-compose:www-data@phpfpm'
+                ssh: 'docker-compose:phpfpm'
             },
             {
                 lineWidth: 500
