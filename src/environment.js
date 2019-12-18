@@ -226,8 +226,6 @@ const upgradeEnv = async function( env ) {
 			resolve();
 		});
 	});
-
-	start( envSlug );
 };
 
 /**
@@ -271,7 +269,6 @@ const upgradeEnvTwoDotSix = async function( env ) {
 
 	// Upgrade image.
 	let phpVersion = yaml.services.phpfpm.image.split(':').pop();
-
 	if ( '5.5' === phpVersion ) {
 		console.warn( 'Support for PHP v5.5 was removed in the latest version of WP Local Docker.' );
 		console.error( 'This environment cannot be upgraded.  No changes were made.' );
@@ -293,10 +290,6 @@ const upgradeEnvTwoDotSix = async function( env ) {
 				acc.push( './config/php-fpm/docker-php-ext-xdebug.ini:/etc/php.d/docker-php-ext-xdebug.ini:cached' );
 				return acc;
 			}
-			if ( 2 === deprecatedVolumes.indexOf( curr ) ) {
-				acc.push( '~/.ssh:/home/www-data/.ssh:cached' );
-				return acc;
-			}
 			return acc;
 		}
 		acc.push( curr );
@@ -308,15 +301,35 @@ const upgradeEnvTwoDotSix = async function( env ) {
 		'ENABLE_XDEBUG': 'false'
 	};
 
-	console.log( yaml.version );
-	console.log( upgraded.version );
+	// Unlike Mac and Windows, Docker is a first class citizen on Linux
+	// and doesn't have any kind of translation layer between users and the
+	// file system. Because of this the phpfpm container will be running as the
+	// wrong user. Here we setup the docker-compose.yml file to rebuild the
+	// phpfpm container so that it runs as the user who created the project.
+	if ( os.platform() == "linux" ) {
+		upgraded.phpfpm.image = `wp-php-fpm-dev-${phpVersion}-${process.env.USER}`;
+		upgraded.phpfpm.build = {
+			'dockerfile': '.containers/php-fpm',
+			'context': '.',
+			'args': {
+				'PHP_IMAGE': images[`php${phpVersion}`],
+				'CALLING_USER': process.env.USER,
+				'CALLING_UID': process.getuid()
+			}
+		}
+		upgraded.phpfpm.volumes.push( `~/.ssh:/home/${process.env.USER}/.ssh:cached` );
+	}
+	else {
+		// the official containers for this project will have a www-data user.
+		upgraded.phpfpm.volumes.push( `~/.ssh:/home/www-data/.ssh:cached` );
+	}
 
 	await new Promise( resolve => {
 		writeYaml( path.join( envPath, 'docker-compose.yml' ), upgraded, { 'lineWidth': 500 }, function( err ) {
 			if ( err ) {
 				console.log(err);
 			}
-			console.log( `Finished updating ${envSlug}` );
+			console.log( `Finished updating ${envSlug} for WP Local Docker v2.6` );
 			resolve();
 		});
 	});
