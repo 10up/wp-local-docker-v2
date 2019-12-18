@@ -4,7 +4,7 @@ const hostile = require( 'hostile' );
 const commandUtils = require( './src/command-utils' );
 
 const add = function( hosts ) {
-    hostile.set( '127.0.0.1', hosts, function( err ) {
+    hostile.set( '127.0.0.1', hosts.join(' '), function( err ) {
         if (err) {
             console.error(err)
         } else {
@@ -14,7 +14,7 @@ const add = function( hosts ) {
 };
 
 const remove = function( hosts ) {
-    hostile.remove( '127.0.0.1', hosts, function( err ) {
+    hostile.remove( '127.0.0.1', hosts.join(' '), function( err ) {
         if (err) {
             console.error(err)
         } else {
@@ -25,7 +25,7 @@ const remove = function( hosts ) {
 
 const command = function() {
     let mode = commandUtils.command();
-    let args = commandUtils.commandArgs();
+    let args = commandUtils.commandArgs( false );
 
     switch( mode ) {
         case 'add':

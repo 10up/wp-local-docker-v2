@@ -26,9 +26,9 @@
     "inquirer": "^6.5.2",
     "mysql": "^2.17.1",
     "read-yaml": "^1.1.0",
+    "shell-escape": "^0.2.0",
     "sudo-prompt": "^8.2.5",
     "update-check": "^1.5.3",
-    "shell-escape": "^0.2.0",
     "write-yaml": "^1.0.0"
   }
 }
