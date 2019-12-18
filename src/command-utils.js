@@ -14,8 +14,15 @@ const command = function() {
     return process.argv[2].toLowerCase();
 };
 
-const commandArgs = function() {
-    return shellEscape( Array.prototype.slice.call( process.argv, 3 ) );
+/**
+ * Get the command args, maybe shell escaping them. Set false for no escape.
+ * @param bool escape 
+ * @returns string
+ */
+const commandArgs = function(escape = true) {
+    return (escape) ? 
+      shellEscape( Array.prototype.slice.call( process.argv, 3 ) ) : 
+      Array.prototype.slice.call( process.argv, 3 );
 };
 
 const subcommand = function() {
