@@ -322,7 +322,7 @@ const upgradeEnvTwoDotSix = async function( env ) {
     }
     else {
         // the official containers for this project will have a www-data user.
-        upgraded.phpfpm.volumes.push( `~/.ssh:/home/www-data/.ssh:cached` );
+        upgraded.services.phpfpm.volumes.push( `~/.ssh:/home/www-data/.ssh:cached` );
     }
 
     await new Promise( resolve => {
