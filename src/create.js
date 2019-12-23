@@ -28,7 +28,7 @@ Creates a new docker environment interactively.
 const createEnv = async function() {
     var baseConfig = {
         // use version 2 so we can use limits
-        'version': '2',
+        'version': '2.2',
         'services': {
             'memcached': {
                 'image': images['memcached'],
