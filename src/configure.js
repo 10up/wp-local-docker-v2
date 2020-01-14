@@ -4,6 +4,9 @@ const fs = require('fs-extra');
 const path = require('path');
 const inquirer = require( 'inquirer' );
 const promptValidators = require( './prompt-validators' );
+const rootPath = path.dirname( require.main.filename );
+const globalPath = path.join( rootPath, 'global' );
+
 
 // Tracks current config
 let config = null;
@@ -65,6 +68,7 @@ const getDefaults = function() {
         sitesPath: path.join( os.homedir(), 'wp-local-docker-sites' ),
         snapshotsPath: path.join( os.homedir(), '.wpsnapshots' ),
         manageHosts: true,
+        overwriteGlobal: true
     };
 };
 
@@ -99,8 +103,20 @@ const prompt = async function() {
             type: 'confirm',
             message: "Would you like WP Local Docker to manage your hosts file?",
             default: currentHosts !== undefined ? currentHosts : defaults.manageHosts,
-        },
+        }
     ];
+
+    
+    if ( fs.exists( path.join( getConfigDirectory(), 'global' ) ) ) {
+        questions.push(
+            {
+                name: 'overwriteGlobal',
+                type: 'confirm',
+                message: "Do you want to reset your global services configuration? This will reset any customizations you have made.",
+                default: false
+            }
+        );
+    }
 
     let answers = await inquirer.prompt( questions );
 
@@ -136,6 +152,18 @@ const configureDefaults = async function() {
 const configure = async function( configuration ) {
     let sitesPath = path.resolve( configuration.sitesPath );
     let snapshotsPath = path.resolve( configuration.snapshotsPath );
+    let globalServicesPath = path.join( getConfigDirectory(), 'global' );
+
+    if ( configuration.overwriteGlobal ) {
+        try {
+            await fs.ensureDir( globalServicesPath );
+            await fs.copy( globalPath, path.join( getConfigDirectory(), 'global' ) );
+        } catch (ex) {
+            console.log(ex);
+            console.error( "Error: Unable to copy global services definition!" );
+            process.exit(1);
+        }
+    }
 
     // Attempt to create the sites directory
     try {
