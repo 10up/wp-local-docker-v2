@@ -62,7 +62,7 @@ const emptyContent = async function( env ) {
 
     execSync( `docker-compose exec phpfpm wp site empty --yes`, { stdio: 'inherit', cwd: envPath });
     execSync( `docker-compose exec phpfpm wp plugin delete hello akismet`, { stdio: 'inherit', cwd: envPath });
-    execSync( `docker-compose exec phpfpm wp theme delete twentyfifteen twentysixteen`, { stdio: 'inherit', cwd: envPath });
+    execSync( `docker-compose exec phpfpm wp theme delete twentyfifteen twentysixteen twentyseventeen twentyeighteen twentynineteen`, { stdio: 'inherit', cwd: envPath });
     execSync( `docker-compose exec phpfpm wp widget delete search-2 recent-posts-2 recent-comments-2 archives-2 categories-2 meta-2`, { stdio: 'inherit', cwd: envPath });
 };
 
