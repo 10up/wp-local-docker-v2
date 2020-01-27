@@ -266,7 +266,7 @@ const upgradeEnvTwoDotSix = async function( env ) {
     let upgraded = Object.assign( {}, yaml );
 
     // Set docker-compose version.
-    upgraded.version = '2';
+    upgraded.version = '2.2';
 
     // Upgrade image.
     let phpVersion = yaml.services.phpfpm.image.split(':').pop();
