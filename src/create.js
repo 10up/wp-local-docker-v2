@@ -321,6 +321,11 @@ const createEnv = async function() {
     // Map the nginx configuraiton file
     baseConfig.services.nginx.volumes.push( './config/nginx/' + nginxConfig + ':/etc/nginx/conf.d/default.conf:cached' );
 
+    if ( answers.addHttps === true ) {
+        baseConfig.services.nginx.volumes.push( './config/nginx/ssl_certificate.crt:/etc/nginx/conf.d/ssl_certificate.crt' );
+        baseConfig.services.nginx.volumes.push( './config/nginx/ssl_certificate.key:/etc/nginx/conf.d/ssl_certificate.key' );
+    }
+
     if ( answers.elasticsearch === true ) {
         baseConfig.services.phpfpm.depends_on.push( 'elasticsearch' );
 
@@ -392,9 +397,11 @@ const createEnv = async function() {
         // Generate certificate files
         console.log( "Generating SSL certificates..." );
 
-        const certs = await new Promise( resolve => {
+        await new Promise( resolve => {
+            const crt = path.join( envPath, 'config', 'nginx', 'ssl_certificate.crt' );
+            const key = path.join( envPath, 'config', 'nginx', 'ssl_certificate.key' );
+
             resolve();
-            return;
         } );
 
         // Write HTTPS to the config files
@@ -408,7 +415,7 @@ const createEnv = async function() {
                     return;
                 }
 
-                fs.writeFile( path.join( envPath, 'config', 'nginx', nginxConfig ), config.createHttpsConfig( certs, curConfig ), 'utf8', function ( err ) {
+                fs.writeFile( path.join( envPath, 'config', 'nginx', nginxConfig ), config.createHttpsConfig( curConfig ), 'utf8', function ( err ) {
                     if ( err ) {
                         console.error( chalk.bold.yellow( "Warning: " ) + "Failed to write configuration file. HTPPS has not been set. Error: " + err );
                     } else {

@@ -189,10 +189,10 @@ const command = async function() {
  */
 const createProxyConfig = ( proxy, curConfig ) => {
 
-    let proxyMarkup = 'location @production {' + "\r\n"
-		+ '        resolver 8.8.8.8;' + "\r\n"
-		+ '        proxy_pass ' + proxy + '/$uri;' + "\r\n"
-		+ '    }';
+    let proxyMarkup = 'location @production {' + os.EOL
+        + '        resolver 8.8.8.8;' + os.EOL
+        + '        proxy_pass ' + proxy + '/$uri;' + os.EOL
+        + '    }';
 
     let proxyMapObj = {
         '#{TRY_PROXY}': 'try_files $uri @production;',
@@ -211,12 +211,12 @@ const createProxyConfig = ( proxy, curConfig ) => {
 /**
  * Create the NGINX directive to set HTTPS
  *
- * @param {*} certs         	Certificates
  * @param  string curConfig 	Complete content of the existing config file
  * @return string           	New content for the config file
  */
-const createHttpsConfig = ( certs, curConfig ) => {
-    let certsMarkup = '';
+const createHttpsConfig = ( curConfig ) => {
+    let certsMarkup = 'ssl_certificate ssl_certificate.crt;' + os.EOL;
+        + '    ssl_certificate_key ssl_certificate.key;';
 
     return curConfig
         .replace( '#{SSL_LISTEN}', 'listen 443 ssl;' )
