@@ -215,8 +215,8 @@ const createProxyConfig = ( proxy, curConfig ) => {
  * @return string           	New content for the config file
  */
 const createHttpsConfig = ( curConfig ) => {
-    let certsMarkup = 'ssl_certificate ssl_certificate.crt;' + os.EOL;
-        + '    ssl_certificate_key ssl_certificate.key;';
+    let certsMarkup = 'ssl_certificate conf.d/ssl_certificate.crt;' + os.EOL
+        + '    ssl_certificate_key conf.d/ssl_certificate.key;';
 
     return curConfig
         .replace( '#{SSL_LISTEN}', 'listen 443 ssl;' )
