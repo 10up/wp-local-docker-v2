@@ -395,14 +395,11 @@ const createEnv = async function() {
     // HTTPS is selected
     if ( answers.addHttps === true ) {
         // Generate certificate files
-        console.log( "Generating SSL certificates..." );
+        console.log( "Copying SSL certificates..." );
 
-        await new Promise( resolve => {
-            const crt = path.join( envPath, 'config', 'nginx', 'ssl_certificate.crt' );
-            const key = path.join( envPath, 'config', 'nginx', 'ssl_certificate.key' );
-
-            resolve();
-        } );
+        await fs.ensureDir( path.join( envPath, 'config', 'nginx' ) );
+        await fs.copy( path.join( envUtils.srcPath, 'config', 'nginx', 'ssl_certificate.crt' ), path.join( envPath, 'config', 'nginx', 'ssl_certificate.crt' ) );
+        await fs.copy( path.join( envUtils.srcPath, 'config', 'nginx', 'ssl_certificate.key' ), path.join( envPath, 'config', 'nginx', 'ssl_certificate.key' ) );
 
         // Write HTTPS to the config files
         console.log( "Writing HTTPS configuration..." );
