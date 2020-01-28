@@ -27,7 +27,9 @@ const configure = async function( env ) {
 };
 
 const install = async function( env, envHost, answers ) {
-    let envPath = await envUtils.envPath( env );
+    const envPath = await envUtils.envPath( env );
+    const http = answers.addHttps ? 'https' : 'http';
+
     let command = '';
     let flags = '';
 
@@ -48,7 +50,7 @@ const install = async function( env, envHost, answers ) {
             break;
     }
 
-    execSync( `docker-compose exec phpfpm wp core ${command} ${flags} --url=http://${envHost} --title="${answers.title}" --admin_user="${answers.username}" --admin_password="${answers.password}" --admin_email="${answers.email}"`, { stdio: 'inherit', cwd: envPath });
+    execSync( `docker-compose exec phpfpm wp core ${command} ${flags} --url=${http}://${envHost} --title="${answers.title}" --admin_user="${answers.username}" --admin_password="${answers.password}" --admin_email="${answers.email}"`, { stdio: 'inherit', cwd: envPath });
 };
 
 const setRewrites = async function( env ) {

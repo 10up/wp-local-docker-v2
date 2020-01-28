@@ -274,7 +274,6 @@ const createEnv = async function() {
             './wordpress:/var/www/html:cached',
             './config/php-fpm/docker-php-ext-xdebug.ini:/etc/php.d/docker-php-ext-xdebug.ini:cached',
             `${envUtils.cacheVolume}:/var/www/.wp-cli/cache:cached`,
-            
         ],
         'depends_on': [
             'memcached',
