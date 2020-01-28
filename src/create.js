@@ -118,6 +118,12 @@ const createEnv = async function() {
             }
         },
         {
+            name: 'addHttps',
+            type: 'confirm',
+            message: "Do you want to enable HTTPS?",
+            default: false,
+        },
+        {
             name: 'mediaProxy',
             type: 'confirm',
             message: "Do you want to set a proxy for media assets? (i.e. Serving /uploads/ directory assets from a production site)",
