@@ -185,7 +185,7 @@ const command = async function() {
  *
  * @param  string proxy     	The URL to set the proxy to
  * @param  string curConfig 	Complete content of the existing config file
- * @return string          		New content for the config file
+ * @return string           	New content for the config file
  */
 const createProxyConfig = ( proxy, curConfig ) => {
 
@@ -208,4 +208,19 @@ const createProxyConfig = ( proxy, curConfig ) => {
     return curConfig.replace( curConfig, newConfig );
 };
 
-module.exports = { command, promptUnconfigured, configureDefaults, checkIfConfigured, get, set, getConfigDirectory, createProxyConfig };
+/**
+ * Create the NGINX directive to set HTTPS
+ *
+ * @param {*} certs         	Certificates
+ * @param  string curConfig 	Complete content of the existing config file
+ * @return string           	New content for the config file
+ */
+const createHttpsConfig = ( certs, curConfig ) => {
+    let certsMarkup = '';
+
+    return curConfig
+        .replace( '#{SSL_LISTEN}', 'listen 443 ssl;' )
+        .replace( '#{SSL_CERTIFICATE}', certsMarkup );
+};
+
+module.exports = { command, promptUnconfigured, configureDefaults, checkIfConfigured, get, set, getConfigDirectory, createProxyConfig, createHttpsConfig };

@@ -364,7 +364,7 @@ const createEnv = async function() {
             console.log( 'done' );
             resolve();
         });
-    });
+    } );
 
     // Write wp-cli config
     console.log( "Generating wp-cli.yml file..." );
@@ -385,7 +385,41 @@ const createEnv = async function() {
                 resolve();
             }
         );
-    });
+    } );
+
+    // HTTPS is selected
+    if ( answers.addHttps === true ) {
+        // Generate certificate files
+        console.log( "Generating SSL certificates..." );
+
+        const certs = await new Promise( resolve => {
+            resolve();
+            return;
+        } );
+
+        // Write HTTPS to the config files
+        console.log( "Writing HTTPS configuration..." );
+
+        await new Promise( resolve => {
+            fs.readFile( path.join( envPath, 'config', 'nginx', nginxConfig ), 'utf8', function( err, curConfig ) {
+                if ( err ) {
+                    console.error( chalk.bold.yellow( "Warning: " ) + "Failed to read nginx configuration file. HTPPS has not been set. Error: " + err );
+                    resolve();
+                    return;
+                }
+
+                fs.writeFile( path.join( envPath, 'config', 'nginx', nginxConfig ), config.createHttpsConfig( certs, curConfig ), 'utf8', function ( err ) {
+                    if ( err ) {
+                        console.error( chalk.bold.yellow( "Warning: " ) + "Failed to write configuration file. HTPPS has not been set. Error: " + err );
+                    } else {
+                        console.log( "HTTPS configured" );
+                    }
+
+                    resolve();
+                } );
+            } );
+        } );
+    }
 
     // Media proxy is selected
     if ( answers.mediaProxy === true ) {
