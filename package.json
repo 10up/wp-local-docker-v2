@@ -51,6 +51,10 @@
       "node": true
     },
     "rules": {
+      "array-bracket-spacing": [
+        "error",
+        "always"
+      ],
       "indent": [
         "error",
         4,

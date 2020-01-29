@@ -67,7 +67,7 @@ const updateAll = function() {
     }
 
     // eslint-disable-next-line no-unused-vars
-    for ( const [imageName, imageUrl] of Object.entries( images ) ) {
+    for ( const [ imageName, imageUrl ] of Object.entries( images ) ) {
         updateIfUsed( imageUrl );
     }
 
