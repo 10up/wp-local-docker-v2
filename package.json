@@ -47,6 +47,20 @@
     "extends": "@10up/eslint-config",
     "env": {
       "node": true
+    },
+    "rules": {
+      "indent": [
+        "error",
+        4,
+        {
+          "SwitchCase": 1
+        }
+      ],
+      "require-jsdoc": "off",
+      "yoda": [
+        "error",
+        "never"
+      ]
     }
   }
 }
