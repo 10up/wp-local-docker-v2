@@ -65,11 +65,11 @@ const parseEnvFromCWD = async function() {
     // First segment is now the envSlug, get rid of the rest
     cwd = cwd.split( '/' )[0];
 
-	// Make sure that a .config.json file exists here
-	let configFile = path.join( sitesPathValue, cwd, '.config.json' );
-	if ( ! await fs.exists( configFile ) ) {
-		return false;
-	}
+    // Make sure that a .config.json file exists here
+    let configFile = path.join( sitesPathValue, cwd, '.config.json' );
+    if ( ! await fs.exists( configFile ) ) {
+        return false;
+    }
 
     return cwd;
 };
@@ -81,25 +81,25 @@ const getAllEnvironments = async function() {
     // Make into full path
     dirContent = await async.map( dirContent, async item => {
         return path.join( sitePath, item );
-    });
+    } );
 
     // Filter any that aren't directories
     dirContent = await async.filter( dirContent, async item => {
         let stat = await fs.stat( item );
         return stat.isDirectory();
-    });
+    } );
 
     // Filter any that don't have the .config.json file (which indicates its probably not a WP Local Docker Environment)
     dirContent = await async.filter( dirContent, async item => {
         let configFile = path.join( item, '.config.json' );
 
         return await fs.exists( configFile );
-    });
+    } );
 
     // Back to just the basename
     dirContent = await async.map( dirContent, async item => {
         return path.basename( item );
-    });
+    } );
 
     return dirContent;
 };
@@ -111,12 +111,12 @@ const promptEnv = async function() {
         {
             name: 'envSlug',
             type: 'list',
-            message: "What environment would you like to use?",
+            message: 'What environment would you like to use?',
             choices: environments,
         }
     ];
 
-    console.log( chalk.bold.white( "Unable to determine environment from current directory" ) );
+    console.log( chalk.bold.white( 'Unable to determine environment from current directory' ) );
     let answers = await inquirer.prompt( questions );
 
     return answers.envSlug;
@@ -134,10 +134,10 @@ const parseOrPromptEnv = async function () {
 
 const getEnvHosts = async function( envPath ) {
     try {
-        let envConfig = await fs.readJson( path.join( envPath, '.config.json' ));
+        let envConfig = await fs.readJson( path.join( envPath, '.config.json' ) );
 
-        return ( "object" === typeof envConfig && undefined !== envConfig.envHosts ) ? envConfig.envHosts : [];
-    } catch (ex) {
+        return ( 'object' === typeof envConfig && undefined !== envConfig.envHosts ) ? envConfig.envHosts : [];
+    } catch ( ex ) {
         return [];
     }
 };
@@ -152,7 +152,7 @@ const getPathOrError = async function( env ) {
     let _envPath = await envPath( env );
     if ( ! await fs.pathExists( _envPath ) ) {
         console.error( `ERROR: Cannot find ${env} environment!` );
-        process.exit(1);
+        process.exit( 1 );
     }
 
     return _envPath;
@@ -175,6 +175,6 @@ const createDefaultProxy = function( value ) {
     }
 
     return proxyUrl;
-}
+};
 
 module.exports = { rootPath, srcPath, sitesPath, cacheVolume, globalPath, envSlug, envPath, parseEnvFromCWD, getAllEnvironments, promptEnv, parseOrPromptEnv, getEnvHosts, getPathOrError, createDefaultProxy };

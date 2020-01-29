@@ -1,7 +1,7 @@
 const commandUtils = require( './command-utils' );
-const path = require('path');
+const path = require( 'path' );
 const fs = require( 'fs-extra' );
-const execSync = require('child_process').execSync;
+const execSync = require( 'child_process' ).execSync;
 const inquirer = require( 'inquirer' );
 const promptValidators = require( './prompt-validators' );
 const database = require( './database' );
@@ -11,9 +11,9 @@ const sudo = require( 'sudo-prompt' );
 config = require( './configure' );
 const chalk = require( 'chalk' );
 const readYaml = require( 'read-yaml' );
-const os = require('os');
+const os = require( 'os' );
 const writeYaml = require( 'write-yaml' );
-const images = require('./image').images;
+const images = require( './image' ).images;
 
 const help = function() {
     let command = commandUtils.command();
@@ -22,7 +22,7 @@ const help = function() {
 Usage:  10updocker ${command} ENVIRONMENT
         10updocker ${command} all
 
-${command.charAt(0).toUpperCase()}${command.substr(1)} one or more environments
+${command.charAt( 0 ).toUpperCase()}${command.substr( 1 )} one or more environments
 
 ENVIRONMENT can be set to either the slug version of the hostname (same as the directory name) or the hostname.
     - docker.test
@@ -44,7 +44,7 @@ const start = async function( env ) {
         env = await envUtils.promptEnv();
     }
 
-    let envPath = await envUtils.getPathOrError(env);
+    let envPath = await envUtils.getPathOrError( env );
 
     // If we got the path from the cwd, we don't have a slug yet, so get it
     let envSlug = envUtils.envSlug( env );
@@ -53,13 +53,13 @@ const start = async function( env ) {
 
     console.log( `Starting docker containers for ${envSlug}` );
     try {
-        execSync( `docker-compose up -d`, { stdio: 'inherit', cwd: envPath });
-    } catch (ex) {}
+        execSync( 'docker-compose up -d', { stdio: 'inherit', cwd: envPath } );
+    } catch ( ex ) {}
 
     let envHosts = await envUtils.getEnvHosts( envPath );
     if ( envHosts.length > 0 ) {
         console.log();
-        console.log( "Environment configured for the following domains:" );
+        console.log( 'Environment configured for the following domains:' );
         for ( let i = 0, len = envHosts.length; i < len; i++ ) {
             console.log( envHosts[ i ] );
         }
@@ -78,15 +78,15 @@ const stop = async function( env ) {
         env = await envUtils.promptEnv();
     }
 
-    let envPath = await envUtils.getPathOrError(env);
+    let envPath = await envUtils.getPathOrError( env );
 
     // If we got the path from the cwd, we don't have a slug yet, so get it
     let envSlug = envUtils.envSlug( env );
 
     console.log( `Stopping docker containers for ${envSlug}` );
     try {
-        execSync( `docker-compose down`, { stdio: 'inherit', cwd: envPath });
-    } catch (ex) {}
+        execSync( 'docker-compose down', { stdio: 'inherit', cwd: envPath } );
+    } catch ( ex ) {}
     console.log();
 };
 
@@ -100,7 +100,7 @@ const restart = async function( env ) {
         env = await envUtils.promptEnv();
     }
 
-    let envPath = await envUtils.getPathOrError(env);
+    let envPath = await envUtils.getPathOrError( env );
 
     // If we got the path from the cwd, we don't have a slug yet, so get it
     let envSlug = envUtils.envSlug( env );
@@ -109,8 +109,8 @@ const restart = async function( env ) {
 
     console.log( `Restarting docker containers for ${envSlug}` );
     try {
-        execSync( `docker-compose restart`, { stdio: 'inherit', cwd: envPath });
-    } catch (ex) {
+        execSync( 'docker-compose restart', { stdio: 'inherit', cwd: envPath } );
+    } catch ( ex ) {
         // Usually because the environment isn't running
     }
     console.log();
@@ -125,13 +125,13 @@ const deleteEnv = async function( env ) {
     let envPath = await envUtils.getPathOrError( env );
     let envSlug = envUtils.envSlug( env );
 
-    let answers = await inquirer.prompt({
+    let answers = await inquirer.prompt( {
         name: 'confirm',
         type: 'confirm',
         message: `Are you sure you want to delete the ${envSlug} environment`,
         validate: promptValidators.validateNotEmpty,
         default: false,
-    });
+    } );
 
     if ( answers.confirm === false ) {
         return;
@@ -140,43 +140,43 @@ const deleteEnv = async function( env ) {
     await gateway.startGlobal();
 
     // Stop the environment, and ensure volumes are deleted with it
-    console.log( "Deleting containers" );
+    console.log( 'Deleting containers' );
     try {
-        execSync( `docker-compose down -v`, { stdio: 'inherit', cwd: envPath });
-    } catch (ex) {
+        execSync( 'docker-compose down -v', { stdio: 'inherit', cwd: envPath } );
+    } catch ( ex ) {
         // If the docker-compose file is already gone, this happens
     }
 
     if ( await config.get( 'manageHosts' ) === true ) {
         try {
-            console.log( "Removing host file entries" );
+            console.log( 'Removing host file entries' );
 
             let sudoOptions = {
-                name: "WP Local Docker"
+                name: 'WP Local Docker'
             };
 
             let envHosts = await envUtils.getEnvHosts( envPath );
             for ( let i = 0, len = envHosts.length; i < len; i++ ) {
                 await new Promise( resolve => {
                     console.log( ` - Removing ${envHosts}` );
-                    sudo.exec(`10updocker-hosts remove ${envHosts}`, sudoOptions, function (error, stdout, stderr) {
-                        if (error) {
-                            console.error( chalk.bold.yellow( "Warning: ") + "Something went wrong deleting host file entries. There may still be remnants in /etc/hosts" );
+                    sudo.exec( `10updocker-hosts remove ${envHosts}`, sudoOptions, function ( error, stdout, stderr ) {
+                        if ( error ) {
+                            console.error( chalk.bold.yellow( 'Warning: ' ) + 'Something went wrong deleting host file entries. There may still be remnants in /etc/hosts' );
                             resolve();
                             return;
                         }
-                        console.log(stdout);
+                        console.log( stdout );
                         resolve();
-                    });
-                });
+                    } );
+                } );
             }
-        } catch (err) {
+        } catch ( err ) {
             // Unfound config, etc
-            console.error( chalk.bold.yellow( "Warning: ") + "Something went wrong deleting host file entries. There may still be remnants in /etc/hosts" );
+            console.error( chalk.bold.yellow( 'Warning: ' ) + 'Something went wrong deleting host file entries. There may still be remnants in /etc/hosts' );
         }
     }
 
-    console.log( "Deleting Files" );
+    console.log( 'Deleting Files' );
     await fs.remove( envPath );
 
     console.log( 'Deleting Database' );
@@ -212,12 +212,12 @@ const upgradeEnv = async function( env ) {
     await new Promise( resolve => {
         writeYaml( path.join( envPath, 'docker-compose.yml' ), yaml, { 'lineWidth': 500 }, function( err ) {
             if ( err ) {
-                console.log(err);
+                console.log( err );
             }
             console.log( `Finished updating ${envSlug}` );
             resolve();
-        });
-    });
+        } );
+    } );
 };
 
 /**
@@ -248,19 +248,19 @@ const upgradeEnvTwoDotSix = async function( env ) {
     await new Promise( resolve => {
         writeYaml( path.join( envPath, 'docker-compose.yml.bak' ), yaml, { 'lineWidth': 500 }, function( err ) {
             if ( err ) {
-                console.log(err);
+                console.log( err );
             }
             console.log( `Created backup of previous configuration ${envSlug}` );
             resolve();
-        });
-    });
+        } );
+    } );
 
     // perform the previous upgrade first
     await upgradeEnv( env );
 
-    console.log( "Copying required files..." );
+    console.log( 'Copying required files...' );
     await fs.ensureDir( path.join( envPath, '.containers' ) );
-    await fs.copy( path.join( envUtils.srcPath, 'containers'), path.join( envPath, '.containers' ));
+    await fs.copy( path.join( envUtils.srcPath, 'containers' ), path.join( envPath, '.containers' ) );
 
     // Create a new object for the upgrade yaml.
     let upgraded = Object.assign( {}, yaml );
@@ -269,12 +269,12 @@ const upgradeEnvTwoDotSix = async function( env ) {
     upgraded.version = '2.2';
 
     // Upgrade image.
-    let phpVersion = yaml.services.phpfpm.image.split(':').pop();
+    let phpVersion = yaml.services.phpfpm.image.split( ':' ).pop();
     if ( '5.5' === phpVersion ) {
         console.warn( 'Support for PHP v5.5 was removed in the latest version of WP Local Docker.' );
         console.error( 'This environment cannot be upgraded.  No changes were made.' );
 
-        process.exit(1);
+        process.exit( 1 );
     }
     upgraded.services.phpfpm.image = images[`php${phpVersion}`];
 
@@ -307,7 +307,7 @@ const upgradeEnvTwoDotSix = async function( env ) {
     // file system. Because of this the phpfpm container will be running as the
     // wrong user. Here we setup the docker-compose.yml file to rebuild the
     // phpfpm container so that it runs as the user who created the project.
-    if ( os.platform() == "linux" ) {
+    if ( os.platform() == 'linux' ) {
         upgraded.services.phpfpm.image = `wp-php-fpm-dev-${phpVersion}-${process.env.USER}`;
         upgraded.services.phpfpm.build = {
             'dockerfile': '.containers/php-fpm',
@@ -317,26 +317,26 @@ const upgradeEnvTwoDotSix = async function( env ) {
                 'CALLING_USER': process.env.USER,
                 'CALLING_UID': process.getuid()
             }
-        }
+        };
         upgraded.services.phpfpm.volumes.push( `~/.ssh:/home/${process.env.USER}/.ssh:cached` );
     }
     else {
         // the official containers for this project will have a www-data user.
-        upgraded.services.phpfpm.volumes.push( `~/.ssh:/home/www-data/.ssh:cached` );
+        upgraded.services.phpfpm.volumes.push( '~/.ssh:/home/www-data/.ssh:cached' );
     }
 
     await new Promise( resolve => {
         writeYaml( path.join( envPath, 'docker-compose.yml' ), upgraded, { 'lineWidth': 500 }, function( err ) {
             if ( err ) {
-                console.log(err);
+                console.log( err );
             }
             console.log( `Finished updating ${envSlug} for WP Local Docker v2.6` );
             resolve();
-        });
-    });
+        } );
+    } );
 
     start( envSlug );
-}
+};
 
 const startAll = async function() {
     let envs = await envUtils.getAllEnvironments();

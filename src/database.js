@@ -1,11 +1,11 @@
-const mysql = require('mysql');
+const mysql = require( 'mysql' );
 
 const getConnection = function() {
-    let connection = mysql.createConnection({
+    let connection = mysql.createConnection( {
         host: '127.0.0.1',
         user: 'root',
         password: 'password',
-    });
+    } );
 
     return connection;
 };
@@ -22,8 +22,8 @@ const create = async function( dbname ) {
             }
 
             resolve();
-        });
-    });
+        } );
+    } );
 };
 
 const deleteDatabase = async function( dbname ) {
@@ -38,8 +38,8 @@ const deleteDatabase = async function( dbname ) {
             }
 
             resolve();
-        });
-    });
+        } );
+    } );
 };
 
 const assignPrivs = async function ( dbname ) {
@@ -54,8 +54,8 @@ const assignPrivs = async function ( dbname ) {
             }
 
             resolve();
-        });
-    });
+        } );
+    } );
 };
 
 

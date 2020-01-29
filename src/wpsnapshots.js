@@ -2,8 +2,8 @@ const chalk = require( 'chalk' );
 const commandUtils = require( './command-utils' );
 const fs = require( 'fs-extra' );
 const path = require( 'path' );
-const execSync = require('child_process').execSync;
-const envUtils = require('./env-utils');
+const execSync = require( 'child_process' ).execSync;
+const envUtils = require( './env-utils' );
 const gateway = require( './gateway' );
 const configure = require( './configure' );
 
@@ -35,7 +35,7 @@ const command = async function() {
     if ( bypassCommands.indexOf( commandUtils.subcommand() ) === -1 ) {
         // Verify we have a configuration
         if ( await checkIfConfigured() === false ) {
-            console.error( chalk.red( "Error: " ) + "WP Snapshots does not have a configuration file. Please run '10updocker wpsnapshots configure' before continuing." );
+            console.error( chalk.red( 'Error: ' ) + 'WP Snapshots does not have a configuration file. Please run \'10updocker wpsnapshots configure\' before continuing.' );
             process.exit();
         }
     }
@@ -44,8 +44,8 @@ const command = async function() {
     if ( noPathCommands.indexOf( commandUtils.subcommand() ) === -1 ) {
         let envSlug = await envUtils.parseOrPromptEnv();
         if ( envSlug === false ) {
-            console.error( chalk.red( "Error: " ) + "Unable to determine which environment to use wp snapshots with. Please run this command from within your environment." );
-            process.exit(1);
+            console.error( chalk.red( 'Error: ' ) + 'Unable to determine which environment to use wp snapshots with. Please run this command from within your environment.' );
+            process.exit( 1 );
         }
         envPath = await envUtils.envPath( envSlug );
     }
@@ -56,12 +56,12 @@ const command = async function() {
     // @todo update the image version once new images are merged
     try{
         if ( envPath === false ) {
-            execSync( `docker run -it --rm -v "${wpsnapshotsDir}:/home/wpsnapshots/.wpsnapshots" 10up/wpsnapshots:dev ${command}`, { stdio: 'inherit' });
+            execSync( `docker run -it --rm -v "${wpsnapshotsDir}:/home/wpsnapshots/.wpsnapshots" 10up/wpsnapshots:dev ${command}`, { stdio: 'inherit' } );
         } else {
             await gateway.startGlobal();
-            execSync( `docker run -it --rm --network wplocaldocker -v "${envPath}/wordpress:/var/www/html" -v "${wpsnapshotsDir}:/home/wpsnapshots/.wpsnapshots" 10up/wpsnapshots:dev --db_user=root ${command}`, { stdio: 'inherit' });
+            execSync( `docker run -it --rm --network wplocaldocker -v "${envPath}/wordpress:/var/www/html" -v "${wpsnapshotsDir}:/home/wpsnapshots/.wpsnapshots" 10up/wpsnapshots:dev --db_user=root ${command}`, { stdio: 'inherit' } );
         }
-    } catch (ex) {}
+    } catch ( ex ) {}
 };
 
 module.exports = { command, checkIfConfigured, configure };

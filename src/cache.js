@@ -15,7 +15,7 @@ const clear = async function() {
     await gateway.removeCacheVolume();
     await gateway.ensureCacheExists();
 
-    console.log( "Cache Cleared" );
+    console.log( 'Cache Cleared' );
 };
 
 const command = async function() {
