@@ -79,6 +79,13 @@
         "error",
         "always"
       ],
+      "prefer-destructuring": [
+        "error",
+        {
+          "array": false,
+          "object": true
+        }
+      ],
       "require-jsdoc": "off",
       "yoda": [
         "error",
