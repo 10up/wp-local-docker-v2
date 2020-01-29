@@ -320,11 +320,6 @@ const createEnv = async function() {
     // Map the nginx configuraiton file
     baseConfig.services.nginx.volumes.push( './config/nginx/' + nginxConfig + ':/etc/nginx/conf.d/default.conf:cached' );
 
-    if ( answers.addHttps === true ) {
-        baseConfig.services.nginx.volumes.push( './config/nginx/ssl_certificate.crt:/etc/nginx/conf.d/ssl_certificate.crt' );
-        baseConfig.services.nginx.volumes.push( './config/nginx/ssl_certificate.key:/etc/nginx/conf.d/ssl_certificate.key' );
-    }
-
     if ( answers.elasticsearch === true ) {
         baseConfig.services.phpfpm.depends_on.push( 'elasticsearch' );
 
@@ -390,39 +385,6 @@ const createEnv = async function() {
             }
         );
     } );
-
-    // HTTPS is selected
-    if ( answers.addHttps === true ) {
-        // Generate certificate files
-        console.log( "Copying SSL certificates..." );
-
-        await fs.ensureDir( path.join( envPath, 'config', 'nginx' ) );
-        await fs.copy( path.join( envUtils.srcPath, 'config', 'nginx', 'ssl_certificate.crt' ), path.join( envPath, 'config', 'nginx', 'ssl_certificate.crt' ) );
-        await fs.copy( path.join( envUtils.srcPath, 'config', 'nginx', 'ssl_certificate.key' ), path.join( envPath, 'config', 'nginx', 'ssl_certificate.key' ) );
-
-        // Write HTTPS to the config files
-        console.log( "Writing HTTPS configuration..." );
-
-        await new Promise( resolve => {
-            fs.readFile( path.join( envPath, 'config', 'nginx', nginxConfig ), 'utf8', function( err, curConfig ) {
-                if ( err ) {
-                    console.error( chalk.bold.yellow( "Warning: " ) + "Failed to read nginx configuration file. HTPPS has not been set. Error: " + err );
-                    resolve();
-                    return;
-                }
-
-                fs.writeFile( path.join( envPath, 'config', 'nginx', nginxConfig ), config.createHttpsConfig( curConfig ), 'utf8', function ( err ) {
-                    if ( err ) {
-                        console.error( chalk.bold.yellow( "Warning: " ) + "Failed to write configuration file. HTPPS has not been set. Error: " + err );
-                    } else {
-                        console.log( "HTTPS configured" );
-                    }
-
-                    resolve();
-                } );
-            } );
-        } );
-    }
 
     // Media proxy is selected
     if ( answers.mediaProxy === true ) {
