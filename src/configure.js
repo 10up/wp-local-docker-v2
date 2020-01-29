@@ -189,9 +189,9 @@ const command = async function() {
  */
 const createProxyConfig = ( proxy, curConfig ) => {
 
-    const proxyMarkup = `${'location @production {' + '\r\n'
-		+ '        resolver 8.8.8.8;' + '\r\n'
-		+ '        proxy_pass '}${  proxy  }/$uri;` + '\r\n'
+    const proxyMarkup = 'location @production {\r\n' // eslint-disable-line prefer-template
+		+ '        resolver 8.8.8.8;\r\n'
+		+ '        proxy_pass ' + proxy + '/$uri;\r\n'
 		+ '    }';
 
     const proxyMapObj = {
