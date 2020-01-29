@@ -389,14 +389,14 @@ const createEnv = async function() {
         await new Promise( resolve => {
             fs.readFile( path.join( envPath, 'config', 'nginx', nginxConfig ), 'utf8', function( err, curConfig ) {
                 if ( err ) {
-                    console.error( `${chalk.bold.yellow( 'Warning: ' )  }Failed to read nginx configuration file. Your media proxy has not been set. Error: ${  err}` );
+                    console.error( `${ chalk.bold.yellow( 'Warning: ' ) }Failed to read nginx configuration file. Your media proxy has not been set. Error: ${ err }` );
                     resolve();
                     return;
                 }
 
                 fs.writeFile( path.join( envPath, 'config', 'nginx', nginxConfig ), config.createProxyConfig( answers.proxy, curConfig ), 'utf8', function ( err ) {
                     if ( err ) {
-                        console.error( `${chalk.bold.yellow( 'Warning: ' )  }Failed to write configuration file. Your media proxy has not been set. Error: ${  err}` );
+                        console.error( `${ chalk.bold.yellow( 'Warning: ' ) }Failed to write configuration file. Your media proxy has not been set. Error: ${ err }` );
                         resolve();
                         return;
                     }
@@ -442,7 +442,7 @@ const createEnv = async function() {
             const hostsstring = allHosts.join( ' ' );
             sudo.exec( `10updocker-hosts add ${hostsstring}`, sudoOptions, function( error, stdout ) {
                 if ( error ) {
-                    console.error( `${chalk.bold.yellow( 'Warning: ' )  }Something went wrong adding host file entries. You may need to add the /etc/hosts entries manually.` );
+                    console.error( `${ chalk.bold.yellow( 'Warning: ' ) }Something went wrong adding host file entries. You may need to add the /etc/hosts entries manually.` );
                     resolve();
                     return;
                 }

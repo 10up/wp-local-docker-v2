@@ -26,12 +26,12 @@ Example:
 
 const validateOldEnv = async function( oldEnv ) {
     if ( ! await fs.exists( path.join( oldEnv, 'docker-compose.yml' ) ) ) {
-        console.error( `${chalk.bold.red( 'Error: ' )  }Could not find a docker-compose.yml file in the path specified for the old environment!` );
+        console.error( `${ chalk.bold.red( 'Error: ' ) }Could not find a docker-compose.yml file in the path specified for the old environment!` );
         process.exit();
     }
 
     if ( ! await fs.pathExists( path.join( oldEnv, 'data', 'db' ) ) ) {
-        console.error( `${chalk.bold.red( 'Error: ' )  }Could not find MySQL data in the path specified for the old environment!` );
+        console.error( `${ chalk.bold.red( 'Error: ' ) }Could not find MySQL data in the path specified for the old environment!` );
         process.exit();
     }
 
@@ -135,7 +135,7 @@ const command = async function() {
         await importNewDatabase( env );
         await copySiteFiles( old, env );
 
-        console.log( `${chalk.bold.green( 'Success!' )  } Your environment has been imported!` );
+        console.log( `${ chalk.bold.green( 'Success!' ) } Your environment has been imported!` );
         console.log( ' - wp-config.php has not been changed. Any custom configuration needs to be manually copied' );
         console.log( ' - If you need to run a search/replace, run `10updocker wp search-replace <olddomain> <newdomain>`' );
     }

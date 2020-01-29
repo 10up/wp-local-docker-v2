@@ -48,7 +48,7 @@ const parseProxyUrl = function( value ) {
     const re = /^https?:\/\//i;
 
     if ( value.length > 3 && ! re.test( value ) ) {
-        value = `http://${  value}`;
+        value = `http://${ value }`;
     }
 
     return helper.removeEndSlashes( value );

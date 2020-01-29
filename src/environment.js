@@ -161,7 +161,7 @@ const deleteEnv = async function( env ) {
                     console.log( ` - Removing ${envHosts}` );
                     sudo.exec( `10updocker-hosts remove ${envHosts}`, sudoOptions, function ( error, stdout ) {
                         if ( error ) {
-                            console.error( `${chalk.bold.yellow( 'Warning: ' )  }Something went wrong deleting host file entries. There may still be remnants in /etc/hosts` );
+                            console.error( `${ chalk.bold.yellow( 'Warning: ' ) }Something went wrong deleting host file entries. There may still be remnants in /etc/hosts` );
                             resolve();
                             return;
                         }
@@ -172,7 +172,7 @@ const deleteEnv = async function( env ) {
             }
         } catch ( err ) {
             // Unfound config, etc
-            console.error( `${chalk.bold.yellow( 'Warning: ' )  }Something went wrong deleting host file entries. There may still be remnants in /etc/hosts` );
+            console.error( `${ chalk.bold.yellow( 'Warning: ' ) }Something went wrong deleting host file entries. There may still be remnants in /etc/hosts` );
         }
     }
 
