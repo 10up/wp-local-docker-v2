@@ -41,7 +41,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "npm run lint"
+      "pre-commit": "npm run lint --silent"
     }
   },
   "eslintConfig": {
@@ -68,6 +68,7 @@
           "checkLoops": false
         }
       ],
+      "no-console": "off",
       "no-empty": [
         "error",
         {
