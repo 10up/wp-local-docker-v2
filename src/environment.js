@@ -8,7 +8,7 @@ const database = require( './database' );
 const envUtils = require( './env-utils' );
 const gateway = require( './gateway' );
 const sudo = require( 'sudo-prompt' );
-config = require( './configure' );
+const config = require( './configure' );
 const chalk = require( 'chalk' );
 const readYaml = require( 'read-yaml' );
 const os = require( 'os' );
@@ -159,7 +159,7 @@ const deleteEnv = async function( env ) {
             for ( let i = 0, len = envHosts.length; i < len; i++ ) {
                 await new Promise( resolve => {
                     console.log( ` - Removing ${envHosts}` );
-                    sudo.exec( `10updocker-hosts remove ${envHosts}`, sudoOptions, function ( error, stdout, stderr ) {
+                    sudo.exec( `10updocker-hosts remove ${envHosts}`, sudoOptions, function ( error, stdout ) {
                         if ( error ) {
                             console.error( `${chalk.bold.yellow( 'Warning: ' )  }Something went wrong deleting host file entries. There may still be remnants in /etc/hosts` );
                             resolve();

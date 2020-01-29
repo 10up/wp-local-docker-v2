@@ -61,12 +61,14 @@ const updateIfUsed = function( image ) {
 };
 
 const updateAll = function() {
-    for ( const [ image_name, image_url ] of Object.entries( globalImages ) ) {
-        update( image_url );
+    // eslint-disable-next-line no-unused-vars
+    for ( const [ imageName, imageUrl ] of Object.entries( globalImages ) ) {
+        update( imageUrl );
     }
-    
-    for ( const [image_name, image_url] of Object.entries( images ) ) {
-        updateIfUsed( image_url );
+
+    // eslint-disable-next-line no-unused-vars
+    for ( const [imageName, imageUrl] of Object.entries( images ) ) {
+        updateIfUsed( imageUrl );
     }
 
     // delete the built containers on linux so it can be rebuilt with the (possibly) updated

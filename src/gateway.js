@@ -59,9 +59,9 @@ const occurrences = function( string, subString, allowOverlapping ) {
     subString += '';
     if ( subString.length <= 0 ) return ( string.length + 1 );
 
-    let n = 0,
-        pos = 0,
-        step = allowOverlapping ? 1 : subString.length;
+    let n = 0;
+    let pos = 0;
+    const step = allowOverlapping ? 1 : subString.length;
 
     while ( true ) {
         pos = string.indexOf( subString, pos );
@@ -70,6 +70,7 @@ const occurrences = function( string, subString, allowOverlapping ) {
             pos += step;
         } else break;
     }
+
     return n;
 };
 

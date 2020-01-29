@@ -440,7 +440,7 @@ const createEnv = async function() {
         };
         await new Promise( resolve => {
             const hostsstring = allHosts.join( ' ' );
-            sudo.exec( `10updocker-hosts add ${hostsstring}`, sudoOptions, function( error, stdout, stderr ) {
+            sudo.exec( `10updocker-hosts add ${hostsstring}`, sudoOptions, function( error, stdout ) {
                 if ( error ) {
                     console.error( `${chalk.bold.yellow( 'Warning: ' )  }Something went wrong adding host file entries. You may need to add the /etc/hosts entries manually.` );
                     resolve();

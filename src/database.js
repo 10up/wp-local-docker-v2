@@ -14,7 +14,7 @@ const create = async function( dbname ) {
     const connection = getConnection();
 
     await new Promise( ( resolve, reject ) => {
-        connection.query( `CREATE DATABASE IF NOT EXISTS \`${dbname}\`;`, function ( err, results ) {
+        connection.query( `CREATE DATABASE IF NOT EXISTS \`${dbname}\`;`, function ( err ) {
             connection.destroy();
 
             if ( err ) {
@@ -30,7 +30,7 @@ const deleteDatabase = async function( dbname ) {
     const connection = getConnection();
 
     await new Promise( ( resolve, reject ) => {
-        connection.query( `DROP DATABASE IF EXISTS \`${dbname}\`;`, function( err, results ) {
+        connection.query( `DROP DATABASE IF EXISTS \`${dbname}\`;`, function( err ) {
             connection.destroy();
 
             if ( err ) {
@@ -46,7 +46,7 @@ const assignPrivs = async function ( dbname ) {
     const connection = getConnection();
 
     await new Promise( ( resolve, reject ) => {
-        connection.query( `GRANT ALL PRIVILEGES ON \`${dbname}\`.* TO 'wordpress'@'%' IDENTIFIED BY 'password';`, function( err, results ) {
+        connection.query( `GRANT ALL PRIVILEGES ON \`${dbname}\`.* TO 'wordpress'@'%' IDENTIFIED BY 'password';`, function( err ) {
             connection.destroy();
 
             if ( err ) {
@@ -57,7 +57,5 @@ const assignPrivs = async function ( dbname ) {
         } );
     } );
 };
-
-
 
 module.exports = { create, deleteDatabase, assignPrivs };

@@ -8,8 +8,6 @@ const { exec } = require( 'child_process' );
 const environment = require( './environment' );
 
 const help = function() {
-    const command = commandUtils.command();
-
     const help = `
 Usage:  10updocker migrate OLD_PATH [ENVIRONMENT]
 

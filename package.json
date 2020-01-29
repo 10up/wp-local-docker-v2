@@ -58,6 +58,18 @@
           "SwitchCase": 1
         }
       ],
+      "no-constant-condition": [
+        "error",
+        {
+          "checkLoops": false
+        }
+      ],
+      "no-empty": [
+        "error",
+        {
+          "allowEmptyCatch": true
+        }
+      ],
       "object-curly-spacing": [
         "error",
         "always"
