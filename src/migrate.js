@@ -1,16 +1,16 @@
 const commandUtils = require( './command-utils' );
-let envUtils = require( './env-utils' );
+const envUtils = require( './env-utils' );
 const fs = require( 'fs-extra' );
 const path = require( 'path' );
 const chalk = require( 'chalk' );
-const execSync = require( 'child_process' ).execSync;
-const exec = require( 'child_process' ).exec;
+const { execSync } = require( 'child_process' );
+const { exec } = require( 'child_process' );
 const environment = require( './environment' );
 
 const help = function() {
-    let command = commandUtils.command();
+    const command = commandUtils.command();
 
-    let help = `
+    const help = `
 Usage:  10updocker migrate OLD_PATH [ENVIRONMENT]
 
 Migrate a WP Local Docker V1 environment into a new WP Local Docker V2 environment. Before running this command, create a new environment using the \`10updocker create\` command.
@@ -28,12 +28,12 @@ Example:
 
 const validateOldEnv = async function( oldEnv ) {
     if ( ! await fs.exists( path.join( oldEnv, 'docker-compose.yml' ) ) ) {
-        console.error( chalk.bold.red( 'Error: ' ) + 'Could not find a docker-compose.yml file in the path specified for the old environment!' );
+        console.error( `${chalk.bold.red( 'Error: ' )  }Could not find a docker-compose.yml file in the path specified for the old environment!` );
         process.exit();
     }
 
     if ( ! await fs.pathExists( path.join( oldEnv, 'data', 'db' ) ) ) {
-        console.error( chalk.bold.red( 'Error: ' ) + 'Could not find MySQL data in the path specified for the old environment!' );
+        console.error( `${chalk.bold.red( 'Error: ' )  }Could not find MySQL data in the path specified for the old environment!` );
         process.exit();
     }
 
@@ -49,9 +49,9 @@ const stopOldEnv = async function( oldEnv ) {
 
 // Kind of like the one for gateway, but not using docker compose and adapted for this purpose
 const waitForDB = function( containerName ) {
-    let readyMatch = 'ready for connections';
+    const readyMatch = 'ready for connections';
     return new Promise( resolve => {
-        let interval = setInterval( () => {
+        const interval = setInterval( () => {
             console.log( 'Waiting for mysql...' );
             exec( `docker logs ${containerName}`, ( error, stdout, stderr ) => {
                 if ( error ) {
@@ -69,9 +69,9 @@ const waitForDB = function( containerName ) {
 };
 
 const exportOldDatabase = async function( oldEnv, exportDir ) {
-    let dataDir = path.join( oldEnv, 'data', 'db' );
-    let parts = path.parse( oldEnv );
-    let base = `mysql-${parts.name}`;
+    const dataDir = path.join( oldEnv, 'data', 'db' );
+    const parts = path.parse( oldEnv );
+    const base = `mysql-${parts.name}`;
 
     // Just in case this failed and are retrying
     try {
@@ -90,7 +90,7 @@ const exportOldDatabase = async function( oldEnv, exportDir ) {
 
 const importNewDatabase = async function( env ) {
     await environment.start( env );
-    let envPath = await envUtils.getPathOrError( env );
+    const envPath = await envUtils.getPathOrError( env );
 
     try {
         console.log( 'Importing DB to new Environment' );
@@ -99,9 +99,9 @@ const importNewDatabase = async function( env ) {
 };
 
 const copySiteFiles = async function( oldEnv, newEnv ) {
-    let envPath = await envUtils.getPathOrError( newEnv );
-    let wpContent = path.join( envPath, 'wordpress', 'wp-content' );
-    let oldWpContent = path.join( oldEnv, 'wordpress', 'wp-content' );
+    const envPath = await envUtils.getPathOrError( newEnv );
+    const wpContent = path.join( envPath, 'wordpress', 'wp-content' );
+    const oldWpContent = path.join( oldEnv, 'wordpress', 'wp-content' );
 
     // Clear out all the current environment content
     // Only doing wp-content for now, since otherwise we would need to keep wp-config.php... But what about customizations?
@@ -116,7 +116,7 @@ const command = async function() {
     if ( commandUtils.subcommand() === 'help' || commandUtils.subcommand() === undefined ) {
         help();
     } else {
-        let old = path.resolve( commandUtils.getArg( 1 ) );
+        const old = path.resolve( commandUtils.getArg( 1 ) );
         let env = commandUtils.getArg( 2 );
 
         // So that we don't prompt at every step...
@@ -127,17 +127,17 @@ const command = async function() {
         await validateOldEnv( old );
         await stopOldEnv( old );
 
-        let envPath = await envUtils.getPathOrError( env );
+        const envPath = await envUtils.getPathOrError( env );
 
         // So that the DB is already in the folder mounted to docker
-        let exportDir = path.join( envPath, 'wordpress', 'import' );
+        const exportDir = path.join( envPath, 'wordpress', 'import' );
         await fs.ensureDir( exportDir );
 
         await exportOldDatabase( old, exportDir );
         await importNewDatabase( env );
         await copySiteFiles( old, env );
 
-        console.log( chalk.bold.green( 'Success!' ) + ' Your environment has been imported!' );
+        console.log( `${chalk.bold.green( 'Success!' )  } Your environment has been imported!` );
         console.log( ' - wp-config.php has not been changed. Any custom configuration needs to be manually copied' );
         console.log( ' - If you need to run a search/replace, run `10updocker wp search-replace <olddomain> <newdomain>`' );
     }

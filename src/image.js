@@ -4,7 +4,7 @@ const environment = require( './environment' );
 const inquirer = require( 'inquirer' );
 const promptValidators = require( './prompt-validators' );
 const os = require( 'os' );
-const execSync = require( 'child_process' ).execSync;
+const { execSync } = require( 'child_process' );
 
 // These have to exist, so we don't bother checking if they exist on the system first
 const globalImages = {
@@ -29,7 +29,7 @@ const images = {
 };
 
 const help = function() {
-    let help = `
+    const help = `
 Usage: 10updocker image update
 
 Updates any docker images used by your environment to the latest versions available for the specified tag. All environments must be stopped to update images.
@@ -50,7 +50,7 @@ const update = function( image ) {
 
 const updateIfUsed = function( image ) {
     console.log( `Testing ${image}` );
-    let result = execSync( `docker image ls ${image}` ).toString();
+    const result = execSync( `docker image ls ${image}` ).toString();
     // All images say how long "ago" they were created.. Use this to determine if the image exists, since `wc -l` doesn't work on windows
     if ( result.indexOf( 'ago' ) === -1 ) {
         console.log( `${image} doesn't exist on this system. Skipping update.` );
@@ -83,7 +83,7 @@ const stopAll = async function() {
 };
 
 const confirm = async function() {
-    let answers = await inquirer.prompt( {
+    const answers = await inquirer.prompt( {
         name: 'confirm',
         type: 'confirm',
         message: 'Updating images requires all environments to be stopped. Is that okay?',

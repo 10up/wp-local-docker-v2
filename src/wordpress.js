@@ -1,16 +1,16 @@
-const execSync = require( 'child_process' ).execSync;
+const { execSync } = require( 'child_process' );
 const envUtils = require( './env-utils' );
 
 
 const download = async function( env ) {
-    let envPath = await envUtils.envPath( env );
+    const envPath = await envUtils.envPath( env );
 
     console.log( 'Downloading WordPress' );
     execSync( 'docker-compose exec phpfpm wp core download --force', { stdio: 'inherit', cwd: envPath } );
 };
 
 const downloadDevelop = async function( env ) {
-    let envPath = await envUtils.envPath( env );
+    const envPath = await envUtils.envPath( env );
 
     console.log( 'Downloading WordPress Develop' );
     execSync( 'docker-compose exec phpfpm git clone git://develop.git.wordpress.org/ .', { stdio: 'inherit', cwd: envPath } );
@@ -19,15 +19,15 @@ const downloadDevelop = async function( env ) {
 };
 
 const configure = async function( env ) {
-    let envSlug = envUtils.envSlug( env );
-    let envPath = await envUtils.envPath( env );
+    const envSlug = envUtils.envSlug( env );
+    const envPath = await envUtils.envPath( env );
 
     console.log( 'Configuring WordPress' );
     execSync( `docker-compose exec phpfpm wp config create --force --dbname=${envSlug} --dbuser=wordpress --dbpass=password --dbhost=mysql`, { stdio: 'inherit', cwd: envPath } );
 };
 
 const install = async function( env, envHost, answers ) {
-    let envPath = await envUtils.envPath( env );
+    const envPath = await envUtils.envPath( env );
     let command = '';
     let flags = '';
 
@@ -52,13 +52,13 @@ const install = async function( env, envHost, answers ) {
 };
 
 const setRewrites = async function( env ) {
-    let envPath = await envUtils.envPath( env );
+    const envPath = await envUtils.envPath( env );
 
     execSync( 'docker-compose exec phpfpm wp rewrite structure /%postname%/', { stdio: 'inherit', cwd: envPath } );
 };
 
 const emptyContent = async function( env ) {
-    let envPath = await envUtils.envPath( env );
+    const envPath = await envUtils.envPath( env );
 
     execSync( 'docker-compose exec phpfpm wp site empty --yes', { stdio: 'inherit', cwd: envPath } );
     execSync( 'docker-compose exec phpfpm wp plugin delete hello akismet', { stdio: 'inherit', cwd: envPath } );

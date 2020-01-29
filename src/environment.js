@@ -1,7 +1,7 @@
 const commandUtils = require( './command-utils' );
 const path = require( 'path' );
 const fs = require( 'fs-extra' );
-const execSync = require( 'child_process' ).execSync;
+const { execSync } = require( 'child_process' );
 const inquirer = require( 'inquirer' );
 const promptValidators = require( './prompt-validators' );
 const database = require( './database' );
@@ -13,12 +13,12 @@ const chalk = require( 'chalk' );
 const readYaml = require( 'read-yaml' );
 const os = require( 'os' );
 const writeYaml = require( 'write-yaml' );
-const images = require( './image' ).images;
+const { images } = require( './image' );
 
 const help = function() {
-    let command = commandUtils.command();
+    const command = commandUtils.command();
 
-    let help = `
+    const help = `
 Usage:  10updocker ${command} ENVIRONMENT
         10updocker ${command} all
 
@@ -44,10 +44,10 @@ const start = async function( env ) {
         env = await envUtils.promptEnv();
     }
 
-    let envPath = await envUtils.getPathOrError( env );
+    const envPath = await envUtils.getPathOrError( env );
 
     // If we got the path from the cwd, we don't have a slug yet, so get it
-    let envSlug = envUtils.envSlug( env );
+    const envSlug = envUtils.envSlug( env );
 
     await gateway.startGlobal();
 
@@ -56,7 +56,7 @@ const start = async function( env ) {
         execSync( 'docker-compose up -d', { stdio: 'inherit', cwd: envPath } );
     } catch ( ex ) {}
 
-    let envHosts = await envUtils.getEnvHosts( envPath );
+    const envHosts = await envUtils.getEnvHosts( envPath );
     if ( envHosts.length > 0 ) {
         console.log();
         console.log( 'Environment configured for the following domains:' );
@@ -78,10 +78,10 @@ const stop = async function( env ) {
         env = await envUtils.promptEnv();
     }
 
-    let envPath = await envUtils.getPathOrError( env );
+    const envPath = await envUtils.getPathOrError( env );
 
     // If we got the path from the cwd, we don't have a slug yet, so get it
-    let envSlug = envUtils.envSlug( env );
+    const envSlug = envUtils.envSlug( env );
 
     console.log( `Stopping docker containers for ${envSlug}` );
     try {
@@ -100,10 +100,10 @@ const restart = async function( env ) {
         env = await envUtils.promptEnv();
     }
 
-    let envPath = await envUtils.getPathOrError( env );
+    const envPath = await envUtils.getPathOrError( env );
 
     // If we got the path from the cwd, we don't have a slug yet, so get it
-    let envSlug = envUtils.envSlug( env );
+    const envSlug = envUtils.envSlug( env );
 
     await gateway.startGlobal();
 
@@ -122,10 +122,10 @@ const deleteEnv = async function( env ) {
         env = await envUtils.promptEnv();
     }
 
-    let envPath = await envUtils.getPathOrError( env );
-    let envSlug = envUtils.envSlug( env );
+    const envPath = await envUtils.getPathOrError( env );
+    const envSlug = envUtils.envSlug( env );
 
-    let answers = await inquirer.prompt( {
+    const answers = await inquirer.prompt( {
         name: 'confirm',
         type: 'confirm',
         message: `Are you sure you want to delete the ${envSlug} environment`,
@@ -151,17 +151,17 @@ const deleteEnv = async function( env ) {
         try {
             console.log( 'Removing host file entries' );
 
-            let sudoOptions = {
+            const sudoOptions = {
                 name: 'WP Local Docker'
             };
 
-            let envHosts = await envUtils.getEnvHosts( envPath );
+            const envHosts = await envUtils.getEnvHosts( envPath );
             for ( let i = 0, len = envHosts.length; i < len; i++ ) {
                 await new Promise( resolve => {
                     console.log( ` - Removing ${envHosts}` );
                     sudo.exec( `10updocker-hosts remove ${envHosts}`, sudoOptions, function ( error, stdout, stderr ) {
                         if ( error ) {
-                            console.error( chalk.bold.yellow( 'Warning: ' ) + 'Something went wrong deleting host file entries. There may still be remnants in /etc/hosts' );
+                            console.error( `${chalk.bold.yellow( 'Warning: ' )  }Something went wrong deleting host file entries. There may still be remnants in /etc/hosts` );
                             resolve();
                             return;
                         }
@@ -172,7 +172,7 @@ const deleteEnv = async function( env ) {
             }
         } catch ( err ) {
             // Unfound config, etc
-            console.error( chalk.bold.yellow( 'Warning: ' ) + 'Something went wrong deleting host file entries. There may still be remnants in /etc/hosts' );
+            console.error( `${chalk.bold.yellow( 'Warning: ' )  }Something went wrong deleting host file entries. There may still be remnants in /etc/hosts` );
         }
     }
 
@@ -184,24 +184,24 @@ const deleteEnv = async function( env ) {
 };
 
 const upgradeEnv = async function( env ) {
-    let envPath = await envUtils.getPathOrError( env );
+    const envPath = await envUtils.getPathOrError( env );
 
     // If we got the path from the cwd, we don't have a slug yet, so get it
-    let envSlug = envUtils.envSlug( env );
+    const envSlug = envUtils.envSlug( env );
 
-    let yaml = readYaml.sync( path.join( envPath, 'docker-compose.yml' ) );
+    const yaml = readYaml.sync( path.join( envPath, 'docker-compose.yml' ) );
 
-    let services = [ 'nginx', 'phpfpm', 'elasticsearch' ];
+    const services = [ 'nginx', 'phpfpm', 'elasticsearch' ];
 
     // Update defined services to have all cached volumes
-    for ( let service of services ) {
+    for ( const service of services ) {
         if ( ! yaml.services[ service ] ) {
             continue;
         }
-        for ( let key in yaml.services[ service ].volumes ) {
-            let volume = yaml.services[ service ].volumes[ key ];
-            let parts = volume.split( ':' );
-            if ( 2 === parts.length ) {
+        for ( const key in yaml.services[ service ].volumes ) {
+            const volume = yaml.services[ service ].volumes[ key ];
+            const parts = volume.split( ':' );
+            if ( parts.length === 2 ) {
                 parts.push( 'cached' );
             }
 
@@ -236,15 +236,15 @@ const upgradeEnvTwoDotSix = async function( env ) {
         env = await envUtils.promptEnv();
     }
 
-    let envPath = await envUtils.getPathOrError( env );
+    const envPath = await envUtils.getPathOrError( env );
 
     // If we got the path from the cwd, we don't have a slug yet, so get it
-    let envSlug = envUtils.envSlug( env );
+    const envSlug = envUtils.envSlug( env );
 
     await stop( envSlug );
 
     // Create a backup of the old yaml.
-    let yaml = readYaml.sync( path.join( envPath, 'docker-compose.yml' ) );
+    const yaml = readYaml.sync( path.join( envPath, 'docker-compose.yml' ) );
     await new Promise( resolve => {
         writeYaml( path.join( envPath, 'docker-compose.yml.bak' ), yaml, { 'lineWidth': 500 }, function( err ) {
             if ( err ) {
@@ -263,14 +263,14 @@ const upgradeEnvTwoDotSix = async function( env ) {
     await fs.copy( path.join( envUtils.srcPath, 'containers' ), path.join( envPath, '.containers' ) );
 
     // Create a new object for the upgrade yaml.
-    let upgraded = Object.assign( {}, yaml );
+    const upgraded = Object.assign( {}, yaml );
 
     // Set docker-compose version.
     upgraded.version = '2.2';
 
     // Upgrade image.
-    let phpVersion = yaml.services.phpfpm.image.split( ':' ).pop();
-    if ( '5.5' === phpVersion ) {
+    const phpVersion = yaml.services.phpfpm.image.split( ':' ).pop();
+    if ( phpVersion === '5.5' ) {
         console.warn( 'Support for PHP v5.5 was removed in the latest version of WP Local Docker.' );
         console.error( 'This environment cannot be upgraded.  No changes were made.' );
 
@@ -287,7 +287,7 @@ const upgradeEnvTwoDotSix = async function( env ) {
     const volumes = [ ...upgraded.services.phpfpm.volumes ];
     upgraded.services.phpfpm.volumes = volumes.reduce( ( acc, curr ) => {
         if ( deprecatedVolumes.includes( curr ) ) {
-            if ( 1 === deprecatedVolumes.indexOf( curr ) ) {
+            if ( deprecatedVolumes.indexOf( curr ) === 1 ) {
                 acc.push( './config/php-fpm/docker-php-ext-xdebug.ini:/etc/php.d/docker-php-ext-xdebug.ini:cached' );
                 return acc;
             }
@@ -339,7 +339,7 @@ const upgradeEnvTwoDotSix = async function( env ) {
 };
 
 const startAll = async function() {
-    let envs = await envUtils.getAllEnvironments();
+    const envs = await envUtils.getAllEnvironments();
 
     await gateway.startGlobal();
 
@@ -349,7 +349,7 @@ const startAll = async function() {
 };
 
 const stopAll = async function() {
-    let envs = await envUtils.getAllEnvironments();
+    const envs = await envUtils.getAllEnvironments();
 
     for ( let i = 0, len = envs.length; i < len; i++ ) {
         await stop( envs[ i ] );
@@ -359,7 +359,7 @@ const stopAll = async function() {
 };
 
 const restartAll = async function() {
-    let envs = await envUtils.getAllEnvironments();
+    const envs = await envUtils.getAllEnvironments();
 
     for ( let i = 0, len = envs.length; i < len; i++ ) {
         await restart( envs[ i ] );
@@ -369,7 +369,7 @@ const restartAll = async function() {
 };
 
 const deleteAll = async function() {
-    let envs = await envUtils.getAllEnvironments();
+    const envs = await envUtils.getAllEnvironments();
 
     for ( let i = 0, len = envs.length; i < len; i++ ) {
         await deleteEnv( envs[ i ] );

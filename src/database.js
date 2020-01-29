@@ -1,7 +1,7 @@
 const mysql = require( 'mysql' );
 
 const getConnection = function() {
-    let connection = mysql.createConnection( {
+    const connection = mysql.createConnection( {
         host: '127.0.0.1',
         user: 'root',
         password: 'password',
@@ -11,7 +11,7 @@ const getConnection = function() {
 };
 
 const create = async function( dbname ) {
-    let connection = getConnection();
+    const connection = getConnection();
 
     await new Promise( ( resolve, reject ) => {
         connection.query( `CREATE DATABASE IF NOT EXISTS \`${dbname}\`;`, function ( err, results ) {
@@ -27,7 +27,7 @@ const create = async function( dbname ) {
 };
 
 const deleteDatabase = async function( dbname ) {
-    let connection = getConnection();
+    const connection = getConnection();
 
     await new Promise( ( resolve, reject ) => {
         connection.query( `DROP DATABASE IF EXISTS \`${dbname}\`;`, function( err, results ) {
@@ -43,7 +43,7 @@ const deleteDatabase = async function( dbname ) {
 };
 
 const assignPrivs = async function ( dbname ) {
-    let connection = getConnection();
+    const connection = getConnection();
 
     await new Promise( ( resolve, reject ) => {
         connection.query( `GRANT ALL PRIVILEGES ON \`${dbname}\`.* TO 'wordpress'@'%' IDENTIFIED BY 'password';`, function( err, results ) {

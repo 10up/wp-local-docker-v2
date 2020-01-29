@@ -1,5 +1,5 @@
-const execSync = require( 'child_process' ).execSync;
-const exec = require( 'child_process' ).exec;
+const { execSync } = require( 'child_process' );
+const { exec } = require( 'child_process' );
 const envUtils = require( './env-utils' );
 
 // Tracks if we've started global inside of this session
@@ -8,7 +8,7 @@ let started = false;
 const ensureNetworkExists = function() {
     try {
         console.log( 'Ensuring global network exists' );
-        let networks = execSync( 'docker network ls --filter name=^wplocaldocker$' ).toString();
+        const networks = execSync( 'docker network ls --filter name=^wplocaldocker$' ).toString();
         if ( networks.indexOf( 'wplocaldocker' ) !== -1 ) {
             console.log( ' - Network exists' );
             return;
@@ -30,7 +30,7 @@ const removeNetwork = function() {
 const ensureCacheExists = async function() {
     try {
         console.log( 'Ensuring global cache volume exists' );
-        let volumes = await exec( `docker volume ls --filter name=${envUtils.cacheVolume}` ).toString();
+        const volumes = await exec( `docker volume ls --filter name=${envUtils.cacheVolume}` ).toString();
         if ( volumes.indexOf( `${envUtils.cacheVolume}` ) !== -1 ) {
             console.log( ' - Volume Exists' );
             return;
@@ -44,7 +44,7 @@ const ensureCacheExists = async function() {
 const removeCacheVolume = async function() {
     try {
         console.log( 'Removing cache volume' );
-        let volumes = await exec( `docker volume ls --filter name=${envUtils.cacheVolume}` ).toString();
+        const volumes = await exec( `docker volume ls --filter name=${envUtils.cacheVolume}` ).toString();
         if ( volumes.indexOf( `${envUtils.cacheVolume}` ) === -1 ) {
             await exec( `docker volume rm ${envUtils.cacheVolume}` );
             console.log( ' - Volume Removed' );
@@ -59,7 +59,7 @@ const occurrences = function( string, subString, allowOverlapping ) {
     subString += '';
     if ( subString.length <= 0 ) return ( string.length + 1 );
 
-    var n = 0,
+    let n = 0,
         pos = 0,
         step = allowOverlapping ? 1 : subString.length;
 
@@ -80,15 +80,15 @@ const occurrences = function( string, subString, allowOverlapping ) {
  * Otherwise, we just wait for one occurrence.
  */
 const waitForDB = function() {
-    let firstTimeMatch = 'Initializing database';
-    let readyMatch = 'ready for connections';
+    const firstTimeMatch = 'Initializing database';
+    const readyMatch = 'ready for connections';
     return new Promise( resolve => {
-        let interval = setInterval( () => {
+        const interval = setInterval( () => {
             console.log( 'Waiting for mysql...' );
             // FIXME: Only tailing on the logs is bad, we should ping instead
             // Using tail to prevent an edge case where things hang due to large
             // number of logs
-            let mysql = execSync( 'docker-compose logs --tail 50 mysql', { cwd: envUtils.globalPath } ).toString();
+            const mysql = execSync( 'docker-compose logs --tail 50 mysql', { cwd: envUtils.globalPath } ).toString();
 
             if ( mysql.indexOf( readyMatch ) !== -1 ) {
                 if ( occurrences( mysql, firstTimeMatch, false ) !== 0 ) {

@@ -2,7 +2,7 @@ const commandUtils = require( './command-utils' );
 const gateway = require( './gateway' );
 
 const help = function() {
-    let help = `
+    const help = `
 Usage: 10updocker cache clear
 
 Clears npm, wp-cli, and WP Snapshots caches

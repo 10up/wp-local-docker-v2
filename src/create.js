@@ -13,10 +13,10 @@ const sudo = require( 'sudo-prompt' );
 const config = require( './configure' );
 const chalk = require( 'chalk' );
 const os = require( 'os' );
-const images = require( './image' ).images;
+const { images } = require( './image' );
 
 const help = function() {
-    let help = `
+    const help = `
 Usage: 10updocker create
 
 Creates a new docker environment interactively.
@@ -26,7 +26,7 @@ Creates a new docker environment interactively.
 };
 
 const createEnv = async function() {
-    var baseConfig = {
+    const baseConfig = {
         // use version 2 so we can use limits
         'version': '2.2',
         'services': {
@@ -67,7 +67,7 @@ const createEnv = async function() {
         }
     };
 
-    var networkConfig = {
+    const networkConfig = {
         'networks': {
             'wplocaldocker': {
                 'external': {
@@ -77,7 +77,7 @@ const createEnv = async function() {
         }
     };
 
-    var volumeConfig = {
+    const volumeConfig = {
         'volumes': {}
     };
     volumeConfig.volumes[ envUtils.cacheVolume ] = {
@@ -86,7 +86,7 @@ const createEnv = async function() {
         }
     };
 
-    let questions = [
+    const questions = [
         {
             name: 'hostname',
             type: 'input',
@@ -105,7 +105,7 @@ const createEnv = async function() {
             type: 'input',
             message: 'Enter additional hostnames separated by spaces (Ex: docker1.test docker2.test)',
             filter: async function( value ) {
-                let answers = value.split( ' ' ).map( function( value ) {
+                const answers = value.split( ' ' ).map( function( value ) {
                     return value.trim();
                 } ).filter( function( value ) {
                     return value.length > 0;
@@ -220,12 +220,12 @@ const createEnv = async function() {
         },
     ];
 
-    let answers = await inquirer.prompt( questions );
+    const answers = await inquirer.prompt( questions );
 
     // Folder name inside of /sites/ for this site
-    let envHost = answers.hostname;
-    let envSlug = envUtils.envSlug( envHost );
-    let envPath = await envUtils.envPath( envHost );
+    const envHost = answers.hostname;
+    const envSlug = envUtils.envSlug( envHost );
+    const envPath = await envUtils.envPath( envHost );
 
     // Default nginx configuration file
     let nginxConfig = 'default.conf';
@@ -239,7 +239,7 @@ const createEnv = async function() {
     await gateway.startGlobal();
 
     let allHosts = [ answers.hostname ];
-    let starHosts = [];
+    const starHosts = [];
 
     if ( answers.addMoreHosts === true ) {
         answers.extraHosts.forEach( function( host ) {
@@ -313,7 +313,7 @@ const createEnv = async function() {
     }
 
     // Map the nginx configuraiton file
-    baseConfig.services.nginx.volumes.push( './config/nginx/' + nginxConfig + ':/etc/nginx/conf.d/default.conf:cached' );
+    baseConfig.services.nginx.volumes.push( `./config/nginx/${  nginxConfig  }:/etc/nginx/conf.d/default.conf:cached` );
 
     if ( answers.elasticsearch === true ) {
         baseConfig.services.phpfpm.depends_on.push( 'elasticsearch' );
@@ -349,7 +349,7 @@ const createEnv = async function() {
 
     // Write Docker Compose
     console.log( 'Generating docker-compose.yml file...' );
-    let dockerCompose = Object.assign( baseConfig, networkConfig, volumeConfig );
+    const dockerCompose = Object.assign( baseConfig, networkConfig, volumeConfig );
     await new Promise( resolve => {
         yaml( path.join( envPath, 'docker-compose.yml' ), dockerCompose, { 'lineWidth': 500 }, function( err ) {
             if ( err ) {
@@ -389,14 +389,14 @@ const createEnv = async function() {
         await new Promise( resolve => {
             fs.readFile( path.join( envPath, 'config', 'nginx', nginxConfig ), 'utf8', function( err, curConfig ) {
                 if ( err ) {
-                    console.error( chalk.bold.yellow( 'Warning: ' ) + 'Failed to read nginx configuration file. Your media proxy has not been set. Error: ' + err );
+                    console.error( `${chalk.bold.yellow( 'Warning: ' )  }Failed to read nginx configuration file. Your media proxy has not been set. Error: ${  err}` );
                     resolve();
                     return;
                 }
 
                 fs.writeFile( path.join( envPath, 'config', 'nginx', nginxConfig ), config.createProxyConfig( answers.proxy, curConfig ), 'utf8', function ( err ) {
                     if ( err ) {
-                        console.error( chalk.bold.yellow( 'Warning: ' ) + 'Failed to write configuration file. Your media proxy has not been set. Error: ' + err );
+                        console.error( `${chalk.bold.yellow( 'Warning: ' )  }Failed to write configuration file. Your media proxy has not been set. Error: ${  err}` );
                         resolve();
                         return;
                     }
@@ -435,14 +435,14 @@ const createEnv = async function() {
 
     if ( await config.get( 'manageHosts' ) === true ) {
         console.log( 'Adding entry to hosts file' );
-        let sudoOptions = {
+        const sudoOptions = {
             name: 'WP Local Docker'
         };
         await new Promise( resolve => {
-            let hostsstring = allHosts.join( ' ' );
+            const hostsstring = allHosts.join( ' ' );
             sudo.exec( `10updocker-hosts add ${hostsstring}`, sudoOptions, function( error, stdout, stderr ) {
                 if ( error ) {
-                    console.error( chalk.bold.yellow( 'Warning: ' ) + 'Something went wrong adding host file entries. You may need to add the /etc/hosts entries manually.' );
+                    console.error( `${chalk.bold.yellow( 'Warning: ' )  }Something went wrong adding host file entries. You may need to add the /etc/hosts entries manually.` );
                     resolve();
                     return;
                 }
@@ -454,7 +454,7 @@ const createEnv = async function() {
     }
 
     // Track things we might need to know later in order to clean up the environment
-    let envConfig = {
+    const envConfig = {
         'envHosts': allHosts
     };
     await fs.writeJson( path.join( envPath, '.config.json' ), envConfig );

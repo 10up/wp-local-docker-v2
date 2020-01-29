@@ -1,4 +1,4 @@
-const execSync = require( 'child_process' ).execSync;
+const { execSync } = require( 'child_process' );
 const envUtils = require( './env-utils' );
 const path = require( 'path' );
 const checkForUpdate = require( 'update-check' );
@@ -6,7 +6,7 @@ const chalk = require( 'chalk' );
 const shellEscape = require( 'shell-escape' );
 
 const command = function() {
-    let command = process.argv[2];
+    const command = process.argv[2];
     if ( typeof command === 'undefined' ) {
         return;
     }
@@ -26,7 +26,7 @@ const commandArgs = function( escape = true ) {
 };
 
 const subcommand = function() {
-    let subcommand = process.argv[3];
+    const subcommand = process.argv[3];
 
     if ( typeof subcommand !== 'undefined' ) {
         return process.argv[3].toLowerCase();
@@ -37,7 +37,7 @@ const subcommand = function() {
 
 const getArg = function( number ) {
     // +2 for the path to node, and the "10updocker" main arg/command
-    let arg = process.argv[ number + 2 ];
+    const arg = process.argv[ number + 2 ];
     if ( typeof arg === 'undefined' ) {
         return;
     }
@@ -46,7 +46,7 @@ const getArg = function( number ) {
 };
 
 const checkIfDockerRunning = function() {
-    var output;
+    let output;
 
     try {
         output = execSync( 'docker system info' );
@@ -62,7 +62,7 @@ const checkIfDockerRunning = function() {
 };
 
 const checkForUpdates = async function() {
-    let pkg = require( path.join( envUtils.rootPath, 'package' ) );
+    const pkg = require( path.join( envUtils.rootPath, 'package' ) );
     let update = null;
 
     try {
