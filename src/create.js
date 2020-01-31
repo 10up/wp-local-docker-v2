@@ -118,6 +118,12 @@ const createEnv = async function() {
             }
         },
         {
+            name: 'addHttps',
+            type: 'confirm',
+            message: "Do you want to enable HTTPS?",
+            default: false,
+        },
+        {
             name: 'mediaProxy',
             type: 'confirm',
             message: 'Do you want to set a proxy for media assets? (i.e. Serving /uploads/ directory assets from a production site)',
@@ -268,7 +274,6 @@ const createEnv = async function() {
             './wordpress:/var/www/html:cached',
             './config/php-fpm/docker-php-ext-xdebug.ini:/etc/php.d/docker-php-ext-xdebug.ini:cached',
             `${envUtils.cacheVolume}:/var/www/.wp-cli/cache:cached`,
-            
         ],
         'depends_on': [
             'memcached',
