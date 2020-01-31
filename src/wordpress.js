@@ -51,6 +51,7 @@ const install = async function( env, envHost, answers ) {
 
 
     execSync( `docker-compose exec phpfpm wp core ${command} ${flags} --url=${http}://${envHost} --title="${answers.title}" --admin_user="${answers.username}" --admin_password="${answers.password}" --admin_email="${answers.email}"`, { stdio: 'inherit', cwd: envPath } );
+};
 
 const setRewrites = async function( env ) {
     const envPath = await envUtils.envPath( env );
