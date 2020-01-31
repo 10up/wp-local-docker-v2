@@ -8,7 +8,7 @@
     "10updocker": "node index.js",
     "10updocker-hosts": "./hosts.js",
     "lint": "eslint src/*.js src/**/*.js",
-    "lint:fix": "npm run lint -- --fix"
+    "lint:fix": "npm run lint --silent -- --fix"
   },
   "bin": {
     "10updocker": "./index.js",
