@@ -118,6 +118,12 @@ const createEnv = async function() {
             }
         },
         {
+            name: 'addHttps',
+            type: 'confirm',
+            message: "Do you want to enable HTTPS?",
+            default: false,
+        },
+        {
             name: 'mediaProxy',
             type: 'confirm',
             message: "Do you want to set a proxy for media assets? (i.e. Serving /uploads/ directory assets from a production site)",
@@ -268,7 +274,6 @@ const createEnv = async function() {
             './wordpress:/var/www/html:cached',
             './config/php-fpm/docker-php-ext-xdebug.ini:/etc/php.d/docker-php-ext-xdebug.ini:cached',
             `${envUtils.cacheVolume}:/var/www/.wp-cli/cache:cached`,
-            
         ],
         'depends_on': [
             'memcached',
@@ -358,7 +363,7 @@ const createEnv = async function() {
             console.log( 'done' );
             resolve();
         });
-    });
+    } );
 
     // Write wp-cli config
     console.log( "Generating wp-cli.yml file..." );
@@ -379,7 +384,7 @@ const createEnv = async function() {
                 resolve();
             }
         );
-    });
+    } );
 
     // Media proxy is selected
     if ( answers.mediaProxy === true ) {
