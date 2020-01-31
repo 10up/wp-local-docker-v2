@@ -1,12 +1,12 @@
 const helper = require( './helpers' );
 
 const validateNotEmpty = function( value ) {
-    return ( value.trim().length !== 0 ) ? true : "This field is required";
+    return ( value.trim().length !== 0 ) ? true : 'This field is required';
 };
 
 const validateBool = function( value ) {
-    var y = new RegExp( /^y(es)?$/i );
-    var n = new RegExp( /^no?$/i );
+    const y = new RegExp( /^y(es)?$/i );
+    const n = new RegExp( /^no?$/i );
 
     if ( typeof value !== 'string' ) {
         return value;
@@ -31,9 +31,9 @@ const parseHostname = function( value ) {
     // Get rid of any spaces
     value = value.replace( /\s/i, '' );
 
-    let parts = value.split( '/' );
+    const parts = value.split( '/' );
 
-    let hostname = parts[0];
+    const hostname = parts[0];
 
     return hostname;
 };
@@ -45,13 +45,13 @@ const parseHostname = function( value ) {
  * @return string       	The validated/modified proxy URL
  */
 const parseProxyUrl = function( value ) {
-    let re = /^https?:\/\//i;
+    const re = /^https?:\/\//i;
 
     if ( value.length > 3 && ! re.test( value ) ) {
-        value = 'http://' + value;
+        value = `http://${ value }`;
     }
 
     return helper.removeEndSlashes( value );
-}
+};
 
 module.exports = { validateNotEmpty, validateBool, parseHostname, parseProxyUrl };

@@ -6,7 +6,9 @@
   "main": "index.js",
   "scripts": {
     "10updocker": "node index.js",
-    "10updocker-hosts": "./hosts.js"
+    "10updocker-hosts": "./hosts.js",
+    "lint": "eslint src/*.js src/**/*.js",
+    "lint:fix": "npm run lint -- --fix"
   },
   "bin": {
     "10updocker": "./index.js",
@@ -30,5 +32,65 @@
     "sudo-prompt": "^8.2.5",
     "update-check": "^1.5.3",
     "write-yaml": "^1.0.0"
+  },
+  "devDependencies": {
+    "@10up/eslint-config": "^1.0.9",
+    "babel-eslint": "^10.0.3",
+    "eslint": "^6.8.0",
+    "husky": "^4.2.1"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run lint --silent"
+    }
+  },
+  "eslintConfig": {
+    "extends": "@10up/eslint-config",
+    "env": {
+      "es6": true,
+      "node": true
+    },
+    "rules": {
+      "array-bracket-spacing": [
+        "error",
+        "always"
+      ],
+      "indent": [
+        "error",
+        4,
+        {
+          "SwitchCase": 1
+        }
+      ],
+      "no-constant-condition": [
+        "error",
+        {
+          "checkLoops": false
+        }
+      ],
+      "no-console": "off",
+      "no-empty": [
+        "error",
+        {
+          "allowEmptyCatch": true
+        }
+      ],
+      "object-curly-spacing": [
+        "error",
+        "always"
+      ],
+      "prefer-destructuring": [
+        "error",
+        {
+          "array": false,
+          "object": true
+        }
+      ],
+      "require-jsdoc": "off",
+      "yoda": [
+        "error",
+        "never"
+      ]
+    }
   }
 }
