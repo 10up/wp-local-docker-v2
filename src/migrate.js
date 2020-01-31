@@ -1,16 +1,14 @@
 const commandUtils = require( './command-utils' );
-let envUtils = require( './env-utils' );
+const envUtils = require( './env-utils' );
 const fs = require( 'fs-extra' );
 const path = require( 'path' );
 const chalk = require( 'chalk' );
-const execSync = require('child_process').execSync;
-const exec = require('child_process').exec;
+const { execSync } = require( 'child_process' );
+const { exec } = require( 'child_process' );
 const environment = require( './environment' );
 
 const help = function() {
-    let command = commandUtils.command();
-
-    let help = `
+    const help = `
 Usage:  10updocker migrate OLD_PATH [ENVIRONMENT]
 
 Migrate a WP Local Docker V1 environment into a new WP Local Docker V2 environment. Before running this command, create a new environment using the \`10updocker create\` command.
@@ -28,12 +26,12 @@ Example:
 
 const validateOldEnv = async function( oldEnv ) {
     if ( ! await fs.exists( path.join( oldEnv, 'docker-compose.yml' ) ) ) {
-        console.error( chalk.bold.red( "Error: " ) + "Could not find a docker-compose.yml file in the path specified for the old environment!" );
+        console.error( `${ chalk.bold.red( 'Error: ' ) }Could not find a docker-compose.yml file in the path specified for the old environment!` );
         process.exit();
     }
 
     if ( ! await fs.pathExists( path.join( oldEnv, 'data', 'db' ) ) ) {
-        console.error( chalk.bold.red( "Error: " ) + "Could not find MySQL data in the path specified for the old environment!" );
+        console.error( `${ chalk.bold.red( 'Error: ' ) }Could not find MySQL data in the path specified for the old environment!` );
         process.exit();
     }
 
@@ -41,21 +39,21 @@ const validateOldEnv = async function( oldEnv ) {
 };
 
 const stopOldEnv = async function( oldEnv ) {
-    console.log( "Ensuring old environment is not running..." );
+    console.log( 'Ensuring old environment is not running...' );
     try {
-        execSync( `docker-compose down`, { stdio: 'ignore', cwd: oldEnv });
-    } catch(ex) {}
+        execSync( 'docker-compose down', { stdio: 'ignore', cwd: oldEnv } );
+    } catch( ex ) {}
 };
 
 // Kind of like the one for gateway, but not using docker compose and adapted for this purpose
 const waitForDB = function( containerName ) {
-    let readyMatch = 'ready for connections';
+    const readyMatch = 'ready for connections';
     return new Promise( resolve => {
-        let interval = setInterval(() => {
-            console.log( "Waiting for mysql..." );
-            exec( `docker logs ${containerName}`, (error, stdout, stderr) => {
+        const interval = setInterval( () => {
+            console.log( 'Waiting for mysql...' );
+            exec( `docker logs ${containerName}`, ( error, stdout, stderr ) => {
                 if ( error ) {
-                    console.error( "Error exporting database!" );
+                    console.error( 'Error exporting database!' );
                     process.exit();
                 }
 
@@ -65,50 +63,50 @@ const waitForDB = function( containerName ) {
                 }
             } );
         }, 1000 );
-    });
+    } );
 };
 
 const exportOldDatabase = async function( oldEnv, exportDir ) {
-    let dataDir = path.join( oldEnv, 'data', 'db' );
-    let parts = path.parse( oldEnv );
-    let base = `mysql-${parts.name}`;
+    const dataDir = path.join( oldEnv, 'data', 'db' );
+    const parts = path.parse( oldEnv );
+    const base = `mysql-${parts.name}`;
 
     // Just in case this failed and are retrying
     try {
-        execSync( `docker stop ${base}`, { stdio: 'ignore' });
-		execSync( `docker rm ${base}`, { stdio: 'ignore' });
-    } catch(ex) {}
+        execSync( `docker stop ${base}`, { stdio: 'ignore' } );
+        execSync( `docker rm ${base}`, { stdio: 'ignore' } );
+    } catch( ex ) {}
 
     try {
-        execSync( `docker run -d --rm --name ${base} -v ${dataDir}:/var/lib/mysql -v ${exportDir}:/tmp/export mysql:5`, { stdio: 'inherit' });
+        execSync( `docker run -d --rm --name ${base} -v ${dataDir}:/var/lib/mysql -v ${exportDir}:/tmp/export mysql:5`, { stdio: 'inherit' } );
         await waitForDB( base );
-        console.log( "Exporting old database" );
-        execSync( `docker exec ${base} sh -c "/usr/bin/mysqldump -u root -ppassword wordpress > /tmp/export/database.sql"`, { stdio: 'inherit' });
-        execSync( `docker stop ${base}`);
-    } catch (ex) {}
+        console.log( 'Exporting old database' );
+        execSync( `docker exec ${base} sh -c "/usr/bin/mysqldump -u root -ppassword wordpress > /tmp/export/database.sql"`, { stdio: 'inherit' } );
+        execSync( `docker stop ${base}` );
+    } catch ( ex ) {}
 };
 
 const importNewDatabase = async function( env ) {
     await environment.start( env );
-    let envPath = await envUtils.getPathOrError( env );
+    const envPath = await envUtils.getPathOrError( env );
 
     try {
-        console.log( "Importing DB to new Environment" );
-        execSync( `docker-compose exec --user www-data phpfpm wp db import /var/www/html/import/database.sql`, { stdio: 'inherit', cwd: envPath });
-    } catch (ex) {}
+        console.log( 'Importing DB to new Environment' );
+        execSync( 'docker-compose exec --user www-data phpfpm wp db import /var/www/html/import/database.sql', { stdio: 'inherit', cwd: envPath } );
+    } catch ( ex ) {}
 };
 
 const copySiteFiles = async function( oldEnv, newEnv ) {
-    let envPath = await envUtils.getPathOrError( newEnv );
-    let wpContent = path.join( envPath, 'wordpress', 'wp-content' );
-    let oldWpContent = path.join( oldEnv, 'wordpress', 'wp-content' );
+    const envPath = await envUtils.getPathOrError( newEnv );
+    const wpContent = path.join( envPath, 'wordpress', 'wp-content' );
+    const oldWpContent = path.join( oldEnv, 'wordpress', 'wp-content' );
 
     // Clear out all the current environment content
     // Only doing wp-content for now, since otherwise we would need to keep wp-config.php... But what about customizations?
     console.log( `Removing current files from ${wpContent}` );
     await fs.emptyDir( wpContent );
 
-    console.log( "Copying files from the old wp-content folder" );
+    console.log( 'Copying files from the old wp-content folder' );
     await fs.copy( oldWpContent, wpContent );
 };
 
@@ -116,8 +114,8 @@ const command = async function() {
     if ( commandUtils.subcommand() === 'help' || commandUtils.subcommand() === undefined ) {
         help();
     } else {
-        let old = path.resolve( commandUtils.getArg(1) );
-        let env = commandUtils.getArg(2);
+        const old = path.resolve( commandUtils.getArg( 1 ) );
+        let env = commandUtils.getArg( 2 );
 
         // So that we don't prompt at every step...
         if ( env === false || undefined === env || env.trim().length === 0 ) {
@@ -127,19 +125,19 @@ const command = async function() {
         await validateOldEnv( old );
         await stopOldEnv( old );
 
-        let envPath = await envUtils.getPathOrError( env );
+        const envPath = await envUtils.getPathOrError( env );
 
         // So that the DB is already in the folder mounted to docker
-        let exportDir = path.join( envPath, 'wordpress', 'import' );
+        const exportDir = path.join( envPath, 'wordpress', 'import' );
         await fs.ensureDir( exportDir );
 
         await exportOldDatabase( old, exportDir );
         await importNewDatabase( env );
         await copySiteFiles( old, env );
 
-        console.log( chalk.bold.green("Success!") + " Your environment has been imported!" );
-        console.log( " - wp-config.php has not been changed. Any custom configuration needs to be manually copied" );
-        console.log( " - If you need to run a search/replace, run `10updocker wp search-replace <olddomain> <newdomain>`" );
+        console.log( `${ chalk.bold.green( 'Success!' ) } Your environment has been imported!` );
+        console.log( ' - wp-config.php has not been changed. Any custom configuration needs to be manually copied' );
+        console.log( ' - If you need to run a search/replace, run `10updocker wp search-replace <olddomain> <newdomain>`' );
     }
 };
 

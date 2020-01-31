@@ -1,7 +1,7 @@
 const chalk = require( 'chalk' );
-const os = require('os');
-const fs = require('fs-extra');
-const path = require('path');
+const os = require( 'os' );
+const fs = require( 'fs-extra' );
+const path = require( 'path' );
 const inquirer = require( 'inquirer' );
 const promptValidators = require( './prompt-validators' );
 const rootPath = path.dirname( require.main.filename );
@@ -44,13 +44,13 @@ const read = async function() {
 };
 
 const get = async function( key ) {
-    let defaults = getDefaults();
+    const defaults = getDefaults();
 
     if ( config === null ) {
         await read();
     }
 
-    return ( typeof config[ key ] === "undefined" ) ? defaults[ key ] : config[ key ];
+    return ( typeof config[ key ] === 'undefined' ) ? defaults[ key ] : config[ key ];
 };
 
 const set = async function( key, value ) {
@@ -73,17 +73,17 @@ const getDefaults = function() {
 };
 
 const prompt = async function() {
-    let defaults = getDefaults();
+    const defaults = getDefaults();
 
-    let currentDir = await get( 'sitesPath' );
-    let currentHosts = await get( 'manageHosts' );
-    let currentSnapshots = await get( 'snapshotsPath' );
+    const currentDir = await get( 'sitesPath' );
+    const currentHosts = await get( 'manageHosts' );
+    const currentSnapshots = await get( 'snapshotsPath' );
 
-    let questions = [
+    const questions = [
         {
             name: 'sitesPath',
             type: 'input',
-            message: "What directory would you like WP Local Docker to create environments within?",
+            message: 'What directory would you like WP Local Docker to create environments within?',
             default: currentDir || defaults.sitesPath,
             validate: promptValidators.validateNotEmpty,
             filter: resolveHome,
@@ -92,7 +92,7 @@ const prompt = async function() {
         {
             name: 'snapshotsPath',
             type: 'input',
-            message: "What directory would you like to store WP Snapshots data within?",
+            message: 'What directory would you like to store WP Snapshots data within?',
             default: currentSnapshots || defaults.snapshotsPath,
             validate: promptValidators.validateNotEmpty,
             filter: resolveHome,
@@ -101,40 +101,39 @@ const prompt = async function() {
         {
             name: 'manageHosts',
             type: 'confirm',
-            message: "Would you like WP Local Docker to manage your hosts file?",
+            message: 'Would you like WP Local Docker to manage your hosts file?',
             default: currentHosts !== undefined ? currentHosts : defaults.manageHosts,
         }
     ];
 
-    
     if ( fs.exists( path.join( getConfigDirectory(), 'global' ) ) ) {
         questions.push(
             {
                 name: 'overwriteGlobal',
                 type: 'confirm',
-                message: "Do you want to reset your global services configuration? This will reset any customizations you have made.",
+                message: 'Do you want to reset your global services configuration? This will reset any customizations you have made.',
                 default: false
             }
         );
     }
 
-    let answers = await inquirer.prompt( questions );
+    const answers = await inquirer.prompt( questions );
 
     return answers;
 };
 
 const promptUnconfigured = async function() {
-    let questions = [
+    const questions = [
         {
             name: 'useDefaults',
             type: 'confirm',
-            message: "WP Local Docker is not configured. Would you like to configure using default settings?",
+            message: 'WP Local Docker is not configured. Would you like to configure using default settings?',
             default: '',
             validate: promptValidators.validateNotEmpty,
         }
     ];
 
-    let answers = await inquirer.prompt( questions );
+    const answers = await inquirer.prompt( questions );
 
     if ( answers.useDefaults === true ) {
         await configureDefaults();
@@ -144,53 +143,53 @@ const promptUnconfigured = async function() {
 };
 
 const configureDefaults = async function() {
-    let defaults = getDefaults();
+    const defaults = getDefaults();
 
     await configure( defaults );
 };
 
 const configure = async function( configuration ) {
-    let sitesPath = path.resolve( configuration.sitesPath );
-    let snapshotsPath = path.resolve( configuration.snapshotsPath );
-    let globalServicesPath = path.join( getConfigDirectory(), 'global' );
+    const sitesPath = path.resolve( configuration.sitesPath );
+    const snapshotsPath = path.resolve( configuration.snapshotsPath );
+    const globalServicesPath = path.join( getConfigDirectory(), 'global' );
 
     if ( configuration.overwriteGlobal ) {
         try {
             await fs.ensureDir( globalServicesPath );
             await fs.copy( globalPath, path.join( getConfigDirectory(), 'global' ) );
-        } catch (ex) {
-            console.log(ex);
-            console.error( "Error: Unable to copy global services definition!" );
-            process.exit(1);
+        } catch ( ex ) {
+            console.log( ex );
+            console.error( 'Error: Unable to copy global services definition!' );
+            process.exit( 1 );
         }
     }
 
     // Attempt to create the sites directory
     try {
         await fs.ensureDir( sitesPath );
-    } catch (ex) {
-        console.error( "Error: Could not create directory for environments!" );
-        process.exit(1);
+    } catch ( ex ) {
+        console.error( 'Error: Could not create directory for environments!' );
+        process.exit( 1 );
     }
 
     // Make sure we can write to the sites directory
     try {
-        let testfile = path.join( sitesPath, 'testfile' );
+        const testfile = path.join( sitesPath, 'testfile' );
         await fs.ensureFile( testfile );
         await fs.remove( testfile );
-    } catch (ex) {
-        console.error( "Error: The environment directory is not writable" );
-        process.exit(1);
+    } catch ( ex ) {
+        console.error( 'Error: The environment directory is not writable' );
+        process.exit( 1 );
     }
 
     // Make sure we can write to the snapshots
     try {
-        let testfile = path.join( snapshotsPath, 'testfile' );
+        const testfile = path.join( snapshotsPath, 'testfile' );
         await fs.ensureFile( testfile );
         await fs.remove( testfile );
-    } catch (ex) {
-        console.error( "Error: The snapshots directory is not writable" );
-        process.exit(1);
+    } catch ( ex ) {
+        console.error( 'Error: The snapshots directory is not writable' );
+        process.exit( 1 );
     }
 
     await set( 'sitesPath', sitesPath );
@@ -204,7 +203,7 @@ const configure = async function( configuration ) {
 
 const command = async function() {
     // not really any options for this command, but setting up the same structure anyways
-    let answers = await prompt();
+    const answers = await prompt();
     await configure( answers );
 };
 
@@ -217,19 +216,19 @@ const command = async function() {
  */
 const createProxyConfig = ( proxy, curConfig ) => {
 
-    let proxyMarkup = 'location @production {' + "\r\n"
-		+ '        resolver 8.8.8.8;' + "\r\n"
-		+ '        proxy_pass ' + proxy + '/$uri;' + "\r\n"
+    const proxyMarkup = 'location @production {\r\n' // eslint-disable-line prefer-template
+		+ '        resolver 8.8.8.8;\r\n'
+		+ '        proxy_pass ' + proxy + '/$uri;\r\n'
 		+ '    }';
 
-    let proxyMapObj = {
+    const proxyMapObj = {
         '#{TRY_PROXY}': 'try_files $uri @production;',
         '#{PROXY_URL}': proxyMarkup
     };
 
-    let re = new RegExp( Object.keys( proxyMapObj ).join( "|" ), "gi" );
+    const re = new RegExp( Object.keys( proxyMapObj ).join( '|' ), 'gi' );
 
-    let newConfig = curConfig.replace( re, function( matched ) {
+    const newConfig = curConfig.replace( re, function( matched ) {
         return proxyMapObj[matched];
     } );
 

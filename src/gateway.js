@@ -1,8 +1,8 @@
-const execSync = require('child_process').execSync;
-const exec = require('child_process').exec;
+const { execSync } = require( 'child_process' );
+const { exec } = require( 'child_process' );
 const envUtils = require( './env-utils' );
-const config = require('./configure');
-const fs = require('fs');
+const config = require( './configure' );
+const fs = require( 'fs' );
 const path = require( 'path' );
 
 // Tracks if we've started global inside of this session
@@ -10,69 +10,70 @@ let started = false;
 
 const ensureNetworkExists = function() {
     try {
-        console.log( "Ensuring global network exists" );
-        let networks = execSync( "docker network ls --filter name=^wplocaldocker$" ).toString();
+        console.log( 'Ensuring global network exists' );
+        const networks = execSync( 'docker network ls --filter name=^wplocaldocker$' ).toString();
         if ( networks.indexOf( 'wplocaldocker' ) !== -1 ) {
-            console.log( " - Network exists" );
+            console.log( ' - Network exists' );
             return;
         }
 
-        console.log( " - Creating network" );
+        console.log( ' - Creating network' );
         // --ip-range is only half of the subnet, so that we have a bunch of addresses in front to assign manually
-        execSync('docker network create wplocaldocker --subnet=10.0.0.0/16 --gateway 10.0.0.1 --ip-range 10.0.128.0/17');
-    } catch (ex) {}
+        execSync( 'docker network create wplocaldocker --subnet=10.0.0.0/16 --gateway 10.0.0.1 --ip-range 10.0.128.0/17' );
+    } catch ( ex ) {}
 };
 
 const removeNetwork = function() {
     try {
-        console.log( "Removing Global Network" );
-        execSync('docker network rm wplocaldocker');
-    } catch (ex) {}
+        console.log( 'Removing Global Network' );
+        execSync( 'docker network rm wplocaldocker' );
+    } catch ( ex ) {}
 };
 
 const ensureCacheExists = async function() {
     try {
-        console.log( "Ensuring global cache volume exists" );
-        let volumes = await exec( `docker volume ls --filter name=${envUtils.cacheVolume}` ).toString();
+        console.log( 'Ensuring global cache volume exists' );
+        const volumes = await exec( `docker volume ls --filter name=${envUtils.cacheVolume}` ).toString();
         if ( volumes.indexOf( `${envUtils.cacheVolume}` ) !== -1 ) {
-            console.log( " - Volume Exists" );
+            console.log( ' - Volume Exists' );
             return;
         }
 
-        console.log( " - Creating Volume" );
+        console.log( ' - Creating Volume' );
         await exec( `docker volume create ${envUtils.cacheVolume}` );
-    }   catch (ex) {}
+    }   catch ( ex ) {}
 };
 
 const removeCacheVolume = async function() {
     try {
-        console.log( "Removing cache volume" );
-        let volumes = await exec( `docker volume ls --filter name=${envUtils.cacheVolume}` ).toString();
+        console.log( 'Removing cache volume' );
+        const volumes = await exec( `docker volume ls --filter name=${envUtils.cacheVolume}` ).toString();
         if ( volumes.indexOf( `${envUtils.cacheVolume}` ) === -1 ) {
             await exec( `docker volume rm ${envUtils.cacheVolume}` );
-            console.log( " - Volume Removed" );
+            console.log( ' - Volume Removed' );
             return;
         }
-    } catch (ex) {}
+    } catch ( ex ) {}
 };
 
-const occurrences = function(string, subString, allowOverlapping) {
+const occurrences = function( string, subString, allowOverlapping ) {
 
-    string += "";
-    subString += "";
-    if (subString.length <= 0) return (string.length + 1);
+    string += '';
+    subString += '';
+    if ( subString.length <= 0 ) return ( string.length + 1 );
 
-    var n = 0,
-        pos = 0,
-        step = allowOverlapping ? 1 : subString.length;
+    let n = 0;
+    let pos = 0;
+    const step = allowOverlapping ? 1 : subString.length;
 
-    while (true) {
-        pos = string.indexOf(subString, pos);
-        if (pos >= 0) {
+    while ( true ) {
+        pos = string.indexOf( subString, pos );
+        if ( pos >= 0 ) {
             ++n;
             pos += step;
         } else break;
     }
+
     return n;
 };
 
@@ -83,15 +84,15 @@ const occurrences = function(string, subString, allowOverlapping) {
  * Otherwise, we just wait for one occurrence.
  */
 const waitForDB = function() {
-    let firstTimeMatch = 'Initializing database';
-    let readyMatch = 'ready for connections';
+    const firstTimeMatch = 'Initializing database';
+    const readyMatch = 'ready for connections';
     return new Promise( resolve => {
-        let interval = setInterval(() => {
-            console.log( "Waiting for mysql..." );
+        const interval = setInterval( () => {
+            console.log( 'Waiting for mysql...' );
             // FIXME: Only tailing on the logs is bad, we should ping instead
             // Using tail to prevent an edge case where things hang due to large
             // number of logs
-            let mysql = execSync( `docker-compose logs --tail 50 mysql`, { cwd: envUtils.globalPath } ).toString();
+            const mysql = execSync( 'docker-compose logs --tail 50 mysql', { cwd: envUtils.globalPath } ).toString();
 
             if ( mysql.indexOf( readyMatch ) !== -1 ) {
                 if ( occurrences( mysql, firstTimeMatch, false ) !== 0 ) {
@@ -109,18 +110,18 @@ const waitForDB = function() {
                 resolve();
             }
         }, 1000 );
-    });
+    } );
 };
 
 const startGateway = async function() {
-    console.log( "Ensuring global services are running" );
+    console.log( 'Ensuring global services are running' );
 
     if ( fs.existsSync( path.join( config.getConfigDirectory(), 'global' ) ) ) {
-        execSync( `docker-compose up -d`, { stdio: 'inherit', cwd: path.join( config.getConfigDirectory(), 'global' ) });
+        execSync( 'docker-compose up -d', { stdio: 'inherit', cwd: path.join( config.getConfigDirectory(), 'global' ) } );
     }
     else {
         // backwards compat in case they have an existing install but haven't run configure recently
-        execSync( `docker-compose up -d`, { stdio: 'inherit', cwd: envUtils.globalPath });
+        execSync( 'docker-compose up -d', { stdio: 'inherit', cwd: envUtils.globalPath } );
     }
 
     await waitForDB();
@@ -128,14 +129,14 @@ const startGateway = async function() {
 };
 
 const stopGateway = function() {
-    console.log( "Stopping global services" );
-    execSync( `docker-compose down`, { stdio: 'inherit', cwd: envUtils.globalPath });
+    console.log( 'Stopping global services' );
+    execSync( 'docker-compose down', { stdio: 'inherit', cwd: envUtils.globalPath } );
     console.log();
 };
 
 const restartGateway = function() {
-    console.log( "Restarting global services" );
-    execSync( `docker-compose restart`, { stdio: 'inherit', cwd: envUtils.globalPath });
+    console.log( 'Restarting global services' );
+    execSync( 'docker-compose restart', { stdio: 'inherit', cwd: envUtils.globalPath } );
     console.log();
 };
 
