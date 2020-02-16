@@ -120,7 +120,7 @@ const createEnv = async function() {
         {
             name: 'addHttps',
             type: 'confirm',
-            message: "Do you want to enable HTTPS?",
+            message: 'Do you want to enable HTTPS?',
             default: false,
         },
         {
