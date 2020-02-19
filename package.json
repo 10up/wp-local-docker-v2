@@ -3,9 +3,29 @@
   "version": "2.6.2",
   "description": "WP Local Docker",
   "license": "MIT",
+  "homepage": "https://10up.github.io/wp-local-docker-docs/",
+  "bugs": {
+    "url": "https://github.com/10up/wp-local-docker-v2/issues"
+  },
+  "keywords": [
+    "wordpress",
+    "wp",
+    "wp-cli",
+    "wpsnapshots",
+    "docker",
+    "docker-compose",
+    "nginx",
+    "php",
+    "mysql",
+    "phpmyadmin",
+    "memcache",
+    "memcached",
+    "memcacheadmin",
+    "mailcatcher"
+  ],
   "main": "index.js",
   "scripts": {
-    "10updocker": "node index.js",
+    "10updocker": "./index.js",
     "10updocker-hosts": "./hosts.js",
     "lint": "eslint src/*.js src/**/*.js",
     "lint:fix": "npm run lint -- --fix"
