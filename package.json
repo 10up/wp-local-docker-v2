@@ -23,11 +23,12 @@
     "memcacheadmin",
     "mailcatcher"
   ],
+  "preferGlobal": true,
   "main": "index.js",
   "scripts": {
     "10updocker": "./index.js",
     "10updocker-hosts": "./hosts.js",
-    "lint": "eslint src/*.js src/**/*.js",
+    "lint": "eslint . --ext .js --ignore-pattern node_modules",
     "lint:fix": "npm run lint --silent -- --fix"
   },
   "bin": {
