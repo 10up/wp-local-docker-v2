@@ -13,7 +13,8 @@ function options( yargs ) {
 function add( { hosts } ) {
     hostile.set( '127.0.0.1', hosts.join( ' ' ), function( err ) {
         if ( err ) {
-            console.error( err );
+            console.error( err.message );
+            process.exit( err.errno );
         } else {
             console.log( 'Added to hosts file successfully!' );
         }
@@ -23,7 +24,8 @@ function add( { hosts } ) {
 function remove( { hosts } ) {
     hostile.remove( '127.0.0.1', hosts.join( ' ' ), function( err ) {
         if ( err ) {
-            console.error( err );
+            console.error( err.message );
+            process.exit( err.errno );
         } else {
             console.log( 'Removed from hosts file successfully!' );
         }
