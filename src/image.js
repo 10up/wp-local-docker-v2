@@ -24,8 +24,7 @@ const images = {
     'wpsnapshots': '10up/wpsnapshots:dev',
     'memcached': 'memcached:latest',
     'nginx': 'nginx:latest',
-    'elasticsearch': 'docker.elastic.co/elasticsearch/elasticsearch:5.6.16',
-    'phpmemcachedadmin': 'hitwe/phpmemcachedadmin:v2.0.2'
+    'elasticsearch': 'docker.elastic.co/elasticsearch/elasticsearch:5.6.16'
 };
 
 const help = function() {
