@@ -1,6 +1,9 @@
 const { execSync } = require( 'child_process' );
 const { exec } = require( 'child_process' );
 const envUtils = require( './env-utils' );
+const config = require( './configure' );
+const fs = require( 'fs' );
+const path = require( 'path' );
 const nc = require( 'netcat/client' );
 
 // Tracks if we've started global inside of this session
@@ -82,7 +85,14 @@ const waitForDB = function() {
 
 const startGateway = async function() {
     console.log( 'Ensuring global services are running' );
-    execSync( 'docker-compose up -d', { stdio: 'inherit', cwd: envUtils.globalPath } );
+
+    if ( fs.existsSync( path.join( config.getConfigDirectory(), 'global' ) ) ) {
+        execSync( 'docker-compose up -d', { stdio: 'inherit', cwd: path.join( config.getConfigDirectory(), 'global' ) } );
+    }
+    else {
+        // backwards compat in case they have an existing install but haven't run configure recently
+        execSync( 'docker-compose up -d', { stdio: 'inherit', cwd: envUtils.globalPath } );
+    }
 
     await waitForDB();
     console.log();
