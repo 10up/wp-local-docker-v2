@@ -106,7 +106,7 @@ const prompt = async function() {
         }
     ];
 
-    if ( fs.exists( path.join( getConfigDirectory(), 'global' ) ) ) {
+    if ( fs.existsSync( path.join( getConfigDirectory(), 'global' ) ) ) {
         questions.push(
             {
                 name: 'overwriteGlobal',
@@ -119,7 +119,7 @@ const prompt = async function() {
 
     const answers = await inquirer.prompt( questions );
 
-    return answers;
+    return Object.assign( defaults, answers );
 };
 
 const promptUnconfigured = async function() {
@@ -158,7 +158,7 @@ const configure = async function( configuration ) {
             await fs.ensureDir( globalServicesPath );
             await fs.copy( globalPath, path.join( getConfigDirectory(), 'global' ) );
         } catch ( ex ) {
-            console.log( ex );
+            console.error( ex );
             console.error( 'Error: Unable to copy global services definition!' );
             process.exit( 1 );
         }
