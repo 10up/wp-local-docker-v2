@@ -4,6 +4,7 @@ const envUtils = require( './env-utils' );
 const config = require( './configure' );
 const fs = require( 'fs' );
 const path = require( 'path' );
+const nc = require( 'netcat/client' );
 
 // Tracks if we've started global inside of this session
 let started = false;
@@ -56,59 +57,28 @@ const removeCacheVolume = async function() {
     } catch ( ex ) {}
 };
 
-const occurrences = function( string, subString, allowOverlapping ) {
-
-    string += '';
-    subString += '';
-    if ( subString.length <= 0 ) return ( string.length + 1 );
-
-    let n = 0;
-    let pos = 0;
-    const step = allowOverlapping ? 1 : subString.length;
-
-    while ( true ) {
-        pos = string.indexOf( subString, pos );
-        if ( pos >= 0 ) {
-            ++n;
-            pos += step;
-        } else break;
-    }
-
-    return n;
-};
 
 /**
  * Wait for mysql to come up and finish initializing.
  *
- * The first the time the container starts, it will restart, so wait for 2 occurrences of the "ready for connections" string
- * Otherwise, we just wait for one occurrence.
+ * The first the time the MySQL container starts it will initialize the data directory. It will open port 3306
+ * but not send data back when connected to, instead closing the connection immediately. netcat is used
+ * here to connect the the MySQL port and will resolve the promise once MySQL sends data back indicating
+ * MySQL is ready for work.
  */
 const waitForDB = function() {
-    const firstTimeMatch = 'Initializing database';
-    const readyMatch = 'ready for connections';
     return new Promise( resolve => {
         const interval = setInterval( () => {
+            const netcat = new nc();
+            netcat.address( '127.0.0.1' );
+            netcat.port( 3306 );
             console.log( 'Waiting for mysql...' );
-            // FIXME: Only tailing on the logs is bad, we should ping instead
-            // Using tail to prevent an edge case where things hang due to large
-            // number of logs
-            const mysql = execSync( 'docker-compose logs --tail 50 mysql', { cwd: envUtils.globalPath } ).toString();
-
-            if ( mysql.indexOf( readyMatch ) !== -1 ) {
-                if ( occurrences( mysql, firstTimeMatch, false ) !== 0 ) {
-                    // this is the first time the DB is starting, so it will restart.. Wait for TWO occurrences of connection string
-                    if ( occurrences( mysql, readyMatch, false ) < 2 ) {
-                        return;
-                    }
-                } else {
-                    if ( occurrences( mysql, readyMatch, false ) < 1 ) {
-                        return;
-                    }
-                }
-
+            netcat.connect();
+            netcat.on( 'data', function(  ) {
+                netcat.close();
                 clearInterval( interval );
                 resolve();
-            }
+            } );
         }, 1000 );
     } );
 };
