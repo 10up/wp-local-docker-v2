@@ -5,20 +5,22 @@ const commandUtils = require( './src/command-utils' );
 
 const add = function( hosts ) {
     hostile.set( '127.0.0.1', hosts.join(' '), function( err ) {
-        if (err) {
-            console.error(err)
+        if ( err ) {
+            console.error( err.message );
+            process.exit( err.errno );
         } else {
-            console.log('Added to hosts file successfully!')
+            console.log( 'Added to hosts file successfully!' );
         }
     });
 };
 
 const remove = function( hosts ) {
     hostile.remove( '127.0.0.1', hosts.join(' '), function( err ) {
-        if (err) {
-            console.error(err)
+        if ( err ) {
+            console.error( err.message );
+            process.exit( err.errno );
         } else {
-            console.log('Removed from hosts file successfully!')
+            console.log( 'Removed from hosts file successfully!' );
         }
     });
 };
