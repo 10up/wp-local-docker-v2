@@ -3,10 +3,9 @@
 const chalk = require( 'chalk' );
 const commandUtils = require( './src/command-utils' );
 const config = require( './src/configure' );
-const snapshots = require( './src/wpsnapshots' );
 
 const help = function() {
-    let help = `
+    const help = `
 Usage: 10updocker COMMAND
 
 Commands:
@@ -30,16 +29,16 @@ Run '10updocker COMMAND help' for more information on a command.
 };
 
 const version = function() {
-    var pjson = require('./package.json');
+    const pjson = require( './package.json' );
     console.log( 'WP Local Docker' );
     console.log( `Version ${pjson.version}` );
 };
 
 const init = async function() {
-    let command = commandUtils.command();
-    let configured = await config.checkIfConfigured();
-    let bypassCommands = [ undefined, 'configure', 'help', '--version', '-v' ];
-    let isBypass = bypassCommands.indexOf( command ) !== -1;
+    const command = commandUtils.command();
+    const configured = await config.checkIfConfigured();
+    const bypassCommands = [ undefined, 'configure', 'help', '--version', '-v' ];
+    const isBypass = bypassCommands.indexOf( command ) !== -1;
 
     // Configure using defaults if not configured already
     if ( configured === false && isBypass === false ) {
@@ -48,11 +47,11 @@ const init = async function() {
 
     // Don't even run the command to check if docker is running if we have one of the commands that don't need it
     if ( isBypass === false ) {
-        let isRunning = commandUtils.checkIfDockerRunning();
+        const isRunning = commandUtils.checkIfDockerRunning();
 
         // Show warning if docker isn't running
         if ( isRunning === false ) {
-            console.error( chalk.red( "Error: Docker doesn't appear to be running. Please start Docker and try again" ) );
+            console.error( chalk.red( 'Error: Docker doesn\'t appear to be running. Please start Docker and try again' ) );
             process.exit();
         }
     }
@@ -64,7 +63,7 @@ const init = async function() {
             config.command();
             break;
         case 'create':
-            await require('./src/create').command();
+            await require( './src/create' ).command();
             break;
         case 'start':
         case 'stop':
@@ -72,17 +71,17 @@ const init = async function() {
         case 'delete':
         case 'remove':
         case 'upgrade':
-            await require('./src/environment').command();
+            await require( './src/environment' ).command();
             break;
         case 'snapshots':
         case 'wpsnapshots':
-            await require('./src/wpsnapshots').command();
+            await require( './src/wpsnapshots' ).command();
             break;
         case 'cache':
-            await require('./src/cache').command();
+            await require( './src/cache' ).command();
             break;
         case 'image':
-            await require('./src/image').command();
+            await require( './src/image' ).command();
             break;
         case 'shell':
             await require( './src/shell' ).command();
@@ -105,4 +104,5 @@ const init = async function() {
             break;
     }
 };
+
 init();
