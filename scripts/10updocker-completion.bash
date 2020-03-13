@@ -5,9 +5,17 @@ _10updocker_environments_completion() {
     local env_utils="$( cd "$( dirname "$( dirname "${BASH_SOURCE[0]}" )" )" >/dev/null 2>&1 && pwd )"
     local script="
 (async () => {
-    const envs = await require('${env_utils}/src/env-utils.js').getAllEnvironments().catch( () => [] );
-    process.stdout.write( ( envs || [] ).join( ' ' ) + ' all' );
-})()"
+    let envs = [];
+
+    try {
+        envs = await require('${env_utils}/src/env-utils.js').getAllEnvironments();
+    } catch( e ) {
+    }
+
+    envs.push( 'all' );
+    process.stdout.write( envs.join( ' ' ) );
+})();
+"
 
     local all_envs="$(node -e "$script")"
     COMPREPLY=($(compgen -W "${all_envs}" -- "${cur_word}"))
