@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 
+const path = require( 'path' );
 const chalk = require( 'chalk' );
+
 const commandUtils = require( './src/command-utils' );
 const config = require( './src/configure' );
 
@@ -34,10 +36,15 @@ const version = function() {
     console.log( `Version ${pjson.version}` );
 };
 
+const completion = function() {
+    const filename = path.resolve( __dirname, 'scripts', '10updocker-completion.bash' );
+    console.log( `source ${filename}` );
+};
+
 const init = async function() {
     const command = commandUtils.command();
     const configured = await config.checkIfConfigured();
-    const bypassCommands = [ undefined, 'configure', 'help', '--version', '-v' ];
+    const bypassCommands = [ undefined, 'configure', 'help', '--version', '-v', '--completion' ];
     const isBypass = bypassCommands.indexOf( command ) !== -1;
 
     // Configure using defaults if not configured already
@@ -54,9 +61,10 @@ const init = async function() {
             console.error( chalk.red( 'Error: Docker doesn\'t appear to be running. Please start Docker and try again' ) );
             process.exit();
         }
-    }
 
-    await commandUtils.checkForUpdates();
+        // Check for updates
+        await commandUtils.checkForUpdates();
+    }
 
     switch ( command ) {
         case 'configure':
@@ -98,6 +106,9 @@ const init = async function() {
         case '--version':
         case '-v':
             version();
+            break;
+        case '--completion':
+            completion();
             break;
         default:
             help();
