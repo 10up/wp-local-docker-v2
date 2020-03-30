@@ -43,8 +43,7 @@ const createEnv = async function() {
                     './wordpress:/var/www/html:cached'
                 ],
                 'depends_on': [
-                    'phpfpm',
-                    'memcacheadmin'
+                    'phpfpm'
                 ],
                 'networks': [
                     'default',
@@ -54,15 +53,6 @@ const createEnv = async function() {
                     'CERT_NAME': 'localhost',
                     'HTTPS_METHOD': 'noredirect'
                 }
-            },
-            'memcacheadmin': {
-                'image': images['phpmemcachedadmin'],
-                'expose': [
-                    '80'
-                ],
-                'depends_on': [
-                    'memcached'
-                ]
             }
         }
     };
