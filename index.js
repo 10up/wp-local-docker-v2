@@ -5,26 +5,19 @@ const chalk = require( 'chalk' );
 const commandUtils = require( './src/command-utils' );
 const config = require( './src/configure' );
 
-function dispatcher( cmd ) {
+function dispatcher( cmd, withChecks = true ) {
     return async () => {
-        const command = commandUtils.command();
-        const configured = await config.checkIfConfigured();
-        const bypassCommands = [ undefined, 'configure', 'help', '--version', '-v' ];
-        const isBypass = bypassCommands.indexOf( command ) !== -1;
-
-        // Configure using defaults if not configured already
-        if ( configured === false && isBypass === false ) {
-            await config.configureDefaults();
-        }
-
-        // Don't even run the command to check if docker is running if we have one of the commands that don't need it
-        if ( isBypass === false ) {
-            const isRunning = commandUtils.checkIfDockerRunning();
+        if ( withChecks ) {
+            // Configure using defaults if not configured already
+            const configured = await config.checkIfConfigured();
+            if ( configured === false ) {
+                await config.configureDefaults();
+            }
 
             // Show warning if docker isn't running
-            if ( isRunning === false ) {
+            if ( commandUtils.checkIfDockerRunning() === false ) {
                 console.error( chalk.red( 'Error: Docker doesn\'t appear to be running. Please start Docker and try again' ) );
-                process.exit();
+                process.exit( 1 );
             }
         }
 
@@ -38,10 +31,11 @@ yargs.scriptName( '10updocker' );
 yargs.usage( 'Usage: 10updocker <command>' );
 yargs.help( 'h' );
 yargs.alias( 'h', 'help' );
+yargs.alias( 'v', 'version' );
 
 // commands
 yargs.command( 'cache', 'Manages the build cache.', {}, dispatcher( 'cache' ) );
-yargs.command( 'configure', 'Set up a configuration for WP Local Docker.', {}, dispatcher( 'configure' ) );
+yargs.command( 'configure', 'Set up a configuration for WP Local Docker.', {}, dispatcher( 'configure', false ) );
 yargs.command( 'create', 'Create a new docker environment.', {}, dispatcher( 'create' ) );
 yargs.command( [ 'delete', 'remove' ], 'Deletes a specific environment.', {}, dispatcher( 'environment' ) );
 yargs.command( 'image', 'Manages docker images used by this environment.', {}, dispatcher( 'image' ) );
