@@ -155,7 +155,7 @@ const getPathOrError = async function( env ) {
     console.log( `Locating project files for ${env}` );
 
     const _envPath = await envPath( env );
-    if ( ! fs.existsSync( _envPath ) ) {
+    if ( ! await fs.pathExists( _envPath ) ) {
         console.error( `ERROR: Cannot find ${env} environment!` );
         process.exit( 1 );
     }
