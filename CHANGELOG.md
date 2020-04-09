@@ -4,92 +4,101 @@ All notable changes to this project will be documented in this file, per [the Ke
 
 ## [Unreleased] - TBD
 
-## [1.9.2] - 2018-11-27
+## [2.7.0] - 2020-03-12
+### Added
+- Optionally use HTTPS by default when creating a new environment. (props [@eugene-manuilov](https://github.com/eugene-manuilov))
+
+### Changed
+- Relocated global configuration directory to ~/.wplocaldocker. This allows you to override configuration options for global services like MySQL while also resolving a common issue on Mac and Windows with shared directories. Simply edit the docker-compose.yml file located in the ~/.wplocaldocker/global directory. (props [@dustinrue](https://github.com/dustinrue))
+
+### Removed
+- Removes all current themes when you select “remove default content” during environment creation (props [@mmcachran](https://github.com/mmcachran))
+
 ### Fixed
-- CLI list function name for PHP 5
+- Other bug fixes and internal project items (props [@eugene-manuilov](https://github.com/eugene-manuilov), [@dustinrue](https://github.com/dustinrue), [@christianc1](https://github.com/christianc1), [@tylercherpak](https://github.com/tylercherpak), [@jeffpaul](https://github.com/jeffpaul))
 
-## [1.0] - 2012-08-27
-- Plugin released
+### Security
+- More secure by default by forcing global services to listen only on localhost. This can be overridden by editing the global docker-compose.yml file mentioned above. (props [@dustinrue](https://github.com/dustinrue), [@fariasf](https://github.com/fariasf))
 
-## [2.1.39] - 2018-10-22
-## [2.1.38] - 2018-10-17
-## [0.1.38] - 2018-10-15
-## [0.1.37] - 2018-10-12
-## [0.1.36] - 2018-10-10
-## [0.1.35] - 2018-10-10
-## [0.1.34] - 2018-10-09
-## [0.1.33] - 2018-10-05
-## [0.1.32] - 2018-10-05
-## [0.1.31] - 2018-10-03
-## [0.1.30] - 2018-10-02
-## [0.1.29] - 2018-09-28
-## [0.1.28] - 2018-09-25
-## [0.1.27] - 2018-09-25
-## [0.1.26] - 2018-09-24
-## [0.1.25] - 2018-09-18
-## [0.1.24] - 2018-09-13
-## [0.1.23] - 2018-09-12
-## [0.1.22] - 2018-09-12
-## [0.1.21] - 
-## [0.1.20] - 
-## [0.1.19] - 
-## [0.1.18] - 2018-09-11
-## [0.1.17] - 2018-09-11
-## [0.1.16] - 2018-09-11
-## [0.1.15] - 2018-09-11
-## [0.1.14] - 
-## [0.1.13] - 
-## [0.1.12] - 2018-09-10
-## [0.1.11] - 
-## [0.1.10] - 2018-09-07
-## [0.1.9] - 2018-09-07
-## [0.1.8] - 
-## [0.1.7] - 2018-09-04
-## [0.1.6] - 2018-09-04
-## [0.1.5] - 2018-09-04
+## [2.6.2] - 2019-12-19
+### Fixed
+- Hotfixes an issue preventing users on Mac and Windows from upgrading
+
+## [2.6.1] - 2019-12-19
+### Fixed
+- Fixes issue with upgrading environments on Linux
+
+## [2.6.0] - 2019-12-18
+### Added
+- All new containers based on CentOS 7 for PHP 5.6 through 7.1 and CentOS 8 for PHP 7.2 through 7.4
+- Adds support for PHP 7.4.
+- Enable/Disable Xdebug using ENV var in the docker-compose.yml file. Disabling Xdebug improves performance significantly on some systems.
+- Additional tools installed including git, composer, telnet, nc and more.
+opcache configured with optimal settings for development.
+
+### Changed
+- php-fpm now runs as www-data on macOS and Windows hosts or as the user who created the project on Linux. This is to ensure permissions are correct.
+- Upgrade to Elasticsearch 5.6.16.
+- Limit MySQL to 1GB of memory, configure for 1GB memory limit.
+- Limit Elasticsearch to 1GB of memory, configure for 1GB of memory.
+- Improved image update handling.
+
+### Fixed
+- Resolves shell escaping issues (via [#60](https://github.com/10up/wp-local-docker-v2/pull/60))
+- Resolves issues pulling the phpmemcachedadmin utility (via [#63](https://github.com/10up/wp-local-docker-v2/pull/63))
+
+## [2.5.1] - 2019-09-05
+### Added
+- Log php errors to the docker logs
+
+### Changed
+- Updates npm dependencies
+
+## [2.5.0] - 2019-07-02
+### Added
+- Adds WP CLI configuration file that allows running commands directly from the host with the `wp` command.
+
+## [2.4.3] - 2019-03-12
+### Fixed
+- Resolves issues creating a WP Snapshot repository via WP Local Docker
+
+## [2.4.2] - 2019-02-25
+### Fixed
+- Fixes a bug with the new `upgrade` command that causes an error if elasticsearch was not in the environment to be updated
+
+## [2.4.1] - 2019-02-25
+- No changes from 2.4.0. Working around npm publish issue.
+
+## [2.4.0] - 2019-02-25
+### Added
+- Adds new `upgrade` command to upgrade an environment to the latest docker-compose configuration. Current just adds the `:cached` flag on volumes for any preexisting environment
+
+### Changed
+- Updates volumes to use `:cached` flag to improve performance, particular on MacOS
+
+### Fixed
+- Resolves issue parsing environment from working directory when there are capitalization discrepancies (via [#21](https://github.com/10up/wp-local-docker-v2/issues/21))
+
+## [2.3.0] - 2019-02-22
+### Added
+- Adds prompt for proxying images from another site. Props @TylerB24890 
+
+### Changed
+- Updates lodash to latest version to fix vulnerability in the package
+
+## [2.2.0] - 2019-02-04
 
 [Unreleased]: https://github.com/10up/wp-local-docker-v2/compare/master...develop
+[2.7.0]: https://github.com/10up/wp-local-docker-v2/compare/2.6.2...2.7.0
+[2.6.2]: https://github.com/10up/wp-local-docker-v2/compare/2.6.1...2.6.2
+[2.6.1]: https://github.com/10up/wp-local-docker-v2/compare/2.6.0...2.6.1
+[2.6.0]: https://github.com/10up/wp-local-docker-v2/compare/2.5.1...2.6.0
 [2.5.1]: https://github.com/10up/wp-local-docker-v2/compare/2.5.0...2.5.1
 [2.5.0]: https://github.com/10up/wp-local-docker-v2/compare/2.4.3...2.5.0
 [2.4.3]: https://github.com/10up/wp-local-docker-v2/compare/2.4.2...2.4.3
 [2.4.2]: https://github.com/10up/wp-local-docker-v2/compare/2.4.1...2.4.2
 [2.4.1]: https://github.com/10up/wp-local-docker-v2/compare/2.4.0...2.4.1
 [2.4.0]: https://github.com/10up/wp-local-docker-v2/compare/2.3.0...2.4.0
-[2.3.0]: https://github.com/10up/wp-local-docker-v2/compare/1.7.2...2.3.0
-[2.2.0]: 
-[2.1.39]: 8262a8a
-[2.1.38]: edf8451
-[0.1.38]: fd74746
-[0.1.37]: 4af5212
-[0.1.36]: eace6b8
-[0.1.35]: 5f1ee2b
-[0.1.34]: 12afcd2
-[0.1.33]: 5e7ab88
-[0.1.32]: c810402
-[0.1.31]: 5bb273a
-[0.1.30]: 67a57c0
-[0.1.29]: b4463e7
-[0.1.28]: 6100353
-[0.1.27]: 7c05e6e
-[0.1.26]: 16e08e8
-[0.1.25]: dd5a5c4
-[0.1.24]: 52ac592
-[0.1.23]: b953a96
-[0.1.22]: 9249508
-[0.1.21]:
-[0.1.20]:
-[0.1.19]:
-[0.1.18]: 3ffefff
-[0.1.17]: a4dd97d
-[0.1.16]: 16a79af
-[0.1.15]: 7be99e8
-[0.1.14]:
-[0.1.13]:
-[0.1.12]: b3ef19e
-[0.1.11]: 
-[0.1.10]: 618452a
-[0.1.9]: 6c7363d
-[0.1.8]: 
-[0.1.7]: 428ed55
-[0.1.6]: b7eca45
-[0.1.5]: 6781fa3
+[2.3.0]: https://github.com/10up/wp-local-docker-v2/compare/2.2.0...2.3.0
+[2.2.0]: https://github.com/10up/wp-local-docker-v2/releases/tag/2.2.0
+
