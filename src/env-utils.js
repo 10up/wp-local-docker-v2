@@ -45,6 +45,16 @@ const envPath = async function( env ) {
     return envPath;
 };
 
+const parseEnvFromENV = async function() {
+    const envSlug = process.env.ENV;
+
+    if ( envSlug === undefined ) {
+        return false;
+    }
+
+    return envSlug;
+};
+
 const parseEnvFromCWD = async function() {
     // Compare both of these as all lowercase to account for any misconfigurations
     let cwd = process.cwd().toLowerCase();
@@ -123,7 +133,11 @@ const promptEnv = async function() {
 };
 
 const parseOrPromptEnv = async function () {
-    let envSlug = await parseEnvFromCWD();
+    let envSlug = await parseEnvFromENV();
+
+    if ( envSlug === false ) {
+        envSlug = await parseEnvFromCWD();
+    }
 
     if ( envSlug === false ) {
         envSlug = await promptEnv();
@@ -177,4 +191,4 @@ const createDefaultProxy = function( value ) {
     return proxyUrl;
 };
 
-module.exports = { rootPath, srcPath, sitesPath, cacheVolume, globalPath, envSlug, envPath, parseEnvFromCWD, getAllEnvironments, promptEnv, parseOrPromptEnv, getEnvHosts, getPathOrError, createDefaultProxy };
+module.exports = { rootPath, srcPath, sitesPath, cacheVolume, globalPath, envSlug, envPath, parseEnvFromENV, parseEnvFromCWD, getAllEnvironments, promptEnv, parseOrPromptEnv, getEnvHosts, getPathOrError, createDefaultProxy };
