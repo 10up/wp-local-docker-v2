@@ -55,7 +55,7 @@ const parseEnvFromENV = async function() {
     // Make sure that a .config.json file exists here
     const configFile = path.join( await envPath( envSlug ), '.config.json' );
 
-    if ( ! await fs.exists( configFile ) ) {
+    if ( ! await fs.pathExists( configFile ) ) {
         return false;
     }
 
