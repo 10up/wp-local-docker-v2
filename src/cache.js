@@ -2,7 +2,7 @@ const commandUtils = require( './command-utils' );
 const gateway = require( './gateway' );
 
 const help = function() {
-    let help = `
+    const help = `
 Usage: 10updocker cache clear
 
 Clears npm, wp-cli, and WP Snapshots caches
@@ -15,7 +15,7 @@ const clear = async function() {
     await gateway.removeCacheVolume();
     await gateway.ensureCacheExists();
 
-    console.log( "Cache Cleared" );
+    console.log( 'Cache Cleared' );
 };
 
 const command = async function() {
