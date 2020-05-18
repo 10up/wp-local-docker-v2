@@ -24,7 +24,8 @@ const images = {
     'wpsnapshots': '10up/wpsnapshots:dev',
     'memcached': 'memcached:latest',
     'nginx': 'nginx:latest',
-    'elasticsearch': 'docker.elastic.co/elasticsearch/elasticsearch:5.6.16'
+	'elasticsearch': 'docker.elastic.co/elasticsearch/elasticsearch:5.6.16',
+	'redis': 'redis:latest'
 };
 
 const help = function() {
@@ -38,9 +39,9 @@ Updates any docker images used by your environment to the latest versions availa
 };
 
 const update = function( image ) {
-    try { 
+    try {
         execSync( `docker pull ${image}`, { stdio: 'inherit' } );
-    } 
+    }
     catch ( ex ) {
 
     }
