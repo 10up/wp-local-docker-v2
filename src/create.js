@@ -269,8 +269,8 @@ const createEnv = async function() {
             `${envUtils.cacheVolume}:/var/www/.wp-cli/cache:cached`,
         ],
         'depends_on': [
-			'memcached',
-			'redis'
+            'memcached',
+            'redis'
         ],
         'networks': [
             'default',
