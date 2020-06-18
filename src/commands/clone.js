@@ -5,7 +5,7 @@ const { tmpdir } = require( 'os' );
 const makeExecutor = require( './clone/executor' );
 const makeGitClone = require( './clone/git-clone' );
 
-exports.command = 'clone <url> [--branch]';
+exports.command = 'clone <url> [--branch=<branch>]';
 
 exports.desc = 'Clones an environment from a remote repository';
 
@@ -17,15 +17,15 @@ exports.builder = function( yargs ) {
 
     yargs.option( 'b', {
         alias: 'branch',
-        description: 'A default branch to checkout',
+        description: 'Branch name to checkout',
         default: 'master',
         type: 'string',
     } );
 };
 
-exports.handler = function( { url, branch } ) {
+exports.handler = function( { url, branch, verbose } ) {
     const tempDir = mkdtempSync( join( tmpdir(), 'wpld-' ) );
-    const tempDirExecutor = makeExecutor( tempDir );
+    const tempDirExecutor = makeExecutor( tempDir, verbose );
 
     makeGitClone( tempDirExecutor )( url, branch );
 };

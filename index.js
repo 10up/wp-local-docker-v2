@@ -33,6 +33,13 @@ yargs.help( 'h' );
 yargs.alias( 'h', 'help' );
 yargs.alias( 'v', 'version' );
 
+// global options
+yargs.option( 'verbose', {
+    description: 'Display extended output',
+    default: false,
+    type: 'boolean',
+} );
+
 // commands
 yargs.commandDir( 'src/commands' );
 yargs.command( 'cache', 'Manages the build cache.', {}, dispatcher( 'cache' ) );
