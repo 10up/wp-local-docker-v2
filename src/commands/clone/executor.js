@@ -14,6 +14,7 @@ module.exports = function makeExecutor( cwd, verbose, spinner ) {
 
             subprocess.on( 'error', ( err ) => {
                 process.stderr.write( `${ err }\n` );
+                process.exit( 1 );
             } );
 
             subprocess.on( 'close', () => {
