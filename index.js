@@ -34,6 +34,7 @@ yargs.alias( 'h', 'help' );
 yargs.alias( 'v', 'version' );
 
 // commands
+yargs.commandDir( 'src/commands' );
 yargs.command( 'cache', 'Manages the build cache.', {}, dispatcher( 'cache' ) );
 yargs.command( 'configure', 'Set up a configuration for WP Local Docker.', {}, dispatcher( 'configure', false ) );
 yargs.command( 'create', 'Create a new docker environment.', {}, dispatcher( 'create' ) );
