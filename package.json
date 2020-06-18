@@ -23,11 +23,12 @@
     "memcacheadmin",
     "mailcatcher"
   ],
+  "preferGlobal": true,
   "main": "index.js",
   "scripts": {
     "10updocker": "./index.js",
     "10updocker-hosts": "./hosts.js",
-    "lint": "eslint src/*.js src/**/*.js",
+    "lint": "eslint . --ext .js --ignore-pattern node_modules",
     "lint:fix": "npm run lint --silent -- --fix"
   },
   "bin": {
@@ -52,7 +53,8 @@
     "shell-escape": "^0.2.0",
     "sudo-prompt": "^8.2.5",
     "update-check": "^1.5.3",
-    "write-yaml": "^1.0.0"
+    "write-yaml": "^1.0.0",
+    "yargs": "^15.1.0"
   },
   "devDependencies": {
     "@10up/eslint-config": "^1.0.9",
