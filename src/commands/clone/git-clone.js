@@ -14,7 +14,7 @@ module.exports = function makeGitClone( executor ) {
 
         await executor(
             'Downloading objects and refs from the repository...',
-            [ 'git', 'fetch', 'origin' ],
+            [ 'git', 'fetch', 'origin', '--recurse-submodules=yes' ],
             'Downloaded objects and refs from the remote repository...',
         );
 

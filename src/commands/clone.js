@@ -4,9 +4,11 @@ const { tmpdir } = require( 'os' );
 
 const ora = require( 'ora' );
 
+const makeCommand = require( './clone/make-command' );
 const makeExecutor = require( './clone/executor' );
 const makeGitClone = require( './clone/git-clone' );
 const makePullConfig = require( './clone/pull-config' );
+const makeVerifyUrl = require( './clone/verify-url' );
 
 exports.command = 'clone <url> [--branch=<branch>] [--config=<config>]';
 
@@ -33,12 +35,15 @@ exports.builder = function( yargs ) {
     } );
 };
 
-exports.handler = async function( { url, branch, verbose, config } ) {
+exports.handler = makeCommand( async function( { url, branch, verbose, config } ) {
     const spinner = ora( {
         spinner: 'dots',
         color: 'white',
         hideCursor: true,
     } );
+
+    // verify repository URL
+    makeVerifyUrl( spinner )( url );
 
     const tempDir = mkdtempSync( join( tmpdir(), 'wpld-' ) );
     const tempDirExecutor = makeExecutor( tempDir, verbose, spinner );
@@ -47,7 +52,11 @@ exports.handler = async function( { url, branch, verbose, config } ) {
     await makeGitClone( tempDirExecutor )( url, branch );
 
     // read configuration from the config file in the repo if it exists, otherwise ask questions
-    await makePullConfig( tempDir, spinner )( config );
+    const configuration = await makePullConfig( tempDir, spinner )( config );
 
-    spinner.stop();
-};
+    console.log( configuration ); // eslint-disable
+
+    if ( spinner.isSpinning ) {
+        spinner.stop();
+    }
+} );
