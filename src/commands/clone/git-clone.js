@@ -1,27 +1,83 @@
-module.exports = function makeGitClone( executor ) {
-    return async ( url, branch ) => {
-        await executor(
-            'Initializing an empty repository...',
-            [ 'git', 'init' ],
-            'Initialized empty repository...',
-        );
+const { createInterface } = require( 'readline' );
+const { EOL } = require( 'os' );
+const { Writable } = require( 'stream' );
 
-        await executor(
-            'Adding a new remote to the repository...',
-            [ 'git', 'remote', 'add', 'origin', url ],
-            'Added a new remote to the repository...',
-        );
+module.exports = function makeGitClone( spinner, chalk, { Clone, Cred } ) {
+    const { TYPE } = Cred;
 
-        await executor(
-            'Downloading objects and refs from the repository...',
-            [ 'git', 'fetch', 'origin', '--recurse-submodules=yes' ],
-            'Downloaded objects and refs from the remote repository...',
-        );
+    const mutableStdout = new Writable( {
+        write( chunk, encoding, callback ) {
+            ! this.muted && process.stdout.write( chunk, encoding );
+            callback();
+        },
+    } );
 
-        await executor(
-            `Checking out the ${ branch } branch...`,
-            [ 'git', 'checkout', `origin/${ branch }`, '-b', branch ],
-            `Checked out the ${ branch } branch...`,
-        );
+    const readlineOptions = {
+        input: process.stdin,
+        output: mutableStdout,
+        terminal: true,
+    };
+
+    return async ( dir, url, branch ) => {
+        let cloneAttempted = false;
+
+        spinner.start( 'Cloning the repository...' );
+
+        try {
+            await Clone.clone( url, dir, {
+                checkoutBranch: branch,
+                fetchOpts: {
+                    callbacks: {
+                        certificateCheck() {
+                            // certificate check doesn't work correctly on MacOS,
+                            // thus turn off it there
+                            return process.platform !== 'darwin';
+                        },
+                        credentials( url, user, type ) {
+                            if ( ( TYPE.SSH_KEY & type ) > 0 ) {
+                                return Cred.sshKeyFromAgent( user );
+                            }
+
+                            if ( ( TYPE.USERPASS_PLAINTEXT & type ) === 0 ) {
+                                // return default credetials to emulate an error condition
+                                // if the current authentication type is not USERPASS_PLAINTEXT
+                                return Cred.defaultNew();
+                            }
+
+                            spinner.stop();
+                            if ( cloneAttempted ) {
+                                spinner.fail( chalk.red( 'Invalid credentials, please, try again.' ) );
+                            }
+
+                            cloneAttempted = true;
+
+                            return new Promise( ( resolve ) => {
+                                const readline = createInterface( readlineOptions );
+
+                                readline.question( 'Username: ', ( username ) => {
+                                    mutableStdout.write( 'Password: ' );
+                                    mutableStdout.muted = true;
+
+                                    readline.question( '', ( password ) => {
+                                        mutableStdout.muted = false;
+                                        mutableStdout.write( EOL );
+
+                                        readline.close();
+
+                                        spinner.start( 'Cloning the repository...' );
+                                        resolve( Cred.userpassPlaintextNew( username, password ) );
+                                    } );
+                                } );
+                            } );
+                        },
+                    },
+                },
+            } );
+        } catch ( err ) {
+            spinner.stop();
+            throw new Error( 'An error happened during cloning your repository. Please, submit an new issue: https://github.com/10up/wp-local-docker-v2/issues' );
+        }
+
+        spinner.succeed( 'Cloned the repository...' );
     };
 };

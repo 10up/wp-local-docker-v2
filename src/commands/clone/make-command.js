@@ -1,10 +1,9 @@
-const chalk = require( 'chalk' );
-const { error } = require( 'log-symbols' );
+const { EOL } = require( 'os' );
 
-module.exports = function makeCommand( command ) {
+module.exports = function makeCommand( chalk, { error }, command ) {
     return ( ...params ) => {
         return command( ...params ).catch( ( err ) => {
-            process.stderr.write( chalk.red( `${ error } ${ err.message }\n` ) );
+            process.stderr.write( chalk.red( `${ error } ${ err.message }${ EOL }` ) );
             process.exit( 1 );
         } );
     };

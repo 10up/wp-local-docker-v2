@@ -2,12 +2,10 @@ const { promisify } = require( 'util' );
 const { join } = require( 'path' );
 const fs = require( 'fs' );
 
-const { success, error } = require( 'log-symbols' );
-
-module.exports = function makePullConfig( cwd, spinner ) {
+module.exports = function makePullConfig( spinner ) {
     const stat = promisify( fs.stat );
 
-    return async ( config ) => {
+    return async ( cwd, config ) => {
         const filename = join( cwd, config );
         let configuration = {};
         let modified = false;
@@ -17,15 +15,9 @@ module.exports = function makePullConfig( cwd, spinner ) {
             await stat( filename );
 
             configuration = require( filename );
-            spinner.stopAndPersist( {
-                symbol: success,
-                text: 'Read configuration file in the repository...',
-            } );
+            spinner.succeed( 'Read configuration file in the repository...' );
         } catch( err ) {
-            spinner.stopAndPersist( {
-                symbol: error,
-                text: 'Configuration file is not found in the repository...',
-            } );
+            spinner.fail( 'Configuration file is not found in the repository...' );
         }
 
         if ( !configuration.hostname ) {
