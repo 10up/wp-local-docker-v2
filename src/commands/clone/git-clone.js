@@ -54,6 +54,10 @@ module.exports = function makeGitClone( spinner, chalk, { Clone, Cred } ) {
                             return new Promise( ( resolve ) => {
                                 const readline = createInterface( readlineOptions );
 
+                                readline.on( 'SIGINT', () => {
+                                    process.exit( 1 );
+                                } );
+
                                 readline.question( 'Username: ', ( username ) => {
                                     mutableStdout.write( 'Password: ' );
                                     mutableStdout.muted = true;
