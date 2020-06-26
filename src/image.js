@@ -1,31 +1,13 @@
-const commandUtils = require( './command-utils' );
-const gateway = require( './gateway' );
-const environment = require( './environment' );
-const inquirer = require( 'inquirer' );
-const promptValidators = require( './prompt-validators' );
 const os = require( 'os' );
 const { execSync } = require( 'child_process' );
 
-// These have to exist, so we don't bother checking if they exist on the system first
-const globalImages = {
-    'nginx-proxy': '10up/nginx-proxy:latest',
-    'mysql': 'mysql:5',
-    'mailcatcher': 'schickling/mailcatcher',
-    'phpmyadmin': 'phpmyadmin/phpmyadmin'
-};
+const inquirer = require( 'inquirer' );
 
-const images = {
-    'php7.4': '10up/wp-php-fpm-dev:7.4',
-    'php7.3': '10up/wp-php-fpm-dev:7.3',
-    'php7.2': '10up/wp-php-fpm-dev:7.2',
-    'php7.1': '10up/wp-php-fpm-dev:7.1',
-    'php7.0': '10up/wp-php-fpm-dev:7.0',
-    'php5.6': '10up/wp-php-fpm-dev:5.6',
-    'wpsnapshots': '10up/wpsnapshots:dev',
-    'memcached': 'memcached:latest',
-    'nginx': 'nginx:latest',
-    'elasticsearch': 'docker.elastic.co/elasticsearch/elasticsearch:5.6.16'
-};
+const commandUtils = require( './command-utils' );
+const gateway = require( './gateway' );
+const environment = require( './environment' );
+const promptValidators = require( './prompt-validators' );
+const { globalImages, images } = require( './docker-images' );
 
 const help = function() {
     const help = `

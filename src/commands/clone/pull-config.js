@@ -8,7 +8,6 @@ module.exports = function makePullConfig( spinner ) {
     return async ( cwd, config ) => {
         const filename = join( cwd, config );
         let configuration = {};
-        let modified = false;
 
         try {
             spinner.start( 'Checking configuration file in the repository...' );
@@ -18,15 +17,6 @@ module.exports = function makePullConfig( spinner ) {
             spinner.succeed( 'Read configuration file in the repository...' );
         } catch( err ) {
             spinner.fail( 'Configuration file is not found in the repository...' );
-        }
-
-        if ( !configuration.hostname ) {
-            // ask user
-            modified = true;
-        }
-
-        if ( modified ) {
-            // do you want to save configuration file?
         }
 
         return configuration;

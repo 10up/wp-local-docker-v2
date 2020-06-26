@@ -2,14 +2,19 @@ const { mkdtempSync } = require( 'fs' );
 const { join } = require( 'path' );
 const { tmpdir } = require( 'os' );
 
-const ora = require( 'ora' );
 const git = require( 'nodegit' );
 const chalk = require( 'chalk' );
 const logSymbols = require( 'log-symbols' );
+const inquirer = require( 'inquirer' );
+
+const makeSpinner = require( '../utils/make-spinner' );
 
 const makeCommand = require( './clone/make-command' );
 const makeGitClone = require( './clone/git-clone' );
 const makePullConfig = require( './clone/pull-config' );
+const makeInquirer = require( './create/inquirer' );
+
+const { createCommand } = require( './create' );
 
 exports.command = 'clone <url> [--branch=<branch>] [--config=<config>]';
 
@@ -38,19 +43,19 @@ exports.builder = function( yargs ) {
 
 exports.handler = makeCommand( chalk, logSymbols, async function( { url, branch, config } ) {
     const tempDir = mkdtempSync( join( tmpdir(), 'wpld-' ) );
-    const spinner = ora( {
-        spinner: 'dots',
-        color: 'white',
-        hideCursor: true,
-    } );
+    const spinner = makeSpinner()();
 
     // clone repository
     await makeGitClone( spinner, chalk, git )( tempDir, url, branch );
 
     // read configuration from the config file in the repo if it exists, otherwise ask questions
     const configuration = await makePullConfig( spinner )( tempDir, config );
+    const answers = await makeInquirer( inquirer )( configuration );
 
-    console.log( configuration ); // eslint-disable
+    // create environment
+    await createCommand( spinner, answers );
+
+    // @todo: move cloned folder to the new environment
 
     if ( spinner.isSpinning ) {
         spinner.stop();

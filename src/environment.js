@@ -1,19 +1,21 @@
-const commandUtils = require( './command-utils' );
 const path = require( 'path' );
-const fs = require( 'fs-extra' );
 const { execSync } = require( 'child_process' );
+const os = require( 'os' );
+
+const fs = require( 'fs-extra' );
 const inquirer = require( 'inquirer' );
+const sudo = require( 'sudo-prompt' );
+const chalk = require( 'chalk' );
+const readYaml = require( 'read-yaml' );
+const writeYaml = require( 'write-yaml' );
+
+const { images } = require( './docker-images' );
+const config = require( './configure' );
 const promptValidators = require( './prompt-validators' );
 const database = require( './database' );
 const envUtils = require( './env-utils' );
 const gateway = require( './gateway' );
-const sudo = require( 'sudo-prompt' );
-const config = require( './configure' );
-const chalk = require( 'chalk' );
-const readYaml = require( 'read-yaml' );
-const os = require( 'os' );
-const writeYaml = require( 'write-yaml' );
-const { images } = require( './image' );
+const commandUtils = require( './command-utils' );
 
 const help = function() {
     const command = commandUtils.command();
