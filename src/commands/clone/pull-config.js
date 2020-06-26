@@ -16,7 +16,7 @@ module.exports = function makePullConfig( spinner ) {
             configuration = require( filename );
             spinner.succeed( 'Read configuration file in the repository...' );
         } catch( err ) {
-            spinner.fail( 'Configuration file is not found in the repository...' );
+            spinner.warn( 'Configuration file is not found in the repository...' );
         }
 
         return configuration;
