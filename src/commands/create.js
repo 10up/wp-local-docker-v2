@@ -1,6 +1,9 @@
 const inquirer = require( 'inquirer' );
+const chalk = require( 'chalk' );
+const logSymbols = require( 'log-symbols' );
 
 const makeSpinner = require( '../utils/make-spinner' );
+const makeCommand = require( '../utils/make-command' );
 
 const makeInquirer = require( './create/inquirer' );
 const makeDockerCompose = require( './create/make-docker-compose' );
@@ -21,9 +24,9 @@ async function createCommand( spinner, defaults = {} ) {
 exports.command = 'create';
 exports.desc = 'Create a new docker environment.';
 
-exports.handler = function() {
+exports.handler = makeCommand( chalk, logSymbols, function() {
     const spinner = makeSpinner()();
     return createCommand( spinner );
-};
+} );
 
 exports.createCommand = createCommand;

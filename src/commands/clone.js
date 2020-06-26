@@ -8,8 +8,8 @@ const logSymbols = require( 'log-symbols' );
 const inquirer = require( 'inquirer' );
 
 const makeSpinner = require( '../utils/make-spinner' );
+const makeCommand = require( '../utils/make-command' );
 
-const makeCommand = require( './clone/make-command' );
 const makeGitClone = require( './clone/git-clone' );
 const makePullConfig = require( './clone/pull-config' );
 const makeInquirer = require( './create/inquirer' );
