@@ -10,7 +10,7 @@ module.exports = function makeCopyConfigs( { copy } ) {
 
         await copy( join( srcPath, 'config' ), join( envPath, 'config' ) );
         await copy( join( srcPath, 'containers' ), join( envPath, '.containers' ) );
-	
+
         if ( mediaProxy === true ) {
             const nginxConfig = wordpressType == 'dev' ? 'develop.conf' : 'default.conf';
             const nginxConfigPath = join( envPath, 'config', 'nginx', nginxConfig );

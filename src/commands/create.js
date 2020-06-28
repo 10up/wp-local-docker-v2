@@ -46,7 +46,10 @@ async function createCommand( spinner, defaults = {} ) {
     await makeUpdateHosts( sudo, spinner )( envHosts );
     await makeSaveJsonFile( paths['/'] )( '.config.json', { envHosts } );
 
-    return answers;
+    return {
+        ...answers,
+        paths,
+    };
 }
 
 exports.command = 'create';

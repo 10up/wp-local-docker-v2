@@ -6,6 +6,7 @@ const git = require( 'nodegit' );
 const chalk = require( 'chalk' );
 const logSymbols = require( 'log-symbols' );
 const inquirer = require( 'inquirer' );
+const fsExtra = require( 'fs-extra' );
 
 const makeSpinner = require( '../utils/make-spinner' );
 const makeCommand = require( '../utils/make-command' );
@@ -13,6 +14,7 @@ const makeCommand = require( '../utils/make-command' );
 const makeGitClone = require( './clone/git-clone' );
 const makePullConfig = require( './clone/pull-config' );
 const makeInquirer = require( './create/inquirer' );
+const makeMoveRepository = require( './clone/move-repository' );
 
 const { createCommand } = require( './create' );
 
@@ -53,9 +55,18 @@ exports.handler = makeCommand( chalk, logSymbols, async ( { url, branch, config 
     const answers = await makeInquirer( inquirer )( configuration );
 
     // create environment
-    await createCommand( spinner, answers );
+    const {
+        mount_point: mountPoint,
+        snapshot_id: snapshotId,
+        paths,
+    } = await createCommand( spinner, answers );
 
-    // @todo: move cloned folder to the new environment
+    // move repository
+    await makeMoveRepository( fsExtra, paths.wordpress )( tempDir, mountPoint || 'wp-content' );
+
+    if ( snapshotId ) {
+        // @todo: run wpsnapshots
+    }
 
     if ( spinner.isSpinning ) {
         spinner.stop();
