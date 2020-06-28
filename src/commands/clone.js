@@ -44,7 +44,7 @@ exports.builder = function( yargs ) {
 
 exports.handler = makeCommand( chalk, logSymbols, async ( { url, branch, config } ) => {
     const tempDir = mkdtempSync( join( tmpdir(), 'wpld-' ) );
-    const spinner = makeSpinner()();
+    const spinner = makeSpinner();
 
     // clone repository
     await makeGitClone( spinner, chalk, git, inquirer )( tempDir, url, branch );
@@ -60,7 +60,7 @@ exports.handler = makeCommand( chalk, logSymbols, async ( { url, branch, config 
     } = answers;
 
     // move repository
-    await makeMoveRepository( fsExtra, paths.wordpress )( tempDir, mountPoint || 'wp-content' );
+    await makeMoveRepository( spinner, fsExtra, paths.wordpress )( tempDir, mountPoint || 'wp-content' );
 
     if ( snapshotId ) {
         // @todo: run wpsnapshots

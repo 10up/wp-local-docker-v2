@@ -56,7 +56,7 @@ exports.command = 'create';
 exports.desc = 'Create a new docker environment.';
 
 exports.handler = makeCommand( chalk, logSymbols, async () => {
-    const spinner = makeSpinner()();
+    const spinner = makeSpinner();
     const answers = await createCommand( spinner, {} );
 
     spinner.succeed( 'Successfully Created Site!' );

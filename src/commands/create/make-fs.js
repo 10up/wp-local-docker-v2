@@ -13,32 +13,24 @@ module.exports = function makeFs( spinner ) {
             throw new Error( `Error: ${hostname} environment already exists. To recreate the environment, please delete it first by running \`10updocker delete ${hostname}\`` );
         }
 
-        await spinner.promise(
-            'Making root directory...',
-            mkdir( envPath ),
-            'Made root directory...',
-        );
+        spinner.start( 'Making root directory...' );
+        await mkdir( envPath );
+        spinner.succeed( 'Made root directory...' );
 
         const wordpress = join( envPath, 'wordpress' );
-        await spinner.promise(
-            'Making wordpress directory...',
-            mkdir( wordpress ),
-            'Made wordpress directory...',
-        );
+        spinner.start( 'Making wordpress directory...' );
+        await mkdir( wordpress );
+        spinner.succeed( 'Made wordpress directory...' );
 
         const containers = join( envPath, '.containers' );
-        await spinner.promise(
-            'Making containers directory...',
-            mkdir( containers ),
-            'Made containers directory...',
-        );
+        spinner.start( 'Making containers directory...' );
+        await mkdir( containers );
+        spinner.succeed( 'Made containers directory...' );
 
         const config = join( envPath, 'config' );
-        await spinner.promise(
-            'Making config direcotry...',
-            mkdir( config ),
-            'Made config directory...',
-        );
+        spinner.start( 'Making config direcotry...' );
+        await mkdir( config );
+        spinner.succeed( 'Made config directory...' );
 
         return {
             '/': envPath,
