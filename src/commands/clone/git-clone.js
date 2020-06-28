@@ -1,30 +1,13 @@
-const { createInterface } = require( 'readline' );
-const { EOL } = require( 'os' );
-const { Writable } = require( 'stream' );
-
-module.exports = function makeGitClone( spinner, chalk, { Clone, Cred } ) {
+module.exports = function makeGitClone( spinner, chalk, { Clone, Cred }, { prompt } ) {
     const { TYPE } = Cred;
 
-    const mutableStdout = new Writable( {
-        write( chunk, encoding, callback ) {
-            ! this.muted && process.stdout.write( chunk, encoding );
-            callback();
-        },
-    } );
-
-    const readlineOptions = {
-        input: process.stdin,
-        output: mutableStdout,
-        terminal: true,
-    };
-
-    return async ( dir, url, branch ) => {
+    return async ( dir, repository, branch ) => {
         let cloneAttempted = false;
 
         spinner.start( 'Cloning the repository...' );
 
         try {
-            await Clone.clone( url, dir, {
+            await Clone.clone( repository, dir, {
                 checkoutBranch: branch,
                 fetchOpts: {
                     callbacks: {
@@ -52,25 +35,26 @@ module.exports = function makeGitClone( spinner, chalk, { Clone, Cred } ) {
                             cloneAttempted = true;
 
                             return new Promise( ( resolve ) => {
-                                const readline = createInterface( readlineOptions );
+                                const origin = url.split( '/' ).slice( 0, 3 ).join( '/' );
+                                const questions = [
+                                    {
+                                        type: 'input',
+                                        name: 'username',
+                                        message: `Username for ${ origin }:`,
+                                    },
+                                    {
+                                        type: 'password',
+                                        name: 'password',
+                                        message( { username } ) {
+                                            const originWithUser = origin.split( '://' ).join( `://${ username }@` );
+                                            return `Password for ${ originWithUser }:`;
+                                        },
+                                    },
+                                ];
 
-                                readline.on( 'SIGINT', () => {
-                                    process.exit( 1 );
-                                } );
-
-                                readline.question( 'Username: ', ( username ) => {
-                                    mutableStdout.write( 'Password: ' );
-                                    mutableStdout.muted = true;
-
-                                    readline.question( '', ( password ) => {
-                                        mutableStdout.muted = false;
-                                        mutableStdout.write( EOL );
-
-                                        readline.close();
-
-                                        spinner.start( 'Cloning the repository...' );
-                                        resolve( Cred.userpassPlaintextNew( username, password ) );
-                                    } );
+                                prompt( questions ).then( ( answers ) => {
+                                    spinner.start( 'Cloning the repository...' );
+                                    resolve( Cred.userpassPlaintextNew( answers.username, answers.password ) );
                                 } );
                             } );
                         },
@@ -79,7 +63,7 @@ module.exports = function makeGitClone( spinner, chalk, { Clone, Cred } ) {
             } );
         } catch ( err ) {
             spinner.stop();
-            throw new Error( 'An error happened during cloning your repository. Please, submit an new issue: https://github.com/10up/wp-local-docker-v2/issues' );
+            throw new Error( 'An error happened during cloning your repository. Please, submit a new issue: https://github.com/10up/wp-local-docker-v2/issues' );
         }
 
         spinner.succeed( 'Cloned the repository...' );

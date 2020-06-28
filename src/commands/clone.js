@@ -48,7 +48,7 @@ exports.handler = makeCommand( chalk, logSymbols, async ( { url, branch, config 
     const spinner = makeSpinner()();
 
     // clone repository
-    await makeGitClone( spinner, chalk, git )( tempDir, url, branch );
+    await makeGitClone( spinner, chalk, git, inquirer )( tempDir, url, branch );
 
     // read configuration from the config file in the repo if it exists, otherwise ask questions
     const configuration = await makePullConfig( spinner )( tempDir, config );
