@@ -13,7 +13,6 @@ const makeCommand = require( '../utils/make-command' );
 
 const makeGitClone = require( './clone/git-clone' );
 const makePullConfig = require( './clone/pull-config' );
-const makeInquirer = require( './create/inquirer' );
 const makeMoveRepository = require( './clone/move-repository' );
 
 const { createCommand } = require( './create' );
@@ -49,17 +48,16 @@ exports.handler = makeCommand( chalk, logSymbols, async ( { url, branch, config 
 
     // clone repository
     await makeGitClone( spinner, chalk, git, inquirer )( tempDir, url, branch );
-
-    // read configuration from the config file in the repo if it exists, otherwise ask questions
+    // read configuration from the config file in the repo if it exists
     const configuration = await makePullConfig( spinner )( tempDir, config );
-    const answers = await makeInquirer( inquirer )( configuration );
-
     // create environment
-    const {
+    const answers = await createCommand( spinner, configuration || {} );
+
+    const { 
         mount_point: mountPoint,
         snapshot_id: snapshotId,
         paths,
-    } = await createCommand( spinner, answers );
+    } = answers;
 
     // move repository
     await makeMoveRepository( fsExtra, paths.wordpress )( tempDir, mountPoint || 'wp-content' );
