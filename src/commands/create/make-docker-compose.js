@@ -133,6 +133,6 @@ module.exports = function makeDockerCompose() {
             }
         }
 
-        return baseConfig;	
+        return baseConfig;
     };
 };

@@ -1,6 +1,7 @@
 const inquirer = require( 'inquirer' );
 const chalk = require( 'chalk' );
 const logSymbols = require( 'log-symbols' );
+const fsExtra = require( 'fs-extra' );
 
 const makeSpinner = require( '../utils/make-spinner' );
 const makeCommand = require( '../utils/make-command' );
@@ -9,6 +10,7 @@ const makeInquirer = require( './create/inquirer' );
 const makeDockerCompose = require( './create/make-docker-compose' );
 const makeFs = require( './create/make-fs' );
 const makeSaveYamlFile = require( './create/save-yaml-file' );
+const makeCopyConfigs = require( './create/copy-configs' );
 
 async function createCommand( spinner, defaults = {} ) {
     const answers = await makeInquirer( inquirer )( defaults );
@@ -19,6 +21,8 @@ async function createCommand( spinner, defaults = {} ) {
     const dockerComposer = await makeDockerCompose()( answers );
     await saveYaml( 'docker-compose.yml', dockerComposer );
     await saveYaml( 'wp-cli.yml', { ssh: 'docker-compose:phpfpm' } );
+
+    await makeCopyConfigs( fsExtra )( paths, answers );
 }
 
 exports.command = 'create';
