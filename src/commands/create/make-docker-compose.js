@@ -4,22 +4,14 @@ const { cacheVolume } = require( '../../env-utils' );
 const { images } = require( '../../docker-images' );
 
 module.exports = function makeDockerCompose() {
-    return async ( settings ) => {
+    return async ( hosts, settings ) => {
         const {
-            hostname,
-            extraHosts,
             phpVersion,
             wordpressType,
             elasticsearch,
         } = settings;
 
-        const allHosts = new Set( [ hostname, `*.${ hostname }` ] );
-        if ( Array.isArray( extraHosts ) && extraHosts.length > 0 ) {
-            extraHosts.forEach( ( host ) => {
-                allHosts.add( host );
-                allHosts.add( `*.${ host }` );
-            } );
-        }
+        const allHosts = [ ...hosts, ...hosts.map( ( host ) => `*.${ host }` ) ];
 
         const baseConfig = {
             // use version 2 so we can use limits
@@ -37,7 +29,7 @@ module.exports = function makeDockerCompose() {
                     environment: {
                         CERT_NAME: 'localhost',
                         HTTPS_METHOD: 'noredirect',
-                        VIRTUAL_HOST: Array.from( allHosts ).join( ',' ),
+                        VIRTUAL_HOST: allHosts.join( ',' ),
                     },
                 },
                 phpfpm: {
