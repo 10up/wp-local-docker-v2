@@ -1,7 +1,5 @@
 // @ts-nocheck
 
-const { join } = require( 'path' );
-
 const makeMoveRepository = require( './move-repository' );
 
 describe( 'clone :: move-repository', () => {
@@ -16,9 +14,10 @@ describe( 'clone :: move-repository', () => {
     describe( ':: worker function', () => {
         const spinner = {};
         const fs = {};
-        const root = '/home/user/wp-local-docker/project/wordpress';
+        const root = '/src/wp-local-docker/project/wordpress';
         const from = '/tmp/repo';
         const to = 'wp-content/themes/project-theme';
+        const dest = '/src/wp-local-docker/project/wordpress/wp-content/themes/project-theme';
 
         beforeEach( () => {
             spinner.start = jest.fn();
@@ -36,13 +35,13 @@ describe( 'clone :: move-repository', () => {
         it( 'should call remove function to remove original folder', async () => {
             await makeMoveRepository( spinner, fs, root )( from, to );
             expect( fs.remove ).toHaveBeenCalled();
-            expect( fs.remove ).toHaveBeenCalledWith( join( root, to ) );
+            expect( fs.remove ).toHaveBeenCalledWith( dest );
         } );
 
         it( 'should call move function to move repo to the new directory', async () => {
             await makeMoveRepository( spinner, fs, root )( from, to );
             expect( fs.move ).toHaveBeenCalled();
-            expect( fs.move ).toHaveBeenCalledWith( from, join( root, to ) );
+            expect( fs.move ).toHaveBeenCalledWith( from, dest );
         } );
     } );
 } );
