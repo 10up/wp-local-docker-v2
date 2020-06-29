@@ -357,7 +357,7 @@ const stopAll = async function() {
         await stop( envs[ i ] );
     }
 
-    gateway.stopGlobal();
+    await gateway.stopGlobal();
 };
 
 const restartAll = async function() {

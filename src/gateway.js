@@ -40,12 +40,17 @@ async function ensureNetworkExists( docker ) {
     } );
 }
 
-const removeNetwork = function() {
-    try {
-        console.log( 'Removing Global Network' );
-        execSync( 'docker network rm wplocaldocker' );
-    } catch ( ex ) {}
-};
+async function removeNetwork( docker ) {
+    console.log( 'Removing Global Network' );
+
+    const network = docker.getNetwork( 'wplocaldocker' );
+    const data = await network.inspect().catch( () => false );
+    if ( data ) {
+        await network.remove();
+        console.log( ' - Network Removed' );
+        return;
+    }
+}
 
 async function ensureCacheExists( docker ) {
     console.log( 'Ensuring global cache volume exists' );
@@ -141,12 +146,14 @@ async function startGlobal() {
     started = true;
 }
 
-const stopGlobal = function() {
+async function stopGlobal() {
+    const docker = makeDocker();
+
     stopGateway();
-    removeNetwork();
+    await removeNetwork( docker );
 
     started = false;
-};
+}
 
 async function restartGlobal() {
     const docker = makeDocker();

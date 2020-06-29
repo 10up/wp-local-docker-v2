@@ -4,7 +4,6 @@ const { execSync } = require( 'child_process' );
 const inquirer = require( 'inquirer' );
 
 const commandUtils = require( './command-utils' );
-const gateway = require( './gateway' );
 const environment = require( './environment' );
 const promptValidators = require( './prompt-validators' );
 const { globalImages, images } = require( './docker-images' );
@@ -60,11 +59,6 @@ const updateAll = function() {
     }
 };
 
-const stopAll = async function() {
-    await environment.stopAll();
-    await gateway.stopGlobal();
-};
-
 const confirm = async function() {
     const answers = await inquirer.prompt( {
         name: 'confirm',
@@ -81,7 +75,7 @@ const command = async function() {
     switch ( commandUtils.subcommand() ) {
         case 'update':
             if ( await confirm() ) {
-                await stopAll();
+                await environment.stopAll();
                 updateAll();
                 console.log( 'Finished. You can now start your environments again.' );
             }
