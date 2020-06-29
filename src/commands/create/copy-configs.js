@@ -4,9 +4,11 @@ const { readFile, writeFile } = require( 'fs' ).promises;
 const { srcPath } = require( '../../env-utils' );
 const { createProxyConfig } = require( '../../configure' );
 
-module.exports = function makeCopyConfigs( { copy } ) {
+module.exports = function makeCopyConfigs( spinner, { copy } ) {
     return async ( paths, { proxy, mediaProxy, wordpressType } ) => {
         const envPath = paths['/'];
+
+        spinner.start( 'Copying configuration files...' );
 
         await copy( join( srcPath, 'config' ), join( envPath, 'config' ) );
         await copy( join( srcPath, 'containers' ), join( envPath, '.containers' ) );
@@ -18,5 +20,7 @@ module.exports = function makeCopyConfigs( { copy } ) {
             const curConfig = await readFile( nginxConfigPath );
             await writeFile( nginxConfigPath, createProxyConfig( proxy, curConfig ) );
         }
+
+        spinner.succeed( 'Copied configuration files...' );
     };
 };

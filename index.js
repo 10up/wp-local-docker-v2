@@ -44,7 +44,6 @@ yargs.option( 'verbose', {
 yargs.commandDir( 'src/commands' );
 yargs.command( 'cache', 'Manages the build cache.', {}, dispatcher( 'cache' ) );
 yargs.command( 'configure', 'Set up a configuration for WP Local Docker.', {}, dispatcher( 'configure', false ) );
-// yargs.command( 'create', 'Create a new docker environment.', {}, dispatcher( 'create' ) );
 yargs.command( [ 'delete', 'remove' ], 'Deletes a specific environment.', {}, dispatcher( 'environment' ) );
 yargs.command( 'image', 'Manages docker images used by this environment.', {}, dispatcher( 'image' ) );
 yargs.command( 'logs', 'Shows logs from the specified container in your current environment (Defaults to all containers).', {}, dispatcher( 'logs' ) );

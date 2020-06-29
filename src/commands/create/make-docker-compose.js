@@ -3,13 +3,15 @@ const { platform } = require( 'os' );
 const { cacheVolume } = require( '../../env-utils' );
 const { images } = require( '../../docker-images' );
 
-module.exports = function makeDockerCompose() {
+module.exports = function makeDockerCompose( spinner ) {
     return async ( hosts, settings ) => {
         const {
             phpVersion,
             wordpressType,
             elasticsearch,
         } = settings;
+
+        spinner.start( 'Creating docker-compose configuration...' );
 
         const allHosts = [ ...hosts, ...hosts.map( ( host ) => `*.${ host }` ) ];
 
@@ -119,11 +121,13 @@ module.exports = function makeDockerCompose() {
         }
 
         if ( typeof settings.dockerCompose === 'function' ) {
-            const filteredConfig = await settings.dockerCompose.call( null, baseConfig, settings );
+            const filteredConfig = await settings.dockerCompose.call( null, baseConfig, settings, { spinner } );
             if ( filteredConfig ) {
                 return filteredConfig;
             }
         }
+
+        spinner.succeed( 'Created docker-compose configuration...' );
 
         return baseConfig;
     };

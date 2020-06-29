@@ -29,13 +29,13 @@ async function createCommand( spinner, defaults = {} ) {
     const envSlug = envUtils.envSlug( answers.hostname );
 
     const paths = await makeFs( spinner )( answers );
-    const saveYaml = makeSaveYamlFile( paths['/'] );
+    const saveYaml = makeSaveYamlFile( spinner, paths['/'] );
 
-    const dockerComposer = await makeDockerCompose()( envHosts, answers );
+    const dockerComposer = await makeDockerCompose( spinner )( envHosts, answers );
     await saveYaml( 'docker-compose.yml', dockerComposer );
     await saveYaml( 'wp-cli.yml', { ssh: 'docker-compose:phpfpm' } );
 
-    await makeCopyConfigs( fsExtra )( paths, answers );
+    await makeCopyConfigs( spinner, fsExtra )( paths, answers );
 
     await startGlobal();
     await makeDatabase()( envSlug );
