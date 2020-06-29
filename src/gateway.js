@@ -1,28 +1,44 @@
 const { execSync } = require( 'child_process' );
-const { exec } = require( 'child_process' );
-const envUtils = require( './env-utils' );
-const config = require( './configure' );
 const fs = require( 'fs' );
 const path = require( 'path' );
+
 const nc = require( 'netcat/client' );
+
+const makeDocker = require( './utils/make-docker' );
+const envUtils = require( './env-utils' );
+const config = require( './configure' );
 
 // Tracks if we've started global inside of this session
 let started = false;
 
-const ensureNetworkExists = function() {
-    try {
-        console.log( 'Ensuring global network exists' );
-        const networks = execSync( 'docker network ls --filter name=^wplocaldocker$' ).toString();
-        if ( networks.indexOf( 'wplocaldocker' ) !== -1 ) {
-            console.log( ' - Network exists' );
-            return;
-        }
+async function ensureNetworkExists( docker ) {
+    console.log( 'Ensuring global network exists' );
 
-        console.log( ' - Creating network' );
-        // --ip-range is only half of the subnet, so that we have a bunch of addresses in front to assign manually
-        execSync( 'docker network create wplocaldocker --subnet=10.0.0.0/16 --gateway 10.0.0.1 --ip-range 10.0.128.0/17' );
-    } catch ( ex ) {}
-};
+    const networkName = 'wplocaldocker';
+
+    const network = docker.getNetwork( networkName );
+    const data = await network.inspect().catch( () => false );
+    if ( data ) {
+        console.log( ' - Network exists' );
+        return;
+    }
+
+    console.log( ' - Creating network' );
+    // --ip-range is only half of the subnet, so that we have a bunch of addresses in front to assign manually
+    await docker.createNetwork( {
+        Name: networkName,
+        IPAM: {
+            Driver: 'default',
+            Config: [
+                {
+                    Subnet: '10.0.0.0/16',
+                    IPRange: '10.0.128.0/17',
+                    Gateway: '10.0.0.1',
+                },
+            ],
+        },
+    } );
+}
 
 const removeNetwork = function() {
     try {
@@ -31,32 +47,33 @@ const removeNetwork = function() {
     } catch ( ex ) {}
 };
 
-const ensureCacheExists = async function() {
-    try {
-        console.log( 'Ensuring global cache volume exists' );
-        const volumes = await exec( `docker volume ls --filter name=${envUtils.cacheVolume}` ).toString();
-        if ( volumes.indexOf( `${envUtils.cacheVolume}` ) !== -1 ) {
-            console.log( ' - Volume Exists' );
-            return;
-        }
+async function ensureCacheExists( docker ) {
+    console.log( 'Ensuring global cache volume exists' );
 
+    const volume = await docker.getVolume( envUtils.cacheVolume );
+    const data = await volume.inspect().catch( () => false );
+
+    if ( data ) {
+        console.log( ' - Volume Exists' );
+    } else {
         console.log( ' - Creating Volume' );
-        await exec( `docker volume create ${envUtils.cacheVolume}` );
-    }   catch ( ex ) {}
-};
+        docker.createVolume( {
+            Name: envUtils.cacheVolume,
+        } );    
+    }
+}
 
-const removeCacheVolume = async function() {
-    try {
-        console.log( 'Removing cache volume' );
-        const volumes = await exec( `docker volume ls --filter name=${envUtils.cacheVolume}` ).toString();
-        if ( volumes.indexOf( `${envUtils.cacheVolume}` ) === -1 ) {
-            await exec( `docker volume rm ${envUtils.cacheVolume}` );
-            console.log( ' - Volume Removed' );
-            return;
-        }
-    } catch ( ex ) {}
-};
+async function removeCacheVolume( docker ) {
+    console.log( 'Removing cache volume' );
 
+    const volume = await docker.getVolume( envUtils.cacheVolume );
+    const data = await volume.inspect().catch( () => false );
+
+    if ( data ) {
+        await volume.remove();
+        console.log( ' - Volume Removed' );
+    }
+}
 
 /**
  * Wait for mysql to come up and finish initializing.
@@ -110,16 +127,19 @@ const restartGateway = function() {
     console.log();
 };
 
-const startGlobal = async function() {
+async function startGlobal() {
     if ( started === true ) {
         return;
     }
-    ensureNetworkExists();
-    await ensureCacheExists();
+
+    const docker = makeDocker();
+
+    await ensureNetworkExists( docker );
+    await ensureCacheExists( docker );
     await startGateway();
 
     started = true;
-};
+}
 
 const stopGlobal = function() {
     stopGateway();
@@ -128,11 +148,13 @@ const stopGlobal = function() {
     started = false;
 };
 
-const restartGlobal = function() {
-    ensureNetworkExists();
+async function restartGlobal() {
+    const docker = makeDocker();
+
+    await ensureNetworkExists( docker );
     restartGateway();
 
     started = true;
-};
+}
 
 module.exports = { startGlobal, stopGlobal, restartGlobal, removeCacheVolume, ensureCacheExists };

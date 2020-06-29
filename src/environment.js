@@ -367,7 +367,7 @@ const restartAll = async function() {
         await restart( envs[ i ] );
     }
 
-    gateway.restartGlobal();
+    await gateway.restartGlobal();
 };
 
 const deleteAll = async function() {

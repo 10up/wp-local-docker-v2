@@ -1,5 +1,6 @@
 const commandUtils = require( './command-utils' );
 const gateway = require( './gateway' );
+const makeDocker = require( './utils/make-docker' );
 
 const help = function() {
     const help = `
@@ -11,12 +12,14 @@ Clears npm, wp-cli, and WP Snapshots caches
     process.exit();
 };
 
-const clear = async function() {
-    await gateway.removeCacheVolume();
-    await gateway.ensureCacheExists();
+async function clear() {
+    const docker = makeDocker();
+
+    await gateway.removeCacheVolume( docker );
+    await gateway.ensureCacheExists( docker );
 
     console.log( 'Cache Cleared' );
-};
+}
 
 const command = async function() {
     switch( commandUtils.subcommand() ) {
