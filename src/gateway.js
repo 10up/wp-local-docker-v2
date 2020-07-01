@@ -1,29 +1,44 @@
-const { execSync } = require( 'child_process' );
 const fs = require( 'fs' );
 const path = require( 'path' );
 
 const nc = require( 'netcat/client' );
 
 const makeDocker = require( './utils/make-docker' );
+const makeCompose = require( './utils/make-compose' );
+
 const envUtils = require( './env-utils' );
 const config = require( './configure' );
 
 // Tracks if we've started global inside of this session
 let started = false;
 
-async function ensureNetworkExists( docker ) {
-    console.log( 'Ensuring global network exists' );
+async function ensureNetworkExists( docker, spinner ) {
+    if ( spinner ) {
+        spinner.start( 'Ensuring global network exists...' );
+    } else {
+        console.log( 'Ensuring global network exists' );
+    }
 
     const networkName = 'wplocaldocker';
 
     const network = docker.getNetwork( networkName );
     const data = await network.inspect().catch( () => false );
     if ( data ) {
-        console.log( ' - Network exists' );
+        if ( spinner ) {
+            spinner.succeed( 'Global network exists...' );
+        } else {
+            console.log( ' - Network exists' );
+        }
         return;
     }
 
-    console.log( ' - Creating network' );
+    if ( spinner ) {
+        spinner.warn( 'Global network doesn\'t exist...' );
+        spinner.start( 'Creating global network...' );
+    } else {
+        console.log( ' - Creating network' );
+    }
+
     // --ip-range is only half of the subnet, so that we have a bunch of addresses in front to assign manually
     await docker.createNetwork( {
         Name: networkName,
@@ -38,6 +53,10 @@ async function ensureNetworkExists( docker ) {
             ],
         },
     } );
+
+    if ( spinner ) {
+        spinner.succeed( 'Global network created...' );
+    }
 }
 
 async function removeNetwork( docker ) {
@@ -52,19 +71,37 @@ async function removeNetwork( docker ) {
     }
 }
 
-async function ensureCacheExists( docker ) {
-    console.log( 'Ensuring global cache volume exists' );
+async function ensureCacheExists( docker, spinner ) {
+    if ( spinner ) {
+        spinner.start( 'Ensuring global cache volume exists...' );
+    } else {
+        console.log( 'Ensuring global cache volume exists' );
+    }
 
     const volume = await docker.getVolume( envUtils.cacheVolume );
     const data = await volume.inspect().catch( () => false );
 
     if ( data ) {
-        console.log( ' - Volume Exists' );
+        if ( spinner ) {
+            spinner.succeed( 'Global cache volume exists...' );
+        } else {
+            console.log( ' - Volume Exists' );
+        }
     } else {
-        console.log( ' - Creating Volume' );
-        docker.createVolume( {
+        if ( spinner ) {
+            spinner.warn( 'Global cache volume doesn\'t exist...' );
+            spinner.start( 'Creating global cache volume...' );
+        } else {
+            console.log( ' - Creating Volume' );
+        }
+
+        await docker.createVolume( {
             Name: envUtils.cacheVolume,
-        } );    
+        } );
+
+        if ( spinner ) {
+            spinner.succeed( 'Global cache volume created...' );
+        }
     }
 }
 
@@ -88,60 +125,90 @@ async function removeCacheVolume( docker ) {
  * here to connect the the MySQL port and will resolve the promise once MySQL sends data back indicating
  * MySQL is ready for work.
  */
-const waitForDB = function() {
-    return new Promise( resolve => {
+function waitForDB( spinner ) {
+    if ( spinner ) {
+        spinner.start( 'Waiting for mysql...' );
+    } else {
+        console.log( 'Waiting for mysql...' );
+    }
+
+    return new Promise( ( resolve ) => {
         const interval = setInterval( () => {
             const netcat = new nc();
+
             netcat.address( '127.0.0.1' );
             netcat.port( 3306 );
-            console.log( 'Waiting for mysql...' );
             netcat.connect();
             netcat.on( 'data', function(  ) {
                 netcat.close();
+
+                if ( spinner ) {
+                    spinner.succeed( 'Mysql has started...' );
+                }
+
                 clearInterval( interval );
                 resolve();
             } );
         }, 1000 );
     } );
-};
+}
 
-const startGateway = async function() {
-    console.log( 'Ensuring global services are running' );
-
-    if ( fs.existsSync( path.join( config.getConfigDirectory(), 'global' ) ) ) {
-        execSync( 'docker-compose up -d', { stdio: 'inherit', cwd: path.join( config.getConfigDirectory(), 'global' ) } );
-    }
-    else {
-        // backwards compat in case they have an existing install but haven't run configure recently
-        execSync( 'docker-compose up -d', { stdio: 'inherit', cwd: envUtils.globalPath } );
+async function startGateway( spinner ) {
+    let cwd = path.join( config.getConfigDirectory(), 'global' );
+    if ( ! fs.existsSync( cwd ) ) {
+        cwd = envUtils.globalPath;
     }
 
-    await waitForDB();
-    console.log();
-};
+    if ( spinner ) {
+        spinner.start( 'Ensuring global services are running...' );
+    } else {
+        console.log( 'Ensuring global services are running' );
+    }
 
-const stopGateway = function() {
+    await makeCompose().upAll( {
+        cwd,
+        log: false,
+    } );
+
+    if ( spinner ) {
+        spinner.succeed( 'Global services are running...' );
+    }
+
+    await waitForDB( spinner );
+}
+
+async function stopGateway() {
     console.log( 'Stopping global services' );
-    execSync( 'docker-compose down', { stdio: 'inherit', cwd: envUtils.globalPath } );
-    console.log();
-};
 
-const restartGateway = function() {
+    await makeCompose().down( {
+        cwd: envUtils.globalPath,
+        log: true,
+    } );
+
+    console.log();
+}
+
+async function restartGateway() {
     console.log( 'Restarting global services' );
-    execSync( 'docker-compose restart', { stdio: 'inherit', cwd: envUtils.globalPath } );
-    console.log();
-};
 
-async function startGlobal() {
+    await makeCompose().down( {
+        cwd: envUtils.globalPath,
+        log: true,
+    } );
+
+    console.log();
+}
+
+async function startGlobal( spinner ) {
     if ( started === true ) {
         return;
     }
 
     const docker = makeDocker();
 
-    await ensureNetworkExists( docker );
-    await ensureCacheExists( docker );
-    await startGateway();
+    await ensureNetworkExists( docker, spinner );
+    await ensureCacheExists( docker, spinner );
+    await startGateway( spinner );
 
     started = true;
 }
@@ -149,7 +216,7 @@ async function startGlobal() {
 async function stopGlobal() {
     const docker = makeDocker();
 
-    stopGateway();
+    await stopGateway();
     await removeNetwork( docker );
 
     started = false;
@@ -159,9 +226,15 @@ async function restartGlobal() {
     const docker = makeDocker();
 
     await ensureNetworkExists( docker );
-    restartGateway();
+    await restartGateway();
 
     started = true;
 }
 
-module.exports = { startGlobal, stopGlobal, restartGlobal, removeCacheVolume, ensureCacheExists };
+module.exports = {
+    startGlobal,
+    stopGlobal,
+    restartGlobal,
+    removeCacheVolume,
+    ensureCacheExists,
+};
