@@ -9,6 +9,8 @@ const chalk = require( 'chalk' );
 const readYaml = require( 'read-yaml' );
 const writeYaml = require( 'write-yaml' );
 
+const makeCompose = require( './utils/make-compose' );
+
 const { images } = require( './docker-images' );
 const config = require( './configure' );
 const promptValidators = require( './prompt-validators' );
@@ -36,7 +38,7 @@ When 'all' is specified as the ENVIRONMENT, each environment will ${command}
     process.exit();
 };
 
-const start = async function( env ) {
+async function start( env, spinner ) {
     if ( undefined === env || env.trim().length === 0 ) {
         env = await envUtils.parseEnvFromCWD();
     }
@@ -51,24 +53,34 @@ const start = async function( env ) {
     // If we got the path from the cwd, we don't have a slug yet, so get it
     const envSlug = envUtils.envSlug( env );
 
-    await gateway.startGlobal();
+    await gateway.startGlobal( spinner );
 
-    console.log( `Starting docker containers for ${envSlug}` );
-    try {
-        execSync( 'docker-compose up -d', { stdio: 'inherit', cwd: envPath } );
-    } catch ( ex ) {}
-
-    const envHosts = await envUtils.getEnvHosts( envPath );
-    if ( envHosts.length > 0 ) {
-        console.log();
-        console.log( 'Environment configured for the following domains:' );
-        for ( let i = 0, len = envHosts.length; i < len; i++ ) {
-            console.log( envHosts[ i ] );
-        }
+    if ( spinner ) {
+        spinner.start( `Starting docker containers for ${envSlug}...` );
+    } else {
+        console.log( `Starting docker containers for ${envSlug}` );
     }
 
-    console.log();
-};
+    await makeCompose().upAll( {
+        cwd: envPath,
+        log: !! spinner,
+    } );
+
+    if ( spinner ) {
+        spinner.succeed( `${envSlug} environment is started...` );
+    } else {
+        console.log();
+    }
+
+    const envHosts = await envUtils.getEnvHosts( envPath );
+    if ( Array.isArray( envHosts ) && envHosts.length > 0 ) {
+        if ( spinner ) {
+            spinner.info( `Environment configured for the following domains: ${envHosts.join( ', ' )}` );
+        } else {
+            console.log( `Environment configured for the following domains:${os.EOL}${envHosts.join( os.EOL )}` );
+        }
+    }
+}
 
 const stop = async function( env ) {
     if ( undefined === env || env.trim().length === 0 ) {

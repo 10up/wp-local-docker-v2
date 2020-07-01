@@ -21,6 +21,6 @@ module.exports = function makeCopyConfigs( spinner, { copy } ) {
             await writeFile( nginxConfigPath, createProxyConfig( proxy, curConfig ) );
         }
 
-        spinner.succeed( 'Copied configuration files...' );
+        spinner.succeed( 'Configuration files are copied...' );
     };
 };

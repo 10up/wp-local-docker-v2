@@ -9,7 +9,7 @@ module.exports = function makeSaveYamlFile( spinner, root ) {
             if ( err ) {
                 throw err;
             } else {
-                spinner.succeed( `Saved ${ filename } file...` );
+                spinner.succeed( `${ filename } file is saved...` );
                 resolve();
             }
         } );

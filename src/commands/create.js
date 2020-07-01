@@ -9,6 +9,7 @@ const environment = require( '../environment' );
 const envUtils = require( '../env-utils' );
 
 const makeSpinner = require( '../utils/make-spinner' );
+const makeCompose = require( '../utils/make-compose' );
 const makeCommand = require( '../utils/make-command' );
 
 const makeInquirer = require( './create/inquirer' );
@@ -37,14 +38,15 @@ async function createCommand( spinner, defaults = {} ) {
 
     await makeCopyConfigs( spinner, fsExtra )( paths, answers );
 
-    await startGlobal();
-    await makeDatabase()( envSlug );
-    await environment.start( envSlug );
+    await startGlobal( spinner );
+    await makeDatabase( spinner )( envSlug );
+    await environment.start( envSlug, spinner );
 
-    await makeInstallWordPress()( envSlug, answers );
+    const compose = makeCompose();
+    await makeInstallWordPress( compose, spinner )( envSlug, answers );
 
     await makeUpdateHosts( sudo, spinner )( envHosts );
-    await makeSaveJsonFile( paths['/'] )( '.config.json', { envHosts } );
+    await makeSaveJsonFile( spinner, paths['/'] )( '.config.json', { envHosts } );
 
     return {
         ...answers,

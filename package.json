@@ -30,7 +30,7 @@
     "10updocker-hosts": "./hosts.js",
     "test": "jest",
     "lint": "eslint . --ext .js --ignore-pattern node_modules",
-    "lint:fix": "npm run lint --silent -- --fix"
+    "format": "npm run lint --silent -- --fix"
   },
   "bin": {
     "10updocker": "./index.js",

@@ -127,7 +127,7 @@ module.exports = function makeDockerCompose( spinner ) {
             }
         }
 
-        spinner.succeed( 'Created docker-compose configuration...' );
+        spinner.succeed( 'Docker-compose configuration is created...' );
 
         return baseConfig;
     };

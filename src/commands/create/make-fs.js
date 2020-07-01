@@ -15,22 +15,22 @@ module.exports = function makeFs( spinner ) {
 
         spinner.start( 'Making root directory...' );
         await mkdir( envPath );
-        spinner.succeed( 'Made root directory...' );
+        spinner.succeed( `${ envPath } directory is created...` );
 
         const wordpress = join( envPath, 'wordpress' );
         spinner.start( 'Making wordpress directory...' );
         await mkdir( wordpress );
-        spinner.succeed( 'Made wordpress directory...' );
+        spinner.succeed( `${ wordpress } directory is created...` );
 
         const containers = join( envPath, '.containers' );
         spinner.start( 'Making containers directory...' );
         await mkdir( containers );
-        spinner.succeed( 'Made containers directory...' );
+        spinner.succeed( `${ containers } directory is created...` );
 
         const config = join( envPath, 'config' );
         spinner.start( 'Making config direcotry...' );
         await mkdir( config );
-        spinner.succeed( 'Made config directory...' );
+        spinner.succeed( `${ config } directory is crated...` );
 
         return {
             '/': envPath,
