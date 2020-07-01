@@ -142,21 +142,21 @@ const getEnvHosts = async function( envPath ) {
     }
 };
 
-const getPathOrError = async function( env ) {
+async function getPathOrError( env, { log, error } = console ) {
     if ( env === false || undefined === env || env.trim().length === 0 ) {
         env = await promptEnv();
     }
 
-    console.log( `Locating project files for ${env}` );
+    log( `Locating project files for ${env}` );
 
     const _envPath = await envPath( env );
     if ( ! await fs.pathExists( _envPath ) ) {
-        console.error( `ERROR: Cannot find ${env} environment!` );
+        error( `Cannot find ${env} environment!` );
         process.exit( 1 );
     }
 
     return _envPath;
-};
+}
 
 /**
  * Format the default Proxy URL based on entered hostname

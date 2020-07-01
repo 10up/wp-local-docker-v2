@@ -29,8 +29,8 @@ async function createCommand( spinner, defaults = {} ) {
     const envHosts = makeAllHosts()( answers );
     const envSlug = envUtils.envSlug( answers.hostname );
 
-    const paths = await makeFs( spinner )( answers );
-    const saveYaml = makeSaveYamlFile( spinner, paths['/'] );
+    const paths = await makeFs( chalk, spinner )( answers );
+    const saveYaml = makeSaveYamlFile( chalk, spinner, paths['/'] );
 
     const dockerComposer = await makeDockerCompose( spinner )( envHosts, answers );
     await saveYaml( 'docker-compose.yml', dockerComposer );
@@ -46,7 +46,7 @@ async function createCommand( spinner, defaults = {} ) {
     await makeInstallWordPress( compose, spinner )( envSlug, answers );
 
     await makeUpdateHosts( sudo, spinner )( envHosts );
-    await makeSaveJsonFile( spinner, paths['/'] )( '.config.json', { envHosts } );
+    await makeSaveJsonFile( chalk, spinner, paths['/'] )( '.config.json', { envHosts } );
 
     return {
         ...answers,

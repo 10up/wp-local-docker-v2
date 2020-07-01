@@ -1,3 +1,5 @@
+const { EOL } = require( 'os' );
+
 module.exports = function makeGitClone( spinner, chalk, { Clone, Cred }, { prompt } ) {
     const { TYPE } = Cred;
 
@@ -53,7 +55,7 @@ module.exports = function makeGitClone( spinner, chalk, { Clone, Cred }, { promp
                                 ];
 
                                 prompt( questions ).then( ( answers ) => {
-                                    spinner.start( 'Cloning the repository...' );
+                                    spinner.start( 'The repository is cloned...' );
                                     resolve( Cred.userpassPlaintextNew( answers.username, answers.password ) );
                                 } );
                             } );
@@ -63,6 +65,7 @@ module.exports = function makeGitClone( spinner, chalk, { Clone, Cred }, { promp
             } );
         } catch ( err ) {
             spinner.stop();
+            process.stderr.write( err.toString() + EOL );
             throw new Error( 'An error happened during cloning your repository. Please, submit a new issue: https://github.com/10up/wp-local-docker-v2/issues' );
         }
 

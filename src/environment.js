@@ -48,7 +48,17 @@ async function start( env, spinner ) {
         env = await envUtils.promptEnv();
     }
 
-    const envPath = await envUtils.getPathOrError( env );
+    // @ts-ignore
+    const envPath = await envUtils.getPathOrError( env, {
+        log() {},
+        error( err ) {
+            if ( spinner ) {
+                throw new Error( err );
+            } else {
+                console.error( err );
+            }
+        },
+    } );
 
     // If we got the path from the cwd, we don't have a slug yet, so get it
     const envSlug = envUtils.envSlug( env );
@@ -63,7 +73,7 @@ async function start( env, spinner ) {
 
     await makeCompose().upAll( {
         cwd: envPath,
-        log: !! spinner,
+        log: !spinner,
     } );
 
     if ( spinner ) {

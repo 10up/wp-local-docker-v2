@@ -10,7 +10,7 @@ module.exports = function makePullConfig( spinner ) {
             await stat( filename );
 
             const configuration = require( filename );
-            spinner.succeed( 'Read configuration file in the repository...' );
+            spinner.succeed( 'The configuration file is read from the repository...' );
 
             return configuration;
         } catch( err ) {

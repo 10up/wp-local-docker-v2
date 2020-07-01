@@ -11,6 +11,6 @@ module.exports = function makeMoveRepository( spinner, { remove, move }, root ) 
         // move cloned repository
         await move( from, dest );
 
-        spinner.succeed( `Moved cloned respository to ${ to }...` );
+        spinner.succeed( `The cloned respository is moved to ${ to }...` );
     };
 };
