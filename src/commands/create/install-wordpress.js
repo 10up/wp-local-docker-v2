@@ -9,9 +9,9 @@ async function downloadWordPress( wordpressType, compose, cwd, log, spinner ) {
             cwd,
             log,
             composeOptions: [
-                [ '--rm' ],
-                [ '-v', `${cwd}/wordpress:/usr/src/app` ],
-                [ '-v', `${envUtils.cacheVolume}:/var/www/.npm` ],
+                '--rm',
+                `-v ${cwd}/wordpress:/usr/src/app`,
+                `-v ${envUtils.cacheVolume}:/var/www/.npm`,
             ],
         } );
 
@@ -19,26 +19,23 @@ async function downloadWordPress( wordpressType, compose, cwd, log, spinner ) {
             cwd,
             log,
             composeOptions: [
-                [ '--rm' ],
-                [ '-v', `${cwd}/wordpress:/usr/src/app` ],
+                '--rm',
+                `-v ${cwd}/wordpress:/usr/src/app`,
             ],
         } );
 
         spinner.succeed( 'Development version of WordPress is downloaded...' );
     } else {
-        await compose.exec( 'phpfpm', 'wp core download --force', { cwd, log } );
+        await compose.exec( 'phpfpm', 'wp core download --version=latest --force', { cwd, log } );
         spinner.succeed( 'WordPress is downloaded...' );
     }
 }
 
 async function configure( envSlug, compose, cwd, log, spinner ) {
+    const command = `wp config create --force --dbname=${envSlug} --dbuser=wordpress --dbpass=password --dbhost=mysql`;
+
     spinner.start( 'Configuring WordPress...' );
-
-    await compose.exec( 'phpfpm', `wp config create --force --dbname=${envSlug} --dbuser=wordpress --dbpass=password --dbhost=mysql`, {
-        cwd,
-        log,
-    } );
-
+    await compose.exec( 'phpfpm', command, { cwd, log } );
     spinner.succeed( 'WordPress config is created...' );
 }
 
@@ -55,7 +52,8 @@ async function install( answers, compose, cwd, log, spinner ) {
             command.push( 'multisite-install' );
             break;
         case 'subdomain':
-            command.push( 'multisite-install --subdomains' );
+            command.push( 'multisite-install' );
+            command.push( '--subdomains' );
             break;
         default:
             throw Error( 'Invalid Installation Type' );
@@ -68,7 +66,7 @@ async function install( answers, compose, cwd, log, spinner ) {
     command.push( `--admin_email="${answers.email}"` );
 
     spinner.start( 'Installing WordPress...' );
-    await compose.exec( 'phpfpm', command.join( ' ' ), { cwd, log } );
+    await compose.exec( 'phpfpm', command, { cwd, log } );
     spinner.succeed( 'WordPress is installed...' );
 }
 
@@ -96,16 +94,23 @@ module.exports = function makeInstallWordPress( compose, spinner ) {
             return;
         }
 
-        const cwd = await envUtils.envPath( envSlug );
-        const log = false;
+        try {
+            const cwd = await envUtils.envPath( envSlug );
+            const log = false;
 
-        await downloadWordPress( wordpressType, compose, cwd, log, spinner );
-        await configure( envSlug, compose, cwd, log, spinner );
-        await install( answers, compose, cwd, log, spinner );
-        await setRewrites( compose, cwd, log, spinner );
+            await downloadWordPress( wordpressType, compose, cwd, log, spinner );
+            await configure( envSlug, compose, cwd, log, spinner );
+            await install( answers, compose, cwd, log, spinner );
+            await setRewrites( compose, cwd, log, spinner );
 
-        if ( clearContent ) {
-            await emptyContent( compose, cwd, log, spinner );
+            if ( clearContent ) {
+                await emptyContent( compose, cwd, log, spinner );
+            }
+        } catch( error ) {
+            spinner.stop();
+            if ( error.err ) {
+                throw new Error( error.err );
+            }
         }
     };
 };

@@ -1,5 +1,6 @@
 const fs = require( 'fs' );
 const path = require( 'path' );
+const { EOL } = require( 'os' );
 
 const nc = require( 'netcat/client' );
 
@@ -214,21 +215,29 @@ async function startGlobal( spinner ) {
 }
 
 async function stopGlobal() {
-    const docker = makeDocker();
+    try {
+        const docker = makeDocker();
 
-    await stopGateway();
-    await removeNetwork( docker );
+        await stopGateway();
+        await removeNetwork( docker );
+    } catch ( err ) {
+        process.stderr.write( err.toString() + EOL );
+    }
 
     started = false;
 }
 
 async function restartGlobal() {
-    const docker = makeDocker();
+    try {
+        const docker = makeDocker();
 
-    await ensureNetworkExists( docker );
-    await restartGateway();
+        await ensureNetworkExists( docker );
+        await restartGateway();
 
-    started = true;
+        started = true;
+    } catch ( err ) {
+        process.stderr.write( err.toString() + EOL );
+    }
 }
 
 module.exports = {

@@ -60,7 +60,7 @@ exports.handler = makeCommand( chalk, logSymbols, async ( { url, branch, config 
     } = answers;
 
     // move repository
-    await makeMoveRepository( spinner, fsExtra, paths.wordpress )( tempDir, mountPoint || 'wp-content' );
+    await makeMoveRepository( chalk, spinner, fsExtra, paths.wordpress )( tempDir, mountPoint || 'wp-content' );
 
     if ( snapshotId ) {
         // @todo: run wpsnapshots
