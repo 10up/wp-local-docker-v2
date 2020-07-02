@@ -1,6 +1,6 @@
 const { join } = require( 'path' );
 
-module.exports = function makeMoveRepository( chalk, spinner, { remove, move }, root ) {
+module.exports = function makeMoveRepository( chmodr, chalk, spinner, { remove, move }, root ) {
     return async ( from, to ) => {
         const dest = join( root, to );
 
@@ -10,6 +10,10 @@ module.exports = function makeMoveRepository( chalk, spinner, { remove, move }, 
         await remove( dest );
         // move cloned repository
         await move( from, dest );
+        // change permissions
+        await new Promise( ( resolve ) => {
+            chmodr( dest, 0o755, resolve );
+        } );
 
         spinner.succeed( `The cloned respository is moved to ${ chalk.cyan( to ) }...` );
     };

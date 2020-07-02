@@ -10,7 +10,7 @@ describe( 'clone :: move-repository', () => {
     } );
 
     it( 'should return a worker function', () => {
-        expect( typeof makeMoveRepository( {}, {}, '' ) ).toBe( 'function' );
+        expect( typeof makeMoveRepository( () => {}, {}, {}, '' ) ).toBe( 'function' );
     } );
 
     describe( ':: worker function', () => {
@@ -20,6 +20,7 @@ describe( 'clone :: move-repository', () => {
         const from = '/tmp/repo';
         const to = 'wp-content/themes/project-theme';
         const dest = '/src/wp-local-docker/project/wordpress/wp-content/themes/project-theme';
+        const chmodr = ( _, __, cb ) => cb();
 
         beforeEach( () => {
             spinner.start = jest.fn();
@@ -29,19 +30,19 @@ describe( 'clone :: move-repository', () => {
         } );
 
         it( 'should call start and succeed functions of the spinner', async () => {
-            await makeMoveRepository( chalk, spinner, fs, root )( from, to );
+            await makeMoveRepository( chmodr, chalk, spinner, fs, root )( from, to );
             expect( spinner.start ).toHaveBeenCalled();
             expect( spinner.succeed ).toHaveBeenCalled();
         } );
 
         it( 'should call remove function to remove original folder', async () => {
-            await makeMoveRepository( chalk, spinner, fs, root )( from, to );
+            await makeMoveRepository( chmodr, chalk, spinner, fs, root )( from, to );
             expect( fs.remove ).toHaveBeenCalled();
             expect( fs.remove ).toHaveBeenCalledWith( dest );
         } );
 
         it( 'should call move function to move repo to the new directory', async () => {
-            await makeMoveRepository( chalk, spinner, fs, root )( from, to );
+            await makeMoveRepository( chmodr, chalk, spinner, fs, root )( from, to );
             expect( fs.move ).toHaveBeenCalled();
             expect( fs.move ).toHaveBeenCalledWith( from, dest );
         } );

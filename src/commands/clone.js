@@ -7,6 +7,7 @@ const chalk = require( 'chalk' );
 const logSymbols = require( 'log-symbols' );
 const inquirer = require( 'inquirer' );
 const fsExtra = require( 'fs-extra' );
+const chmodr = require( 'chmodr' );
 
 const makeSpinner = require( '../utils/make-spinner' );
 const makeCommand = require( '../utils/make-command' );
@@ -60,7 +61,7 @@ exports.handler = makeCommand( chalk, logSymbols, async ( { url, branch, config 
     } = answers;
 
     // move repository
-    await makeMoveRepository( chalk, spinner, fsExtra, paths.wordpress )( tempDir, mountPoint || 'wp-content' );
+    await makeMoveRepository( chmodr, chalk, spinner, fsExtra, paths.wordpress )( tempDir, mountPoint || 'wp-content' );
 
     if ( snapshotId ) {
         // @todo: run wpsnapshots
