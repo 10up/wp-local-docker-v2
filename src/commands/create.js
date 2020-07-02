@@ -4,7 +4,6 @@ const logSymbols = require( 'log-symbols' );
 const fsExtra = require( 'fs-extra' );
 const sudo = require( 'sudo-prompt' );
 const compose = require( 'docker-compose' );
-const shellescape = require( 'shell-escape' );
 const which = require( 'which' );
 
 const { startGlobal } = require( '../gateway' );
@@ -44,7 +43,7 @@ async function createCommand( spinner, defaults = {} ) {
     await makeDatabase( spinner )( envSlug );
     await environment.start( envSlug, spinner );
 
-    await makeInstallWordPress( shellescape, compose, spinner )( envSlug, answers );
+    await makeInstallWordPress( compose, spinner )( envSlug, answers );
 
     await makeUpdateHosts( which, sudo, spinner )( envHosts );
     await makeSaveJsonFile( chalk, spinner, paths['/'] )( '.config.json', { envHosts } );

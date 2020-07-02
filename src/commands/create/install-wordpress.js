@@ -39,7 +39,7 @@ async function configure( envSlug, compose, cwd, log, spinner ) {
     spinner.succeed( 'WordPress config is created...' );
 }
 
-async function install( answers, shellescape, compose, cwd, log, spinner ) {
+async function install( answers, compose, cwd, log, spinner ) {
     const {
         hostname,
         title,
@@ -71,7 +71,7 @@ async function install( answers, shellescape, compose, cwd, log, spinner ) {
     const url = `${http}://${hostname}`;
 
     command.push( `--url=${url}` );
-    command.push( `--title=${shellescape( [ title ] )}` );
+    command.push( `--title="${title}"` );
     command.push( `--admin_user=${username}` );
     command.push( `--admin_password=${password}` );
     command.push( `--admin_email=${email}` );
@@ -81,9 +81,9 @@ async function install( answers, shellescape, compose, cwd, log, spinner ) {
     spinner.succeed( 'WordPress is installed...' );
 }
 
-async function setRewrites( shellescape, compose, cwd, log, spinner ) {
+async function setRewrites( compose, cwd, log, spinner ) {
     spinner.start( 'Setting rewrite rules structure to /%postname%/...' );
-    await compose.exec( 'phpfpm', shellescape( [ 'wp', 'rewrite', 'structure', '/%postname%/' ] ), { cwd, log } );
+    await compose.exec( 'phpfpm', 'wp rewrite structure /%postname%/', { cwd, log } );
     spinner.succeed( 'Rewrite rules structure is updated to /%postname%/...' );
 }
 
@@ -98,7 +98,7 @@ async function emptyContent( compose, cwd, log, spinner ) {
     spinner.succeed( 'The default content is removed...' );
 }
 
-module.exports = function makeInstallWordPress( shellescape, compose, spinner ) {
+module.exports = function makeInstallWordPress( compose, spinner ) {
     return async ( envSlug, answers ) => {
         const { wordpress, wordpressType, emptyContent: clearContent } = answers;
         if ( ! wordpress ) {
@@ -111,8 +111,8 @@ module.exports = function makeInstallWordPress( shellescape, compose, spinner ) 
 
             await downloadWordPress( wordpressType, compose, cwd, log, spinner );
             await configure( envSlug, compose, cwd, log, spinner );
-            await install( answers, shellescape, compose, cwd, log, spinner );
-            await setRewrites( shellescape, compose, cwd, log, spinner );
+            await install( answers, compose, cwd, log, spinner );
+            await setRewrites( compose, cwd, log, spinner );
 
             if ( clearContent ) {
                 await emptyContent( compose, cwd, log, spinner );
