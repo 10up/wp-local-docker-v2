@@ -5,6 +5,7 @@ const fsExtra = require( 'fs-extra' );
 const sudo = require( 'sudo-prompt' );
 const compose = require( 'docker-compose' );
 const shellescape = require( 'shell-escape' );
+const which = require( 'which' );
 
 const { startGlobal } = require( '../gateway' );
 const environment = require( '../environment' );
@@ -45,7 +46,7 @@ async function createCommand( spinner, defaults = {} ) {
 
     await makeInstallWordPress( shellescape, compose, spinner )( envSlug, answers );
 
-    await makeUpdateHosts( sudo, spinner )( envHosts );
+    await makeUpdateHosts( which, sudo, spinner )( envHosts );
     await makeSaveJsonFile( chalk, spinner, paths['/'] )( '.config.json', { envHosts } );
 
     return {

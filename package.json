@@ -62,6 +62,7 @@
     "shell-escape": "^0.2.0",
     "sudo-prompt": "^8.2.5",
     "update-check": "^1.5.3",
+    "which": "^2.0.2",
     "write-yaml": "^1.0.0",
     "yargs": "^15.1.0"
   },

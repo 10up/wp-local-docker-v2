@@ -9,6 +9,7 @@ const chalk = require( 'chalk' );
 const readYaml = require( 'read-yaml' );
 const writeYaml = require( 'write-yaml' );
 const compose = require( 'docker-compose' );
+const which = require( 'which' );
 
 const { images } = require( './docker-images' );
 const config = require( './configure' );
@@ -179,20 +180,23 @@ const deleteEnv = async function( env ) {
             };
 
             const envHosts = await envUtils.getEnvHosts( envPath );
-            for ( let i = 0, len = envHosts.length; i < len; i++ ) {
-                await new Promise( resolve => {
-                    console.log( ` - Removing ${envHosts}` );
-                    sudo.exec( `10updocker-hosts remove ${envHosts}`, sudoOptions, function ( error, stdout ) {
-                        if ( error ) {
-                            console.error( `${ chalk.bold.yellow( 'Warning: ' ) }Something went wrong deleting host file entries. There may still be remnants in /etc/hosts` );
-                            resolve();
-                            return;
-                        }
-                        console.log( stdout );
+
+            const node = await which( 'node' );
+            const hostsScript = path.join( path.resolve( __dirname, '..' ), 'hosts.js' );
+            const hostsToDelete = envHosts.join( ' ' );
+
+            await new Promise( resolve => {
+                console.log( ` - Removing ${hostsToDelete}` );
+                sudo.exec( `${node} ${hostsScript} remove ${hostsToDelete}`, sudoOptions, function ( error, stdout ) {
+                    if ( error ) {
+                        console.error( `${ chalk.bold.yellow( 'Warning: ' ) }Something went wrong deleting host file entries. There may still be remnants in /etc/hosts` );
                         resolve();
-                    } );
+                        return;
+                    }
+                    console.log( stdout );
+                    resolve();
                 } );
-            }
+            } );
         } catch ( err ) {
             // Unfound config, etc
             console.error( `${ chalk.bold.yellow( 'Warning: ' ) }Something went wrong deleting host file entries. There may still be remnants in /etc/hosts` );
