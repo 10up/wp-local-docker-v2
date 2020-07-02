@@ -39,11 +39,19 @@ async function configure( envSlug, compose, cwd, log, spinner ) {
     spinner.succeed( 'WordPress config is created...' );
 }
 
-async function install( answers, compose, cwd, log, spinner ) {
-    const http = answers.addHttps ? 'https' : 'http';
-    const command = [ 'wp core' ];
+async function install( answers, shellescape, compose, cwd, log, spinner ) {
+    const {
+        hostname,
+        title,
+        username,
+        password,
+        email,
+        wordpressType,
+        addHttps,
+    } = answers;
 
-    switch ( answers.wordpressType ) {
+    const command = [ 'wp', 'core' ];
+    switch ( wordpressType ) {
         case 'single':
         case 'dev':
             command.push( 'install' );
@@ -59,20 +67,23 @@ async function install( answers, compose, cwd, log, spinner ) {
             throw Error( 'Invalid Installation Type' );
     }
 
-    command.push( `--url=${http}://${answers.hostname}` );
-    command.push( `--title="${answers.title}"` );
-    command.push( `--admin_user="${answers.username}"` );
-    command.push( `--admin_password="${answers.password}"` );
-    command.push( `--admin_email="${answers.email}"` );
+    const http = addHttps ? 'https' : 'http';
+    const url = `${http}://${hostname}`;
+
+    command.push( `--url=${url}` );
+    command.push( `--title=${shellescape( [ title ] )}` );
+    command.push( `--admin_user=${username}` );
+    command.push( `--admin_password=${password}` );
+    command.push( `--admin_email=${email}` );
 
     spinner.start( 'Installing WordPress...' );
     await compose.exec( 'phpfpm', command, { cwd, log } );
     spinner.succeed( 'WordPress is installed...' );
 }
 
-async function setRewrites( compose, cwd, log, spinner ) {
+async function setRewrites( shellescape, compose, cwd, log, spinner ) {
     spinner.start( 'Setting rewrite rules structure to /%postname%/...' );
-    await compose.exec( 'phpfpm', 'wp rewrite structure /%postname%/', { cwd, log } );
+    await compose.exec( 'phpfpm', shellescape( [ 'wp', 'rewrite', 'structure', '/%postname%/' ] ), { cwd, log } );
     spinner.succeed( 'Rewrite rules structure is updated to /%postname%/...' );
 }
 
@@ -87,7 +98,7 @@ async function emptyContent( compose, cwd, log, spinner ) {
     spinner.succeed( 'The default content is removed...' );
 }
 
-module.exports = function makeInstallWordPress( compose, spinner ) {
+module.exports = function makeInstallWordPress( shellescape, compose, spinner ) {
     return async ( envSlug, answers ) => {
         const { wordpress, wordpressType, emptyContent: clearContent } = answers;
         if ( ! wordpress ) {
@@ -100,8 +111,8 @@ module.exports = function makeInstallWordPress( compose, spinner ) {
 
             await downloadWordPress( wordpressType, compose, cwd, log, spinner );
             await configure( envSlug, compose, cwd, log, spinner );
-            await install( answers, compose, cwd, log, spinner );
-            await setRewrites( compose, cwd, log, spinner );
+            await install( answers, shellescape, compose, cwd, log, spinner );
+            await setRewrites( shellescape, compose, cwd, log, spinner );
 
             if ( clearContent ) {
                 await emptyContent( compose, cwd, log, spinner );
@@ -110,6 +121,8 @@ module.exports = function makeInstallWordPress( compose, spinner ) {
             spinner.stop();
             if ( error.err ) {
                 throw new Error( error.err );
+            } else {
+                throw error;
             }
         }
     };

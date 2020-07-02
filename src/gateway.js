@@ -3,9 +3,9 @@ const path = require( 'path' );
 const { EOL } = require( 'os' );
 
 const nc = require( 'netcat/client' );
+const compose = require( 'docker-compose' );
 
 const makeDocker = require( './utils/make-docker' );
-const makeCompose = require( './utils/make-compose' );
 
 const envUtils = require( './env-utils' );
 const config = require( './configure' );
@@ -166,7 +166,7 @@ async function startGateway( spinner ) {
         console.log( 'Ensuring global services are running' );
     }
 
-    await makeCompose().upAll( {
+    await compose.upAll( {
         cwd,
         log: false,
     } );
@@ -181,7 +181,7 @@ async function startGateway( spinner ) {
 async function stopGateway() {
     console.log( 'Stopping global services' );
 
-    await makeCompose().down( {
+    await compose.down( {
         cwd: envUtils.globalPath,
         log: true,
     } );
@@ -192,7 +192,7 @@ async function stopGateway() {
 async function restartGateway() {
     console.log( 'Restarting global services' );
 
-    await makeCompose().down( {
+    await compose.down( {
         cwd: envUtils.globalPath,
         log: true,
     } );

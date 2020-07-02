@@ -8,8 +8,7 @@ const sudo = require( 'sudo-prompt' );
 const chalk = require( 'chalk' );
 const readYaml = require( 'read-yaml' );
 const writeYaml = require( 'write-yaml' );
-
-const makeCompose = require( './utils/make-compose' );
+const compose = require( 'docker-compose' );
 
 const { images } = require( './docker-images' );
 const config = require( './configure' );
@@ -71,7 +70,7 @@ async function start( env, spinner ) {
         console.log( `Starting docker containers for ${envSlug}` );
     }
 
-    await makeCompose().upAll( {
+    await compose.upAll( {
         cwd: envPath,
         log: !spinner,
     } );

@@ -3,13 +3,14 @@ const chalk = require( 'chalk' );
 const logSymbols = require( 'log-symbols' );
 const fsExtra = require( 'fs-extra' );
 const sudo = require( 'sudo-prompt' );
+const compose = require( 'docker-compose' );
+const shellescape = require( 'shell-escape' );
 
 const { startGlobal } = require( '../gateway' );
 const environment = require( '../environment' );
 const envUtils = require( '../env-utils' );
 
 const makeSpinner = require( '../utils/make-spinner' );
-const makeCompose = require( '../utils/make-compose' );
 const makeCommand = require( '../utils/make-command' );
 
 const makeInquirer = require( './create/inquirer' );
@@ -42,8 +43,7 @@ async function createCommand( spinner, defaults = {} ) {
     await makeDatabase( spinner )( envSlug );
     await environment.start( envSlug, spinner );
 
-    const compose = makeCompose();
-    await makeInstallWordPress( compose, spinner )( envSlug, answers );
+    await makeInstallWordPress( shellescape, compose, spinner )( envSlug, answers );
 
     await makeUpdateHosts( sudo, spinner )( envHosts );
     await makeSaveJsonFile( chalk, spinner, paths['/'] )( '.config.json', { envHosts } );
