@@ -1,5 +1,7 @@
 // @ts-nocheck
 
+const chalk = require( 'chalk' );
+
 const makeMoveRepository = require( './move-repository' );
 
 describe( 'clone :: move-repository', () => {
@@ -27,19 +29,19 @@ describe( 'clone :: move-repository', () => {
         } );
 
         it( 'should call start and succeed functions of the spinner', async () => {
-            await makeMoveRepository( spinner, fs, root )( from, to );
+            await makeMoveRepository( chalk, spinner, fs, root )( from, to );
             expect( spinner.start ).toHaveBeenCalled();
             expect( spinner.succeed ).toHaveBeenCalled();
         } );
 
         it( 'should call remove function to remove original folder', async () => {
-            await makeMoveRepository( spinner, fs, root )( from, to );
+            await makeMoveRepository( chalk, spinner, fs, root )( from, to );
             expect( fs.remove ).toHaveBeenCalled();
             expect( fs.remove ).toHaveBeenCalledWith( dest );
         } );
 
         it( 'should call move function to move repo to the new directory', async () => {
-            await makeMoveRepository( spinner, fs, root )( from, to );
+            await makeMoveRepository( chalk, spinner, fs, root )( from, to );
             expect( fs.move ).toHaveBeenCalled();
             expect( fs.move ).toHaveBeenCalledWith( from, dest );
         } );
