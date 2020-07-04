@@ -1,20 +1,34 @@
+const { readdirSync, chmodSync } = require( 'fs' );
 const { join } = require( 'path' );
 
-module.exports = function makeMoveRepository( chmodr, chalk, spinner, { remove, move }, root ) {
+function getDirectories( dir ) {
+    const files = readdirSync( dir, { withFileTypes: true } );
+    const results = [];
+	
+    for ( const file of files ) {
+        if ( file.isDirectory() && file.name !== '.git' ) {
+            const fullpath = join( dir, file.name );
+            results.push( fullpath, ...getDirectories( fullpath ) );
+        }
+    }
+
+    return results;
+}
+
+module.exports = function makeMoveRepository( chalk, spinner, { remove, move }, root ) {
     return async ( from, to ) => {
         const dest = join( root, to );
 
         spinner.start( `Moving cloned repository to ${ chalk.cyan( to ) }...` );
-
-        // remove existing directory
         await remove( dest );
-        // move cloned repository
         await move( from, dest );
-        // change permissions
-        await new Promise( ( resolve ) => {
-            chmodr( dest, 0o755, resolve );
+        spinner.succeed( `The cloned respository is moved to ${ chalk.cyan( to ) }...` );
+
+        chmodSync( dest, 0o755 );
+        getDirectories( dest ).forEach( ( dir ) => {
+            chmodSync( dir, 0o755 );
         } );
 
-        spinner.succeed( `The cloned respository is moved to ${ chalk.cyan( to ) }...` );
+        spinner.succeed( 'Directory permisions have been updated to 0755...' );
     };
 };

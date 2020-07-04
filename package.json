@@ -48,7 +48,6 @@
     "@sindresorhus/slugify": "^0.3.0",
     "asyncro": "^3.0.0",
     "chalk": "^3.0.0",
-    "chmodr": "^1.2.0",
     "docker-compose": "^0.23.4",
     "dockerode": "^3.2.0",
     "fs-extra": "^7.0.1",
