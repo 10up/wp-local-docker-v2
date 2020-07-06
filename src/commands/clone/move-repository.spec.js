@@ -26,6 +26,8 @@ describe( 'clone :: move-repository', () => {
             spinner.succeed = jest.fn();
             fs.move = jest.fn().mockResolvedValueOnce( true );
             fs.remove = jest.fn().mockResolvedValueOnce( true );
+            fs.readdirSync = jest.fn().mockReturnValueOnce( [] );
+            fs.chmodSync = jest.fn();
         } );
 
         it( 'should call start and succeed functions of the spinner', async () => {
