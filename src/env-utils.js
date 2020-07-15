@@ -31,6 +31,8 @@ const inquirer = require( 'inquirer' );
 const chalk = require( 'chalk' );
 const helper = require( './helpers' );
 
+const CONFIG_FILENAME = '.config.json';
+
 const sitesPath = async function() {
     return await config.get( 'sitesPath' );
 };
@@ -66,8 +68,11 @@ const parseEnvFromCWD = async function() {
     cwd = cwd.split( '/' )[0];
 
     // Make sure that a .config.json file exists here
-    const configFile = path.join( sitesPathValue, cwd, '.config.json' );
-    if ( ! await fs.exists( configFile ) ) {
+    const configFile = path.isAbsolute( cwd )
+        ? path.join( cwd, CONFIG_FILENAME )
+        : path.join( sitesPathValue, cwd, CONFIG_FILENAME );
+
+    if ( ! fs.existsSync( configFile ) ) {
         return false;
     }
 
@@ -91,7 +96,7 @@ const getAllEnvironments = async function() {
 
     // Filter any that don't have the .config.json file (which indicates its probably not a WP Local Docker Environment)
     dirContent = await async.filter( dirContent, async item => {
-        const configFile = path.join( item, '.config.json' );
+        const configFile = path.join( item, CONFIG_FILENAME );
 
         return await fs.exists( configFile );
     } );
@@ -134,7 +139,7 @@ const parseOrPromptEnv = async function () {
 
 const getEnvHosts = async function( envPath ) {
     try {
-        const envConfig = await fs.readJson( path.join( envPath, '.config.json' ) );
+        const envConfig = await fs.readJson( path.join( envPath, CONFIG_FILENAME ) );
 
         return ( typeof envConfig === 'object' && undefined !== envConfig.envHosts ) ? envConfig.envHosts : [];
     } catch ( ex ) {
