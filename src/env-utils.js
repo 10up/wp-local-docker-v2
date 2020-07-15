@@ -21,7 +21,7 @@
 const slugify = require( '@sindresorhus/slugify' );
 const path = require( 'path' );
 const config = require( './configure' );
-const rootPath = path.dirname( require.main.filename );
+const rootPath = path.dirname( __dirname );
 const srcPath = path.join( rootPath, 'src' );
 const cacheVolume = 'wplocaldockerCache';
 const globalPath = path.join( rootPath, 'global' );
