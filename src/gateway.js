@@ -60,15 +60,25 @@ async function ensureNetworkExists( docker, spinner ) {
     }
 }
 
-async function removeNetwork( docker ) {
-    console.log( 'Removing Global Network' );
+async function removeNetwork( docker, spinner ) {
+    if ( spinner ) {
+        spinner.start( 'Removing Global Network...' );
+    } else {
+        console.log( 'Removing Global Network' );
+    }
 
     const network = docker.getNetwork( 'wplocaldocker' );
     const data = await network.inspect().catch( () => false );
-    if ( data ) {
-        await network.remove();
-        console.log( ' - Network Removed' );
+    if ( ! data ) {
         return;
+    }
+
+    await network.remove();
+
+    if ( spinner ) {
+        spinner.succeed( 'Global Network is deleted...' );
+    } else {
+        console.log( ' - Network Removed' );
     }
 }
 
@@ -168,7 +178,7 @@ async function startGateway( spinner ) {
 
     await compose.upAll( {
         cwd,
-        log: false,
+        log: !spinner,
     } );
 
     if ( spinner ) {
@@ -178,26 +188,42 @@ async function startGateway( spinner ) {
     await waitForDB( spinner );
 }
 
-async function stopGateway() {
-    console.log( 'Stopping global services' );
+async function stopGateway( spinner ) {
+    if ( spinner ) {
+        spinner.start( 'Stopping global services...' );
+    } else {
+        console.log( 'Stopping global services' );
+    }
 
     await compose.down( {
         cwd: envUtils.globalPath,
-        log: true,
+        log: !spinner,
     } );
 
-    console.log();
+    if ( spinner ) {
+        spinner.succeed( 'Global services are stopped...' );
+    } else {
+        console.log();
+    }
 }
 
-async function restartGateway() {
-    console.log( 'Restarting global services' );
+async function restartGateway( spinner ) {
+    if ( spinner ) {
+        spinner.start( 'Restarting global services...' );
+    } else {
+        console.log( 'Restarting global services' );
+    }
 
-    await compose.down( {
+    await compose.restartAll( {
         cwd: envUtils.globalPath,
-        log: true,
+        log: !spinner,
     } );
 
-    console.log();
+    if ( spinner ) {
+        spinner.succeed( 'Global services are restarted...' );
+    } else {
+        console.log();
+    }
 }
 
 async function startGlobal( spinner ) {
@@ -214,12 +240,12 @@ async function startGlobal( spinner ) {
     started = true;
 }
 
-async function stopGlobal() {
+async function stopGlobal( spinner ) {
     try {
         const docker = makeDocker();
 
-        await stopGateway();
-        await removeNetwork( docker );
+        await stopGateway( spinner );
+        await removeNetwork( docker, spinner );
     } catch ( err ) {
         process.stderr.write( err.toString() + EOL );
     }
@@ -227,12 +253,12 @@ async function stopGlobal() {
     started = false;
 }
 
-async function restartGlobal() {
+async function restartGlobal( spinner ) {
     try {
         const docker = makeDocker();
 
-        await ensureNetworkExists( docker );
-        await restartGateway();
+        await ensureNetworkExists( docker, spinner );
+        await restartGateway( spinner );
 
         started = true;
     } catch ( err ) {

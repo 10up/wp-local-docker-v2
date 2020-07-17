@@ -7,7 +7,7 @@ const commandUtils = require( './src/command-utils' );
 const config = require( './src/configure' );
 
 function dispatcher( cmd, withChecks = true ) {
-    return async () => {
+    return async ( ...params ) => {
         if ( withChecks ) {
             // Configure using defaults if not configured already
             const configured = await config.checkIfConfigured();
@@ -23,7 +23,7 @@ function dispatcher( cmd, withChecks = true ) {
         }
 
         await commandUtils.checkForUpdates();
-        await require( `./src/${cmd}` ).command();
+        await require( `./src/${cmd}` ).command( ...params );
     };
 }
 
@@ -41,18 +41,26 @@ yargs.option( 'verbose', {
     type: 'boolean',
 } );
 
+// environment arguments
+const envArgs = () => {
+    yargs.positional( 'env', {
+        type: 'string',
+        describe: 'Optional. Environment name.',
+    } );
+};
+
 // commands
 yargs.commandDir( 'src/commands' );
+yargs.command( 'start [env]', 'Starts a specific docker environment.', envArgs, dispatcher( 'environment' ) );
+yargs.command( 'stop [env]', 'Stops a specific docker environment.', envArgs, dispatcher( 'environment' ) );
+yargs.command( 'restart [env]', 'Restarts a specific docker environment.', envArgs, dispatcher( 'environment' ) );
+yargs.command( [ 'delete [env]', 'remove [env]' ], 'Deletes a specific environment.', envArgs, dispatcher( 'environment' ) );
 yargs.command( 'cache', 'Manages the build cache.', {}, dispatcher( 'cache' ) );
 yargs.command( 'configure', 'Set up a configuration for WP Local Docker.', {}, dispatcher( 'configure', false ) );
-yargs.command( [ 'delete', 'remove' ], 'Deletes a specific environment.', {}, dispatcher( 'environment' ) );
 yargs.command( 'image', 'Manages docker images used by this environment.', {}, dispatcher( 'image' ) );
 yargs.command( 'logs', 'Shows logs from the specified container in your current environment (Defaults to all containers).', {}, dispatcher( 'logs' ) );
 yargs.command( 'migrate', 'Migrates a V1 WP Local Docker environment to a new V2 environment.', {}, dispatcher( 'migrate' ) );
-yargs.command( 'restart', 'Restarts a specific docker environment.', {}, dispatcher( 'environment' ) );
 yargs.command( 'shell', 'Opens a shell for a specified container in your current environment (Defaults to the phpfpm container).', {}, dispatcher( 'shell' ) );
-yargs.command( 'start', 'Starts a specific docker environment.', {}, dispatcher( 'environment' ) );
-yargs.command( 'stop', 'Stops a specific docker environment.', {}, dispatcher( 'environment' ) );
 yargs.command( 'wp', 'Runs a wp-cli command in your current environment.', {}, dispatcher( 'wp' ) );
 yargs.command( [ 'wpsnapshots', 'snapshots' ], 'Runs a wp snapshots command.', {}, dispatcher( 'wpsnapshots' ) );
 yargs.command( 'upgrade', false, {}, dispatcher( 'environment' ) ); // @todo: currently hidden command, provide a proper description to make it public
