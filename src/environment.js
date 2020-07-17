@@ -60,16 +60,27 @@ async function start( env, spinner ) {
 
     await gateway.startGlobal( spinner );
 
+    const composeArgs = {
+        cwd: envPath,
+        log: !spinner,
+    };
+
     if ( spinner ) {
+        spinner.start( `Pulling latest images for ${chalk.cyan( envSlug )}...` );
+    } else {
+        console.log( 'Pulling latest images for containers' );
+    }
+
+    await compose.pullAll( composeArgs );
+
+    if ( spinner ) {
+        spinner.succeed( `${chalk.cyan( envSlug )} environment images are up-to-date...` );
         spinner.start( `Starting docker containers for ${chalk.cyan( envSlug )}...` );
     } else {
         console.log( `Starting docker containers for ${envSlug}` );
     }
 
-    await compose.upAll( {
-        cwd: envPath,
-        log: !spinner,
-    } );
+    await compose.upAll( composeArgs );
 
     if ( spinner ) {
         spinner.succeed( `${chalk.cyan( envSlug )} environment is started...` );

@@ -170,16 +170,27 @@ async function startGateway( spinner ) {
         cwd = envUtils.globalPath;
     }
 
+    const composeArgs = {
+        cwd,
+        log: !spinner,
+    };
+
     if ( spinner ) {
+        spinner.start( 'Pulling latest images for global services...' );
+    } else {
+        console.log( 'Pulling latest images for global services' );
+    }
+
+    await compose.pullAll( composeArgs );
+
+    if ( spinner ) {
+        spinner.succeed( 'Global images are up-to-date...' );
         spinner.start( 'Ensuring global services are running...' );
     } else {
         console.log( 'Ensuring global services are running' );
     }
 
-    await compose.upAll( {
-        cwd,
-        log: !spinner,
-    } );
+    await compose.upAll( composeArgs );
 
     if ( spinner ) {
         spinner.succeed( 'Global services are running...' );
