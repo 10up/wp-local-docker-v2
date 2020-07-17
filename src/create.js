@@ -32,8 +32,8 @@ const createEnv = async function() {
         'services': {
             'memcached': {
                 'image': images['memcached'],
-			},
-			'redis': {
+            },
+            'redis': {
                 'image': images['redis'],
             },
             'nginx': {
