@@ -2,6 +2,7 @@
 
 const yargs = require( 'yargs' );
 const chalk = require( 'chalk' );
+
 const commandUtils = require( './src/command-utils' );
 const config = require( './src/configure' );
 
