@@ -11,7 +11,7 @@ const environment = require( '../environment' );
 const makeCommand = require( '../utils/make-command' );
 const makeSpinner = require( '../utils/make-spinner' );
 
-exports.command = 'wp [cmd..]';
+exports.command = 'wp cmd..';
 exports.desc = 'Runs a wp-cli command in your environment.';
 
 exports.builder = function( yargs ) {
