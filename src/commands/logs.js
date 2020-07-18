@@ -35,7 +35,8 @@ exports.handler = makeCommand( chalk, logSymbols, async function( { verbose, con
     const spinner = ! verbose ? makeSpinner() : undefined;
 
     if ( container ) {
-        spinner.start( 'Checking available services...' );
+        spinner && spinner.start( 'Checking available services...' );
+
         const { out } = await compose.ps( {
             commandOptions: [ '--services' ],
             cwd: envPath,
@@ -48,24 +49,24 @@ exports.handler = makeCommand( chalk, logSymbols, async function( { verbose, con
 
         if ( availableServices.includes( container.toLowerCase() ) ) {
             services.push( container );
-            spinner.succeed( 'Container is available...' );
+            spinner && spinner.succeed( 'Container is available...' );
         } else {
-            spinner.warn( 'Container is not found, using all containers...' );
+            spinner && spinner.warn( 'Container is not found, using all containers...' );
         }
     }
 
-    spinner.start( 'Checking if the environment running...' );
+    spinner && spinner.start( 'Checking if the environment running...' );
     // Check if the container is running, otherwise, start up the stacks
     const { out } = await compose.ps( {
         cwd: envPath,
     } );
 
     if ( ( services.length > 0 && out.indexOf( services[0] ) === -1 ) || out.split( EOL ).filter( ( line ) => line.trim().length > 0 ).length <= 2 ) {
-        spinner.info( 'Environment is not running, starting it...' );
+        spinner && spinner.info( 'Environment is not running, starting it...' );
         await gateway.startGlobal( spinner );
         await environment.start( envSlug, spinner );
     } else {
-        spinner.succeed( 'Environment is running...' );
+        spinner && spinner.succeed( 'Environment is running...' );
     }
 
     await compose.logs( services, {
