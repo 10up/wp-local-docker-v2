@@ -30,6 +30,7 @@ function dispatcher( cmd, withChecks = true ) {
 // usage and help flag
 yargs.scriptName( '10updocker' );
 yargs.usage( 'Usage: 10updocker <command>' );
+yargs.wrap( Math.min( 120, yargs.terminalWidth() ) );
 yargs.help( 'h' );
 yargs.alias( 'h', 'help' );
 yargs.alias( 'v', 'version' );
