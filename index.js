@@ -30,7 +30,7 @@ function dispatcher( cmd, withChecks = true ) {
 // usage and help flag
 yargs.scriptName( '10updocker' );
 yargs.usage( 'Usage: 10updocker <command>' );
-yargs.wrap( Math.min( 120, yargs.terminalWidth() ) );
+yargs.wrap( Math.min( 150, yargs.terminalWidth() ) );
 yargs.help( 'h' );
 yargs.alias( 'h', 'help' );
 yargs.alias( 'v', 'version' );
@@ -48,25 +48,12 @@ yargs.option( 'env', {
     type: 'string',
 } );
 
-// environment arguments
-const envArgs = () => {
-    yargs.positional( 'env', {
-        type: 'string',
-        describe: 'Optional. Environment name.',
-    } );
-};
-
 // commands
 yargs.commandDir( 'src/commands' );
-yargs.command( 'start [env]', 'Starts a specific docker environment.', envArgs, dispatcher( 'environment' ) );
-yargs.command( 'stop [env]', 'Stops a specific docker environment.', envArgs, dispatcher( 'environment' ) );
-yargs.command( 'restart [env]', 'Restarts a specific docker environment.', envArgs, dispatcher( 'environment' ) );
-yargs.command( [ 'delete [env]', 'remove [env]' ], 'Deletes a specific environment.', envArgs, dispatcher( 'environment' ) );
 yargs.command( 'configure', 'Set up a configuration for WP Local Docker.', {}, dispatcher( 'configure', false ) );
 yargs.command( 'image', 'Manages docker images used by this environment.', {}, dispatcher( 'image' ) );
 yargs.command( 'migrate', 'Migrates a V1 WP Local Docker environment to a new V2 environment.', {}, dispatcher( 'migrate' ) );
 yargs.command( [ 'wpsnapshots', 'snapshots' ], 'Runs a wp snapshots command.', {}, dispatcher( 'wpsnapshots' ) );
-yargs.command( 'upgrade', false, {}, dispatcher( 'environment' ) ); // @todo: currently hidden command, provide a proper description to make it public
 
 // parse and process CLI args
 yargs.demandCommand();

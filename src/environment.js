@@ -9,36 +9,12 @@ const readYaml = require( 'read-yaml' );
 const writeYaml = require( 'write-yaml' );
 const compose = require( 'docker-compose' );
 const which = require( 'which' );
-const logSymbols = require( 'log-symbols' );
 
-const { images } = require( './docker-images' );
 const config = require( './configure' );
 const promptValidators = require( './prompt-validators' );
 const database = require( './database' );
 const envUtils = require( './env-utils' );
 const gateway = require( './gateway' );
-const commandUtils = require( './command-utils' );
-const makeSpinner = require( './utils/make-spinner' );
-const makeCommand = require( './utils/make-command' );
-
-const help = function() {
-    const command = commandUtils.command();
-
-    const help = `
-Usage:  10updocker ${command} ENVIRONMENT
-        10updocker ${command} all
-
-${command.charAt( 0 ).toUpperCase()}${command.substr( 1 )} one or more environments
-
-ENVIRONMENT can be set to either the slug version of the hostname (same as the directory name) or the hostname.
-    - docker.test
-    - docker-test
-
-When 'all' is specified as the ENVIRONMENT, each environment will ${command}
-`;
-    console.log( help );
-    process.exit();
-};
 
 function getPathOrError( env, spinner ) {
     // @ts-ignore
@@ -264,7 +240,7 @@ const deleteEnv = async function( env, spinner ) {
     }
 };
 
-const upgradeEnv = async function( env ) {
+async function upgradeEnv( env ) {
     const envPath = await envUtils.getPathOrError( env );
 
     // If we got the path from the cwd, we don't have a slug yet, so get it
@@ -299,119 +275,7 @@ const upgradeEnv = async function( env ) {
             resolve();
         } );
     } );
-};
-
-const upgradeEnvTwoDotSix = async function( env ) {
-    if ( undefined === env || env.trim().length === 0 ) {
-        env = await envUtils.parseEnvFromCWD();
-    }
-
-    // Need to call this outside of envUtils.getPathOrError since we need the slug itself for some functions
-    if ( env === false || undefined === env || env.trim().length === 0 ) {
-        env = await envUtils.promptEnv();
-    }
-
-    const envPath = await envUtils.getPathOrError( env );
-
-    // If we got the path from the cwd, we don't have a slug yet, so get it
-    const envSlug = envUtils.envSlug( env );
-
-    await stop( envSlug );
-
-    // Create a backup of the old yaml.
-    const yaml = readYaml.sync( path.join( envPath, 'docker-compose.yml' ) );
-    await new Promise( resolve => {
-        writeYaml( path.join( envPath, 'docker-compose.yml.bak' ), yaml, { 'lineWidth': 500 }, function( err ) {
-            if ( err ) {
-                console.log( err );
-            }
-            console.log( `Created backup of previous configuration ${envSlug}` );
-            resolve();
-        } );
-    } );
-
-    // perform the previous upgrade first
-    await upgradeEnv( env );
-
-    console.log( 'Copying required files...' );
-    await fs.ensureDir( path.join( envPath, '.containers' ) );
-    await fs.copy( path.join( envUtils.srcPath, 'containers' ), path.join( envPath, '.containers' ) );
-
-    // Create a new object for the upgrade yaml.
-    const upgraded = Object.assign( {}, yaml );
-
-    // Set docker-compose version.
-    upgraded.version = '2.2';
-
-    // Upgrade image.
-    const phpVersion = yaml.services.phpfpm.image.split( ':' ).pop();
-    if ( phpVersion === '5.5' ) {
-        console.warn( 'Support for PHP v5.5 was removed in the latest version of WP Local Docker.' );
-        console.error( 'This environment cannot be upgraded.  No changes were made.' );
-
-        process.exit( 1 );
-    }
-    upgraded.services.phpfpm.image = images[`php${phpVersion}`];
-
-    // Upgrade volume mounts.
-    const deprecatedVolumes = [
-        './config/php-fpm/php.ini:/usr/local/etc/php/php.ini:cached',
-        './config/php-fpm/docker-php-ext-xdebug.ini:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini:cached',
-        '~/.ssh:/root/.ssh:cached'
-    ];
-    const volumes = [ ...upgraded.services.phpfpm.volumes ];
-    upgraded.services.phpfpm.volumes = volumes.reduce( ( acc, curr ) => {
-        if ( deprecatedVolumes.includes( curr ) ) {
-            if ( deprecatedVolumes.indexOf( curr ) === 1 ) {
-                acc.push( './config/php-fpm/docker-php-ext-xdebug.ini:/etc/php.d/docker-php-ext-xdebug.ini:cached' );
-                return acc;
-            }
-            return acc;
-        }
-        acc.push( curr );
-        return acc;
-    }, [] );
-
-    // Add new environmental variables.
-    upgraded.services.phpfpm.environment = {
-        'ENABLE_XDEBUG': 'false'
-    };
-
-    // Unlike Mac and Windows, Docker is a first class citizen on Linux
-    // and doesn't have any kind of translation layer between users and the
-    // file system. Because of this the phpfpm container will be running as the
-    // wrong user. Here we setup the docker-compose.yml file to rebuild the
-    // phpfpm container so that it runs as the user who created the project.
-    if ( os.platform() == 'linux' ) {
-        upgraded.services.phpfpm.image = `wp-php-fpm-dev-${phpVersion}-${process.env.USER}`;
-        upgraded.services.phpfpm.build = {
-            'dockerfile': '.containers/php-fpm',
-            'context': '.',
-            'args': {
-                'PHP_IMAGE': images[`php${phpVersion}`],
-                'CALLING_USER': process.env.USER,
-                'CALLING_UID': process.getuid()
-            }
-        };
-        upgraded.services.phpfpm.volumes.push( `~/.ssh:/home/${process.env.USER}/.ssh:cached` );
-    }
-    else {
-        // the official containers for this project will have a www-data user.
-        upgraded.services.phpfpm.volumes.push( '~/.ssh:/home/www-data/.ssh:cached' );
-    }
-
-    await new Promise( resolve => {
-        writeYaml( path.join( envPath, 'docker-compose.yml' ), upgraded, { 'lineWidth': 500 }, function( err ) {
-            if ( err ) {
-                console.log( err );
-            }
-            console.log( `Finished updating ${envSlug} for WP Local Docker v2.6` );
-            resolve();
-        } );
-    } );
-
-    start( envSlug );
-};
+}
 
 async function startAll( spinner ) {
     const envs = await envUtils.getAllEnvironments();
@@ -451,64 +315,14 @@ async function deleteAll( spinner ) {
     }
 }
 
-async function command( { _, env, verbose } ) {
-    const [ subcommand ] = _;
-    const spinner = ! verbose ? makeSpinner() : undefined;
-    const all = env === 'all';
-
-    let envName = ( env || '' ).trim();
-    if ( ! envName ) {
-        envName = await envUtils.parseEnvFromCWD();
-    }
-
-    if ( ! envName ) {
-        envName = await envUtils.promptEnv();
-    }
-
-    switch ( subcommand ) {
-        case 'start':
-            if ( all ) {
-                await startAll( spinner );
-            } else {
-                await start( envName, spinner );
-            }
-            break;
-        case 'stop':
-            if ( all ) {
-                await stopAll( spinner );
-            } else {
-                await stop( envName, spinner );
-            }
-            break;
-        case 'restart':
-            if ( all ) {
-                await restartAll( spinner );
-            } else {
-                await restart( envName, spinner );
-            }
-            break;
-        case 'delete':
-        case 'remove':
-            if ( all ) {
-                await deleteAll( spinner );
-            } else {
-                await deleteEnv( envName, spinner );
-            }
-            break;
-        case 'upgrade':
-            await upgradeEnvTwoDotSix( envName );
-            break;
-        default:
-            help();
-            break;
-    }
-}
-
 module.exports = {
-    command: makeCommand( chalk, logSymbols, command ),
     start,
+    startAll,
     stop,
     stopAll,
+    deleteEnv,
+    deleteAll,
     restart,
-    help,
+    restartAll,
+    upgradeEnv,
 };
