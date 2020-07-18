@@ -116,15 +116,24 @@ async function ensureCacheExists( docker, spinner ) {
     }
 }
 
-async function removeCacheVolume( docker ) {
-    console.log( 'Removing cache volume' );
-
+async function removeCacheVolume( docker, spinner ) {
     const volume = await docker.getVolume( envUtils.cacheVolume );
     const data = await volume.inspect().catch( () => false );
 
     if ( data ) {
+        if ( spinner ) {
+            spinner.start( 'Removing cache volume...' );
+        } else {
+            console.log( 'Removing cache volume' );
+        }
+
         await volume.remove();
-        console.log( ' - Volume Removed' );
+
+        if ( spinner ) {
+            spinner.succeed( 'Cache volume is removed...' );
+        } else {
+            console.log( ' - Volume Removed' );
+        }
     }
 }
 

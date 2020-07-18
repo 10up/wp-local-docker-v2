@@ -28,7 +28,7 @@ exports.builder = function( yargs ) {
     } );
 };
 
-exports.handler = makeCommand( chalk, logSymbols, async function( { container, cmd, env, verbose } ) {
+exports.handler = makeCommand( chalk, logSymbols, async ( { container, cmd, env, verbose } ) => {
     let envSlug = env;
     if ( ! envSlug ) {
         envSlug = await envUtils.parseOrPromptEnv();

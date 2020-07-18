@@ -62,7 +62,6 @@ yargs.command( 'start [env]', 'Starts a specific docker environment.', envArgs, 
 yargs.command( 'stop [env]', 'Stops a specific docker environment.', envArgs, dispatcher( 'environment' ) );
 yargs.command( 'restart [env]', 'Restarts a specific docker environment.', envArgs, dispatcher( 'environment' ) );
 yargs.command( [ 'delete [env]', 'remove [env]' ], 'Deletes a specific environment.', envArgs, dispatcher( 'environment' ) );
-yargs.command( 'cache', 'Manages the build cache.', {}, dispatcher( 'cache' ) );
 yargs.command( 'configure', 'Set up a configuration for WP Local Docker.', {}, dispatcher( 'configure', false ) );
 yargs.command( 'image', 'Manages docker images used by this environment.', {}, dispatcher( 'image' ) );
 yargs.command( 'migrate', 'Migrates a V1 WP Local Docker environment to a new V2 environment.', {}, dispatcher( 'migrate' ) );

@@ -12,7 +12,7 @@ exports.builder = function( yargs ) {
     } );
 };
 
-exports.handler = function( { shell } ) {
+exports.handler = ( { shell } ) => {
     switch( shell ) {
         case 'bash': {
             const filename = resolve( __dirname, '..', 'scripts', '10updocker-completion.bash' );
