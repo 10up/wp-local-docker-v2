@@ -65,7 +65,6 @@ yargs.command( 'cache', 'Manages the build cache.', {}, dispatcher( 'cache' ) );
 yargs.command( 'configure', 'Set up a configuration for WP Local Docker.', {}, dispatcher( 'configure', false ) );
 yargs.command( 'image', 'Manages docker images used by this environment.', {}, dispatcher( 'image' ) );
 yargs.command( 'migrate', 'Migrates a V1 WP Local Docker environment to a new V2 environment.', {}, dispatcher( 'migrate' ) );
-yargs.command( 'wp', 'Runs a wp-cli command in your current environment.', {}, dispatcher( 'wp' ) );
 yargs.command( [ 'wpsnapshots', 'snapshots' ], 'Runs a wp snapshots command.', {}, dispatcher( 'wpsnapshots' ) );
 yargs.command( 'upgrade', false, {}, dispatcher( 'environment' ) ); // @todo: currently hidden command, provide a proper description to make it public
 
