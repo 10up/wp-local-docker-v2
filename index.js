@@ -58,7 +58,6 @@ yargs.command( [ 'delete [env]', 'remove [env]' ], 'Deletes a specific environme
 yargs.command( 'cache', 'Manages the build cache.', {}, dispatcher( 'cache' ) );
 yargs.command( 'configure', 'Set up a configuration for WP Local Docker.', {}, dispatcher( 'configure', false ) );
 yargs.command( 'image', 'Manages docker images used by this environment.', {}, dispatcher( 'image' ) );
-yargs.command( 'logs', 'Shows logs from the specified container in your current environment (Defaults to all containers).', {}, dispatcher( 'logs' ) );
 yargs.command( 'migrate', 'Migrates a V1 WP Local Docker environment to a new V2 environment.', {}, dispatcher( 'migrate' ) );
 yargs.command( 'shell', 'Opens a shell for a specified container in your current environment (Defaults to the phpfpm container).', {}, dispatcher( 'shell' ) );
 yargs.command( 'wp', 'Runs a wp-cli command in your current environment.', {}, dispatcher( 'wp' ) );
