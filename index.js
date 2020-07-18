@@ -41,6 +41,12 @@ yargs.option( 'verbose', {
     type: 'boolean',
 } );
 
+yargs.option( 'env', {
+    description: 'Environment name',
+    default: false,
+    type: 'string',
+} );
+
 // environment arguments
 const envArgs = () => {
     yargs.positional( 'env', {

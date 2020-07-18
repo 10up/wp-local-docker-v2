@@ -10,18 +10,12 @@ const environment = require( '../environment' );
 const makeCommand = require( '../utils/make-command' );
 const makeSpinner = require( '../utils/make-spinner' );
 
-exports.command = 'logs [<container>] [--env=<env>]';
+exports.command = 'logs [<container>]';
 exports.desc = 'Shows logs from the specified container in your environment (Defaults to all containers).';
 
 exports.builder = function( yargs ) {
     yargs.positional( 'container', {
         describe: 'Container name',
-        type: 'string',
-    } );
-
-    yargs.option( 'e', {
-        alias: 'env',
-        description: 'Environment name',
         type: 'string',
     } );
 };
