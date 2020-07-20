@@ -1,0 +1,104 @@
+const os = require( 'os' );
+
+const inquirer = require( 'inquirer' );
+const chalk = require( 'chalk' );
+const logSymbols = require( 'log-symbols' );
+
+const { stopAll } = require( '../environment' );
+const promptValidators = require( '../prompt-validators' );
+const { globalImages, images } = require( '../docker-images' );
+const makeCommand = require( '../utils/make-command' );
+const makeSpinner = require( '../utils/make-spinner' );
+const makeDocker = require( '../utils/make-docker' );
+
+exports.command = 'image update';
+exports.desc = 'Manages docker images used by this environment.';
+
+async function removeBuiltImages( docker, spinner ) {
+    if ( spinner ) {
+        spinner.start( 'Checking previously built images...' );
+    } else {
+        console.log( 'Removing previously built images so they can be built again' );
+    }
+
+    const images = await docker.listImages( { filters: '{"label": ["com.10up.wp-local-docker=user-image"]}' } ).catch( () => false );
+    if ( Array.isArray( images ) && images.length > 0 ) {
+        for ( let i = 0; i < images.length; i++ ) {
+            const name = images[ i ].RepoTags[0];
+
+            if ( spinner ) {
+                spinner.start( `Removing ${chalk.cyan( name )} image...` );
+            }
+
+            await docker.getImage( name ).remove();
+
+            if ( spinner ) {
+                spinner.succeed( `${chalk.cyan( name )} image has been removed...` );
+            }
+        }
+    } else if ( spinner ) {
+        spinner.info( 'No previously built images found. Skipping removal...' );
+    }
+}
+
+async function updateIfUsed( docker, name, spinner ) {
+    if ( spinner ) {
+        spinner.start( `Checking ${chalk.cyan( name )} image...` );
+    } else {
+        console.log( `Testing ${name}` );
+    }
+
+    const image = docker.getImage( name );
+    const data = await image.inspect().catch( () => false );
+
+    if ( !data ) {
+        if ( spinner ) {
+            spinner.info( `${chalk.cyan( name )} doesn't exist on this system. Skipping update...` );
+        } else {
+            console.log( `${name} doesn't exist on this system. Skipping update.` );
+        }
+    } else {
+        if ( spinner ) {
+            spinner.text = `Pulling ${chalk.cyan( name )} image...`;
+        }
+
+        await docker.pull( name );
+
+        if ( spinner ) {
+            spinner.succeed( `${chalk.cyan( name )} has been updated...` );
+        }
+    }
+}
+
+exports.handler = makeCommand( chalk, logSymbols, async function( { verbose } ) {
+    const { confirm } = await inquirer.prompt( {
+        name: 'confirm',
+        type: 'confirm',
+        message: 'Updating images requires all environments to be stopped. Is that okay?',
+        validate: promptValidators.validateNotEmpty,
+        default: false,
+    } );
+
+    if ( ! confirm ) {
+        return;
+    }
+
+    const spinner = ! verbose ? makeSpinner() : undefined;
+    const docker = makeDocker();
+
+    await stopAll( spinner );
+
+    const allImages = [ ...Object.values( globalImages ), ...Object.values( images ) ];
+    for ( let i = 0; i < allImages.length; i++ ) {
+        await updateIfUsed( docker, allImages[ i ], spinner );
+    }
+
+    // delete the built containers on linux so it can be rebuilt with the (possibly) updated phpfpm container
+    if ( os.platform() == 'linux' ) {
+        await removeBuiltImages( docker, spinner );
+    }
+
+    if ( ! spinner ) {
+        console.log( 'Finished. You can now start your environments again.' );
+    }
+} );

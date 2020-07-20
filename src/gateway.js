@@ -89,7 +89,7 @@ async function ensureCacheExists( docker, spinner ) {
         console.log( 'Ensuring global cache volume exists' );
     }
 
-    const volume = await docker.getVolume( envUtils.cacheVolume );
+    const volume = docker.getVolume( envUtils.cacheVolume );
     const data = await volume.inspect().catch( () => false );
 
     if ( data ) {
@@ -117,7 +117,7 @@ async function ensureCacheExists( docker, spinner ) {
 }
 
 async function removeCacheVolume( docker, spinner ) {
-    const volume = await docker.getVolume( envUtils.cacheVolume );
+    const volume = docker.getVolume( envUtils.cacheVolume );
     const data = await volume.inspect().catch( () => false );
 
     if ( data ) {
