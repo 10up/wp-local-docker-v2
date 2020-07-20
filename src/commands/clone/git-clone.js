@@ -18,7 +18,7 @@ module.exports = function makeGitClone( spinner, chalk, { Clone, Cred }, { promp
                             // thus turn off it there
                             return process.platform !== 'darwin';
                         },
-                        credentials( url, user, type ) {
+                        credentials: async ( url, user, type ) => {
                             if ( ( TYPE.SSH_KEY & type ) > 0 ) {
                                 return Cred.sshKeyFromAgent( user );
                             }
@@ -36,29 +36,26 @@ module.exports = function makeGitClone( spinner, chalk, { Clone, Cred }, { promp
 
                             cloneAttempted = true;
 
-                            return new Promise( ( resolve ) => {
-                                const origin = url.split( '/' ).slice( 0, 3 ).join( '/' );
-                                const questions = [
-                                    {
-                                        type: 'input',
-                                        name: 'username',
-                                        message: `Username for ${ origin }:`,
+                            const origin = url.split( '/' ).slice( 0, 3 ).join( '/' );
+                            const questions = [
+                                {
+                                    type: 'input',
+                                    name: 'username',
+                                    message: `Username for ${ origin }:`,
+                                },
+                                {
+                                    type: 'password',
+                                    name: 'password',
+                                    message( { username } ) {
+                                        const originWithUser = origin.split( '://' ).join( `://${ username }@` );
+                                        return `Password for ${ originWithUser }:`;
                                     },
-                                    {
-                                        type: 'password',
-                                        name: 'password',
-                                        message( { username } ) {
-                                            const originWithUser = origin.split( '://' ).join( `://${ username }@` );
-                                            return `Password for ${ originWithUser }:`;
-                                        },
-                                    },
-                                ];
+                                },
+                            ];
 
-                                prompt( questions ).then( ( answers ) => {
-                                    spinner.start( 'Cloning the repository...' );
-                                    resolve( Cred.userpassPlaintextNew( answers.username, answers.password ) );
-                                } );
-                            } );
+                            const answers = await prompt( questions );
+                            spinner.start( 'Cloning the repository...' );
+                            return Cred.userpassPlaintextNew( answers.username, answers.password );
                         },
                     },
                 },
