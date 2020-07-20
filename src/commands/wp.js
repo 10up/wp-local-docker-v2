@@ -4,6 +4,7 @@ const { execSync } = require( 'child_process' );
 const chalk = require( 'chalk' );
 const logSymbols = require( 'log-symbols' );
 const compose = require( 'docker-compose' );
+const shellEscape = require( 'shell-escape' );
 
 const envUtils = require( '../env-utils' );
 const gateway = require( '../gateway' );
@@ -65,7 +66,7 @@ exports.handler = makeCommand( chalk, logSymbols, async ( { verbose, env } ) => 
     }
 
     // Run the command
-    execSync( `docker-compose exec ${ttyFlag} phpfpm ${command.join( ' ' )}`, {
+    execSync( `docker-compose exec ${ttyFlag} phpfpm ${shellEscape( command )}`, {
         stdio: 'inherit',
         cwd: envPath
     } );
