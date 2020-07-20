@@ -131,7 +131,7 @@ async function restart( env, spinner ) {
     }
 }
 
-const deleteEnv = async function( env, spinner ) {
+async function deleteEnv( env, spinner ) {
     const envPath = await getPathOrError( env, spinner );
     const envSlug = envUtils.envSlug( env );
 
@@ -238,7 +238,7 @@ const deleteEnv = async function( env, spinner ) {
     if ( spinner ) {
         spinner.succeed( 'Database is deleted...' );
     }
-};
+}
 
 async function upgradeEnv( env ) {
     const envPath = await envUtils.getPathOrError( env );
