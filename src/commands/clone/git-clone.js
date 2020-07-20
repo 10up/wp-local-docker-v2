@@ -55,7 +55,7 @@ module.exports = function makeGitClone( spinner, chalk, { Clone, Cred }, { promp
                                 ];
 
                                 prompt( questions ).then( ( answers ) => {
-                                    spinner.start( 'The repository is cloned...' );
+                                    spinner.start( 'Cloning the repository...' );
                                     resolve( Cred.userpassPlaintextNew( answers.username, answers.password ) );
                                 } );
                             } );
@@ -69,6 +69,6 @@ module.exports = function makeGitClone( spinner, chalk, { Clone, Cred }, { promp
             throw new Error( 'An error happened during cloning your repository. Please, submit a new issue: https://github.com/10up/wp-local-docker-v2/issues' );
         }
 
-        spinner.succeed( 'Cloned the repository...' );
+        spinner.succeed( 'The repository is cloned...' );
     };
 };
