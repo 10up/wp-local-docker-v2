@@ -7,7 +7,7 @@ const makeCommand = require( '../utils/make-command' );
 const makeSpinner = require( '../utils/make-spinner' );
 
 exports.command = 'cache clear';
-exports.desc = 'Clears npm, wp-cli, and WP Snapshots caches';
+exports.desc = 'Clears npm, wp-cli, and WP Snapshots caches.';
 
 exports.handler = makeCommand( chalk, logSymbols, async ( { verbose } ) => {
     const docker = makeDocker();

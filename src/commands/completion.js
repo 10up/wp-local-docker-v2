@@ -3,7 +3,7 @@ const { resolve } = require( 'path' );
 const chalk = require( 'chalk' );
 
 exports.command = 'completion <shell>';
-exports.desc = 'Displays completion script for selected shell';
+exports.desc = 'Displays completion script for selected shell.';
 
 exports.builder = function( yargs ) {
     yargs.positional( 'shell', {

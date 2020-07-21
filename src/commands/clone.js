@@ -19,7 +19,7 @@ const { createCommand } = require( './create' );
 
 exports.command = 'clone <url> [--branch=<branch>] [--config=<config>]';
 
-exports.desc = 'Clones an environment from a remote repository';
+exports.desc = 'Clones an environment from a remote repository.';
 
 exports.builder = function( yargs ) {
     yargs.positional( 'url', {
