@@ -70,6 +70,7 @@ async function removeNetwork( docker, spinner ) {
     const network = docker.getNetwork( 'wplocaldocker' );
     const data = await network.inspect().catch( () => false );
     if ( ! data ) {
+        spinner.info( 'Global Network does not exist. Skipping removal...' );
         return;
     }
 
@@ -173,7 +174,7 @@ function waitForDB( spinner ) {
     } );
 }
 
-async function startGateway( spinner ) {
+async function startGateway( spinner, pull ) {
     let cwd = path.join( config.getConfigDirectory(), 'global' );
     if ( ! fs.existsSync( cwd ) ) {
         cwd = envUtils.globalPath;
@@ -184,16 +185,21 @@ async function startGateway( spinner ) {
         log: !spinner,
     };
 
-    if ( spinner ) {
-        spinner.start( 'Pulling latest images for global services...' );
-    } else {
-        console.log( 'Pulling latest images for global services' );
+    if ( pull ) {
+        if ( spinner ) {
+            spinner.start( 'Pulling latest images for global services...' );
+        } else {
+            console.log( 'Pulling latest images for global services' );
+        }
+
+        await compose.pullAll( composeArgs );
+
+        if ( spinner ) {
+            spinner.succeed( 'Global images are up-to-date...' );
+        }
     }
 
-    await compose.pullAll( composeArgs );
-
     if ( spinner ) {
-        spinner.succeed( 'Global images are up-to-date...' );
         spinner.start( 'Ensuring global services are running...' );
     } else {
         console.log( 'Ensuring global services are running' );
@@ -246,7 +252,7 @@ async function restartGateway( spinner ) {
     }
 }
 
-async function startGlobal( spinner ) {
+async function startGlobal( spinner, pull ) {
     if ( started === true ) {
         return;
     }
@@ -255,7 +261,7 @@ async function startGlobal( spinner ) {
 
     await ensureNetworkExists( docker, spinner );
     await ensureCacheExists( docker, spinner );
-    await startGateway( spinner );
+    await startGateway( spinner, pull );
 
     started = true;
 }

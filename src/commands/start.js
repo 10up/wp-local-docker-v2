@@ -6,7 +6,7 @@ const makeSpinner = require( '../utils/make-spinner' );
 const envUtils = require( '../env-utils' );
 const { startAll, start } = require( '../environment' );
 
-exports.command = 'start [<env>]';
+exports.command = 'start [<env>] [--pull]';
 exports.desc = 'Starts a specific docker environment.';
 
 exports.builder = function( yargs ) {
@@ -14,9 +14,15 @@ exports.builder = function( yargs ) {
         type: 'string',
         describe: 'Optional. Environment name.',
     } );
+
+    yargs.option( 'pull', {
+        description: 'Pull images when environment starts',
+        default: false,
+        type: 'boolean',
+    } );
 };
 
-exports.handler = makeCommand( chalk, logSymbols, async ( { verbose, env } ) => {
+exports.handler = makeCommand( chalk, logSymbols, async ( { verbose, pull, env } ) => {
     const spinner = ! verbose ? makeSpinner() : undefined;
     const all = env === 'all';
 
@@ -30,8 +36,8 @@ exports.handler = makeCommand( chalk, logSymbols, async ( { verbose, env } ) => 
     }
 
     if ( all ) {
-        await startAll( spinner );
+        await startAll( spinner, pull );
     } else {
-        await start( envName, spinner );
+        await start( envName, spinner, pull );
     }
 } );

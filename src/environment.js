@@ -30,27 +30,32 @@ function getPathOrError( env, spinner ) {
     } );
 }
 
-async function start( env, spinner ) {
+async function start( env, spinner, pull ) {
     const envPath = await getPathOrError( env, spinner );
     const envSlug = envUtils.envSlug( env );
 
-    await gateway.startGlobal( spinner );
+    await gateway.startGlobal( spinner, pull );
 
     const composeArgs = {
         cwd: envPath,
         log: !spinner,
     };
 
-    if ( spinner ) {
-        spinner.start( `Pulling latest images for ${chalk.cyan( envSlug )}...` );
-    } else {
-        console.log( 'Pulling latest images for containers' );
+    if ( pull ) {
+        if ( spinner ) {
+            spinner.start( `Pulling latest images for ${chalk.cyan( envSlug )}...` );
+        } else {
+            console.log( 'Pulling latest images for containers' );
+        }
+
+        await compose.pullAll( composeArgs );
+
+        if ( spinner ) {
+            spinner.succeed( `${chalk.cyan( envSlug )} environment images are up-to-date...` );
+        }
     }
 
-    await compose.pullAll( composeArgs );
-
     if ( spinner ) {
-        spinner.succeed( `${chalk.cyan( envSlug )} environment images are up-to-date...` );
         spinner.start( `Starting docker containers for ${chalk.cyan( envSlug )}...` );
     } else {
         console.log( `Starting docker containers for ${envSlug}` );
@@ -277,13 +282,13 @@ async function upgradeEnv( env ) {
     } );
 }
 
-async function startAll( spinner ) {
+async function startAll( spinner, pull ) {
     const envs = await envUtils.getAllEnvironments();
 
-    await gateway.startGlobal( spinner );
+    await gateway.startGlobal( spinner, pull );
 
     for ( let i = 0, len = envs.length; i < len; i++ ) {
-        await start( envs[i], spinner );
+        await start( envs[i], spinner, pull );
     }
 }
 
