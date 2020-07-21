@@ -1,5 +1,4 @@
 const path = require( 'path' );
-const os = require( 'os' );
 
 const fs = require( 'fs-extra' );
 const inquirer = require( 'inquirer' );
@@ -67,15 +66,6 @@ async function start( env, spinner, pull ) {
         spinner.succeed( `${chalk.cyan( envSlug )} environment is started...` );
     } else {
         console.log();
-    }
-
-    const envHosts = await envUtils.getEnvHosts( envPath );
-    if ( Array.isArray( envHosts ) && envHosts.length > 0 ) {
-        if ( spinner ) {
-            spinner.info( `Environment is configured for the following domains: ${envHosts.join( ', ' )}` );
-        } else {
-            console.log( `Environment is configured for the following domains:${os.EOL}${envHosts.join( os.EOL )}` );
-        }
     }
 }
 

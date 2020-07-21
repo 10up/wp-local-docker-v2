@@ -47,6 +47,7 @@
   "dependencies": {
     "@sindresorhus/slugify": "^1.0.0",
     "asyncro": "^3.0.0",
+    "boxen": "^4.2.0",
     "chalk": "^4.1.0",
     "docker-compose": "^0.23.4",
     "dockerode": "^3.2.0",
@@ -61,6 +62,7 @@
     "read-yaml": "^1.1.0",
     "shell-escape": "^0.2.0",
     "sudo-prompt": "^9.2.1",
+    "terminal-link": "^2.1.1",
     "update-check": "^1.5.3",
     "which": "^2.0.2",
     "write-yaml": "^1.0.0",
