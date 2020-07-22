@@ -1,31 +1,31 @@
 #!/usr/bin/env node
 
 const yargs = require( 'yargs' );
-const chalk = require( 'chalk' );
+// const chalk = require( 'chalk' );
 
-const commandUtils = require( './src/command-utils' );
-const config = require( './src/configure' );
+// const commandUtils = require( './src/command-utils' );
+// const config = require( './src/configure' );
 
-function dispatcher( cmd, withChecks = true ) {
-    return async ( ...params ) => {
-        if ( withChecks ) {
-            // Configure using defaults if not configured already
-            const configured = await config.checkIfConfigured();
-            if ( configured === false ) {
-                await config.configureDefaults();
-            }
+// function dispatcher( cmd, withChecks = true ) {
+//     return async ( ...params ) => {
+//         if ( withChecks ) {
+//             // Configure using defaults if not configured already
+//             const configured = await config.checkIfConfigured();
+//             if ( configured === false ) {
+//                 await config.configureDefaults();
+//             }
 
-            // Show warning if docker isn't running
-            if ( commandUtils.checkIfDockerRunning() === false ) {
-                console.error( chalk.red( 'Error: Docker doesn\'t appear to be running. Please start Docker and try again' ) );
-                process.exit( 1 );
-            }
-        }
+//             // Show warning if docker isn't running
+//             if ( commandUtils.checkIfDockerRunning() === false ) {
+//                 console.error( chalk.red( 'Error: Docker doesn\'t appear to be running. Please start Docker and try again' ) );
+//                 process.exit( 1 );
+//             }
+//         }
 
-        await commandUtils.checkForUpdates();
-        await require( `./src/${cmd}` ).command( ...params );
-    };
-}
+//         await commandUtils.checkForUpdates();
+//         await require( `./src/${cmd}` ).command( ...params );
+//     };
+// }
 
 // usage and help flag
 yargs.scriptName( '10updocker' );
@@ -48,10 +48,7 @@ yargs.option( 'env', {
     type: 'string',
 } );
 
-// commands
+// define commands, parse and process CLI args
 yargs.commandDir( 'src/commands' );
-yargs.command( 'migrate', 'Migrates a V1 WP Local Docker environment to a new V2 environment.', {}, dispatcher( 'migrate' ) );
-
-// parse and process CLI args
 yargs.demandCommand();
 yargs.parse();
