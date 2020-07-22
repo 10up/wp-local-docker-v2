@@ -1,54 +1,46 @@
 #!/usr/bin/env node
 
 const yargs = require( 'yargs' );
-// const chalk = require( 'chalk' );
 
-// const commandUtils = require( './src/command-utils' );
-// const config = require( './src/configure' );
+const { checkIfConfigured, configureDefaults } = require( './src/configure' );
+const { checkForUpdates } = require( './src/command-utils' );
 
-// function dispatcher( cmd, withChecks = true ) {
-//     return async ( ...params ) => {
-//         if ( withChecks ) {
-//             // Configure using defaults if not configured already
-//             const configured = await config.checkIfConfigured();
-//             if ( configured === false ) {
-//                 await config.configureDefaults();
-//             }
+async function bootstrap() {
+    // check configuration
+    const configured = await checkIfConfigured();
+    if ( configured === false ) {
+        await configureDefaults();
+    }
 
-//             // Show warning if docker isn't running
-//             if ( commandUtils.checkIfDockerRunning() === false ) {
-//                 console.error( chalk.red( 'Error: Docker doesn\'t appear to be running. Please start Docker and try again' ) );
-//                 process.exit( 1 );
-//             }
-//         }
+    // check if a new version of the package exists
+    await checkForUpdates();
 
-//         await commandUtils.checkForUpdates();
-//         await require( `./src/${cmd}` ).command( ...params );
-//     };
-// }
+    // usage and help flag
+    yargs.scriptName( '10updocker' );
+    yargs.usage( 'Usage: 10updocker <command>' );
+    yargs.wrap( Math.min( 150, yargs.terminalWidth() ) );
+    yargs.help( 'h' );
+    yargs.alias( 'h', 'help' );
+    yargs.alias( 'v', 'version' );
 
-// usage and help flag
-yargs.scriptName( '10updocker' );
-yargs.usage( 'Usage: 10updocker <command>' );
-yargs.wrap( Math.min( 150, yargs.terminalWidth() ) );
-yargs.help( 'h' );
-yargs.alias( 'h', 'help' );
-yargs.alias( 'v', 'version' );
+    // global options
+    yargs.option( 'verbose', {
+        description: 'Display extended output',
+        default: false,
+        type: 'boolean',
+    } );
 
-// global options
-yargs.option( 'verbose', {
-    description: 'Display extended output',
-    default: false,
-    type: 'boolean',
-} );
+    yargs.option( 'env', {
+        description: 'Environment name',
+        default: false,
+        type: 'string',
+    } );
 
-yargs.option( 'env', {
-    description: 'Environment name',
-    default: false,
-    type: 'string',
-} );
+    // define commands, parse and process CLI args
+    yargs.commandDir( 'src/commands' );
+    yargs.demandCommand();
+    yargs.parse();
+}
 
-// define commands, parse and process CLI args
-yargs.commandDir( 'src/commands' );
-yargs.demandCommand();
-yargs.parse();
+// start
+bootstrap();
