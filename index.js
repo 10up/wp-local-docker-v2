@@ -51,7 +51,6 @@ yargs.option( 'env', {
 // commands
 yargs.commandDir( 'src/commands' );
 yargs.command( 'migrate', 'Migrates a V1 WP Local Docker environment to a new V2 environment.', {}, dispatcher( 'migrate' ) );
-yargs.command( [ 'wpsnapshots', 'snapshots' ], 'Runs a wp snapshots command.', {}, dispatcher( 'wpsnapshots' ) );
 
 // parse and process CLI args
 yargs.demandCommand();
