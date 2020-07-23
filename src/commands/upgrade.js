@@ -38,7 +38,7 @@ exports.handler = makeCommand( chalk, logSymbols, async ( { verbose } ) => {
             if ( err ) {
                 console.log( err );
             }
-            console.log( `Created backup of previous configuration ${envSlug}` );
+            console.log( `Created backup of previous configuration ${ envSlug }` );
             resolve();
         } );
     } );
@@ -64,7 +64,7 @@ exports.handler = makeCommand( chalk, logSymbols, async ( { verbose } ) => {
 
         process.exit( 1 );
     }
-    upgraded.services.phpfpm.image = images[`php${phpVersion}`];
+    upgraded.services.phpfpm.image = images[`php${ phpVersion }`];
 
     // Upgrade volume mounts.
     const deprecatedVolumes = [
@@ -96,17 +96,17 @@ exports.handler = makeCommand( chalk, logSymbols, async ( { verbose } ) => {
     // wrong user. Here we setup the docker-compose.yml file to rebuild the
     // phpfpm container so that it runs as the user who created the project.
     if ( os.platform() == 'linux' ) {
-        upgraded.services.phpfpm.image = `wp-php-fpm-dev-${phpVersion}-${process.env.USER}`;
+        upgraded.services.phpfpm.image = `wp-php-fpm-dev-${ phpVersion }-${ process.env.USER }`;
         upgraded.services.phpfpm.build = {
             'dockerfile': '.containers/php-fpm',
             'context': '.',
             'args': {
-                'PHP_IMAGE': images[`php${phpVersion}`],
+                'PHP_IMAGE': images[`php${ phpVersion }`],
                 'CALLING_USER': process.env.USER,
                 'CALLING_UID': process.getuid()
             }
         };
-        upgraded.services.phpfpm.volumes.push( `~/.ssh:/home/${process.env.USER}/.ssh:cached` );
+        upgraded.services.phpfpm.volumes.push( `~/.ssh:/home/${ process.env.USER }/.ssh:cached` );
     }
     else {
         // the official containers for this project will have a www-data user.
@@ -118,7 +118,7 @@ exports.handler = makeCommand( chalk, logSymbols, async ( { verbose } ) => {
             if ( err ) {
                 console.log( err );
             }
-            console.log( `Finished updating ${envSlug} for WP Local Docker v2.6` );
+            console.log( `Finished updating ${ envSlug } for WP Local Docker v2.6` );
             resolve();
         } );
     } );

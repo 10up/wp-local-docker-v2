@@ -16,7 +16,7 @@ exports.handler = ( { shell } ) => {
     switch( shell ) {
         case 'bash': {
             const filename = resolve( __dirname, '..', 'scripts', '10updocker-completion.bash' );
-            console.log( `source ${filename}` );
+            console.log( `source ${ filename }` );
             break;
         }
         case 'zsh':

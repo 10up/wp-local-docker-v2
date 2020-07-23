@@ -68,7 +68,7 @@ exports.handler = makeCommand( chalk, logSymbols, async function( { _, env, verb
 
     if ( ! envPath ) {
         try {
-            execSync( `docker run -it --rm -v "${wpsnapshotsDir}:/home/wpsnapshots/.wpsnapshots" ${images.wpsnapshots} ${shellEscape( command )}`, { stdio: 'inherit' } );
+            execSync( `docker run -it --rm -v "${ wpsnapshotsDir }:/home/wpsnapshots/.wpsnapshots" ${ images.wpsnapshots } ${ shellEscape( command ) }`, { stdio: 'inherit' } );
         } catch( e ) {
             // do nothing
         }
@@ -76,7 +76,7 @@ exports.handler = makeCommand( chalk, logSymbols, async function( { _, env, verb
         await gateway.startGlobal( spinner );
 
         try {
-            execSync( `docker run -it --rm --network wplocaldocker -v "${envPath}/wordpress:/var/www/html" -v "${wpsnapshotsDir}:/home/wpsnapshots/.wpsnapshots" ${images.wpsnapshots} --db_user=root ${shellEscape( command )}`, { stdio: 'inherit' } );
+            execSync( `docker run -it --rm --network wplocaldocker -v "${ envPath }/wordpress:/var/www/html" -v "${ wpsnapshotsDir }:/home/wpsnapshots/.wpsnapshots" ${ images.wpsnapshots } --db_user=root ${ shellEscape( command ) }`, { stdio: 'inherit' } );
         } catch( e ) {
             // do nothing
         }

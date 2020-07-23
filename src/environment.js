@@ -42,7 +42,7 @@ async function start( env, spinner, pull ) {
 
     if ( pull ) {
         if ( spinner ) {
-            spinner.start( `Pulling latest images for ${chalk.cyan( envSlug )}...` );
+            spinner.start( `Pulling latest images for ${ chalk.cyan( envSlug ) }...` );
         } else {
             console.log( 'Pulling latest images for containers' );
         }
@@ -50,20 +50,20 @@ async function start( env, spinner, pull ) {
         await compose.pullAll( composeArgs );
 
         if ( spinner ) {
-            spinner.succeed( `${chalk.cyan( envSlug )} environment images are up-to-date...` );
+            spinner.succeed( `${ chalk.cyan( envSlug ) } environment images are up-to-date...` );
         }
     }
 
     if ( spinner ) {
-        spinner.start( `Starting docker containers for ${chalk.cyan( envSlug )}...` );
+        spinner.start( `Starting docker containers for ${ chalk.cyan( envSlug ) }...` );
     } else {
-        console.log( `Starting docker containers for ${envSlug}` );
+        console.log( `Starting docker containers for ${ envSlug }` );
     }
 
     await compose.upAll( composeArgs );
 
     if ( spinner ) {
-        spinner.succeed( `${chalk.cyan( envSlug )} environment is started...` );
+        spinner.succeed( `${ chalk.cyan( envSlug ) } environment is started...` );
     } else {
         console.log();
     }
@@ -74,9 +74,9 @@ async function stop( env, spinner ) {
     const envSlug = envUtils.envSlug( env );
 
     if ( spinner ) {
-        spinner.start( `Stopping docker containers for ${chalk.cyan( envSlug )}...` );
+        spinner.start( `Stopping docker containers for ${ chalk.cyan( envSlug ) }...` );
     } else {
-        console.log( `Stopping docker containers for ${envSlug}` );
+        console.log( `Stopping docker containers for ${ envSlug }` );
     }
 
     await compose.down( {
@@ -85,7 +85,7 @@ async function stop( env, spinner ) {
     } );
 
     if ( spinner ) {
-        spinner.succeed( `${chalk.cyan( envSlug )} environment is stopped...` );
+        spinner.succeed( `${ chalk.cyan( envSlug ) } environment is stopped...` );
     } else {
         console.log();
     }
@@ -98,9 +98,9 @@ async function restart( env, spinner ) {
     await gateway.startGlobal( spinner );
 
     if ( spinner ) {
-        spinner.start( `Restarting docker containers for ${chalk.cyan( envSlug )}...` );
+        spinner.start( `Restarting docker containers for ${ chalk.cyan( envSlug ) }...` );
     } else {
-        console.log( `Restarting docker containers for ${envSlug}` );
+        console.log( `Restarting docker containers for ${ envSlug }` );
     }
 
     const composeArgs = {
@@ -120,7 +120,7 @@ async function restart( env, spinner ) {
     }
 
     if ( spinner ) {
-        spinner.succeed( `${chalk.cyan( envSlug )} environment is restarted...` );
+        spinner.succeed( `${ chalk.cyan( envSlug ) } environment is restarted...` );
     } else {
         console.log();
     }
@@ -133,7 +133,7 @@ async function deleteEnv( env, spinner ) {
     const answers = await inquirer.prompt( {
         name: 'confirm',
         type: 'confirm',
-        message: `Are you sure you want to delete the ${envSlug} environment`,
+        message: `Are you sure you want to delete the ${ envSlug } environment`,
         validate: promptValidators.validateNotEmpty,
         default: false,
     } );
@@ -182,10 +182,10 @@ async function deleteEnv( env, spinner ) {
 
             await new Promise( resolve => {
                 if ( !spinner ) {
-                    console.log( ` - Removing ${hostsToDelete}` );
+                    console.log( ` - Removing ${ hostsToDelete }` );
                 }
 
-                sudo.exec( `${node} ${hostsScript} remove ${hostsToDelete}`, sudoOptions, ( error, stdout ) => {
+                sudo.exec( `${ node } ${ hostsScript } remove ${ hostsToDelete }`, sudoOptions, ( error, stdout ) => {
                     if ( error ) {
                         if ( spinner ) {
                             spinner.warn( 'Something went wrong deleting host file entries. There may still be remnants in /etc/hosts' );
@@ -266,7 +266,7 @@ async function upgradeEnv( env ) {
             if ( err ) {
                 console.log( err );
             }
-            console.log( `Finished updating ${envSlug}` );
+            console.log( `Finished updating ${ envSlug }` );
             resolve();
         } );
     } );

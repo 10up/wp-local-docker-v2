@@ -10,8 +10,8 @@ async function downloadWordPress( wordpressType, compose, cwd, log, spinner ) {
             log,
             composeOptions: [
                 '--rm',
-                `-v ${cwd}/wordpress:/usr/src/app`,
-                `-v ${envUtils.cacheVolume}:/var/www/.npm`,
+                `-v ${ cwd }/wordpress:/usr/src/app`,
+                `-v ${ envUtils.cacheVolume }:/var/www/.npm`,
             ],
         } );
 
@@ -20,7 +20,7 @@ async function downloadWordPress( wordpressType, compose, cwd, log, spinner ) {
             log,
             composeOptions: [
                 '--rm',
-                `-v ${cwd}/wordpress:/usr/src/app`,
+                `-v ${ cwd }/wordpress:/usr/src/app`,
             ],
         } );
 
@@ -32,7 +32,7 @@ async function downloadWordPress( wordpressType, compose, cwd, log, spinner ) {
 }
 
 async function configure( envSlug, compose, cwd, log, spinner ) {
-    const command = `wp config create --force --dbname=${envSlug} --dbuser=wordpress --dbpass=password --dbhost=mysql`;
+    const command = `wp config create --force --dbname=${ envSlug } --dbuser=wordpress --dbpass=password --dbhost=mysql`;
 
     spinner.start( 'Configuring WordPress...' );
     await compose.exec( 'phpfpm', command, { cwd, log } );
@@ -66,13 +66,13 @@ async function install( hostname, wordpress, compose, cwd, log, spinner ) {
             throw Error( 'Invalid Installation Type' );
     }
 
-    const url = `${https ? 'https' : 'http'}://${hostname}`;
+    const url = `${ https ? 'https' : 'http' }://${ hostname }`;
 
-    command.push( `--url=${url}` );
-    command.push( `--title=${title}` );
-    command.push( `--admin_user=${username}` );
-    command.push( `--admin_password=${password}` );
-    command.push( `--admin_email=${email}` );
+    command.push( `--url=${ url }` );
+    command.push( `--title=${ title }` );
+    command.push( `--admin_user=${ username }` );
+    command.push( `--admin_password=${ password }` );
+    command.push( `--admin_email=${ email }` );
 
     spinner.start( 'Installing WordPress...' );
     await compose.exec( 'phpfpm', command, { cwd, log } );

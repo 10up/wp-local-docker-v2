@@ -127,6 +127,10 @@
       "yoda": [
         "error",
         "never"
+      ],
+      "template-curly-spacing": [
+        "error",
+        "always"
       ]
     }
   }

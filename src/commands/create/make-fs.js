@@ -10,7 +10,7 @@ module.exports = function makeFs( chalk, spinner ) {
 
         // @ts-ignore
         if ( envPathStats && envPathStats.isDirectory() ) {
-            throw new Error( `Error: ${hostname} environment already exists. To recreate the environment, please delete it first by running \`10updocker delete ${hostname}\`` );
+            throw new Error( `Error: ${ hostname } environment already exists. To recreate the environment, please delete it first by running \`10updocker delete ${ hostname }\`` );
         }
 
         spinner.start( 'Making root directory...' );

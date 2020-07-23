@@ -35,14 +35,14 @@ async function removeBuiltImages( docker, spinner ) {
             const name = images[ i ].RepoTags[0];
 
             if ( spinner ) {
-                spinner.start( `Removing ${chalk.cyan( name )} image...` );
+                spinner.start( `Removing ${ chalk.cyan( name ) } image...` );
             }
 
             const image = docker.getImage( name );
             await image.remove();
 
             if ( spinner ) {
-                spinner.succeed( `${chalk.cyan( name )} image has been removed...` );
+                spinner.succeed( `${ chalk.cyan( name ) } image has been removed...` );
             }
         }
     } else if ( spinner ) {
@@ -52,9 +52,9 @@ async function removeBuiltImages( docker, spinner ) {
 
 async function updateIfUsed( docker, name, spinner ) {
     if ( spinner ) {
-        spinner.start( `Checking ${chalk.cyan( name )} image...` );
+        spinner.start( `Checking ${ chalk.cyan( name ) } image...` );
     } else {
-        console.log( `Testing ${name}` );
+        console.log( `Testing ${ name }` );
     }
 
     const image = docker.getImage( name );
@@ -62,19 +62,19 @@ async function updateIfUsed( docker, name, spinner ) {
 
     if ( !data ) {
         if ( spinner ) {
-            spinner.info( `${chalk.cyan( name )} doesn't exist on this system. Skipping update...` );
+            spinner.info( `${ chalk.cyan( name ) } doesn't exist on this system. Skipping update...` );
         } else {
-            console.log( `${name} doesn't exist on this system. Skipping update.` );
+            console.log( `${ name } doesn't exist on this system. Skipping update.` );
         }
     } else {
         if ( spinner ) {
-            spinner.text = `Pulling ${chalk.cyan( name )} image...`;
+            spinner.text = `Pulling ${ chalk.cyan( name ) } image...`;
         }
 
         await docker.pull( name );
 
         if ( spinner ) {
-            spinner.succeed( `${chalk.cyan( name )} has been updated...` );
+            spinner.succeed( `${ chalk.cyan( name ) } has been updated...` );
         }
     }
 }

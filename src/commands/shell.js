@@ -55,7 +55,7 @@ exports.handler = makeCommand( chalk, logSymbols, async ( { container, cmd, env,
         spinner && spinner.succeed( 'Environment is running...' );
     }
 
-    execSync( `docker-compose exec ${container} ${cmd}`, {
+    execSync( `docker-compose exec ${ container } ${ cmd }`, {
         stdio: 'inherit',
         cwd: envPath,
     } );

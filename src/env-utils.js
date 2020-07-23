@@ -152,11 +152,11 @@ async function getPathOrError( env, { log, error } = console ) {
         env = await promptEnv();
     }
 
-    log( `Locating project files for ${env}` );
+    log( `Locating project files for ${ env }` );
 
     const _envPath = await envPath( env );
     if ( ! await fs.pathExists( _envPath ) ) {
-        error( `Cannot find ${env} environment!` );
+        error( `Cannot find ${ env } environment!` );
         process.exit( 1 );
     }
 

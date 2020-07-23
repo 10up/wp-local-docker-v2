@@ -66,7 +66,7 @@ exports.handler = makeCommand( chalk, logSymbols, async ( { verbose, env } ) => 
     }
 
     // Run the command
-    execSync( `docker-compose exec ${ttyFlag} phpfpm ${shellEscape( command )}`, {
+    execSync( `docker-compose exec ${ ttyFlag } phpfpm ${ shellEscape( command ) }`, {
         stdio: 'inherit',
         cwd: envPath
     } );

@@ -33,7 +33,7 @@ function waitForDB( containerName ) {
     return new Promise( resolve => {
         const interval = setInterval( () => {
             console.log( 'Waiting for mysql...' );
-            exec( `docker logs ${containerName}`, ( error, stdout, stderr ) => {
+            exec( `docker logs ${ containerName }`, ( error, stdout, stderr ) => {
                 if ( error ) {
                     console.error( 'Error exporting database!' );
                     process.exit();
@@ -51,20 +51,20 @@ function waitForDB( containerName ) {
 async function exportOldDatabase( oldEnv, exportDir ) {
     const dataDir = path.join( oldEnv, 'data', 'db' );
     const parts = path.parse( oldEnv );
-    const base = `mysql-${parts.name}`;
+    const base = `mysql-${ parts.name }`;
 
     // Just in case this failed and are retrying
     try {
-        execSync( `docker stop ${base}`, { stdio: 'ignore' } );
-        execSync( `docker rm ${base}`, { stdio: 'ignore' } );
+        execSync( `docker stop ${ base }`, { stdio: 'ignore' } );
+        execSync( `docker rm ${ base }`, { stdio: 'ignore' } );
     } catch( ex ) {}
 
     try {
-        execSync( `docker run -d --rm --name ${base} -v ${dataDir}:/var/lib/mysql -v ${exportDir}:/tmp/export mysql:5`, { stdio: 'inherit' } );
+        execSync( `docker run -d --rm --name ${ base } -v ${ dataDir }:/var/lib/mysql -v ${ exportDir }:/tmp/export mysql:5`, { stdio: 'inherit' } );
         await waitForDB( base );
         console.log( 'Exporting old database' );
-        execSync( `docker exec ${base} sh -c "/usr/bin/mysqldump -u root -ppassword wordpress > /tmp/export/database.sql"`, { stdio: 'inherit' } );
-        execSync( `docker stop ${base}` );
+        execSync( `docker exec ${ base } sh -c "/usr/bin/mysqldump -u root -ppassword wordpress > /tmp/export/database.sql"`, { stdio: 'inherit' } );
+        execSync( `docker stop ${ base }` );
     } catch ( ex ) {}
 }
 
@@ -85,7 +85,7 @@ async function copySiteFiles( oldEnv, newEnv ) {
 
     // Clear out all the current environment content
     // Only doing wp-content for now, since otherwise we would need to keep wp-config.php... But what about customizations?
-    console.log( `Removing current files from ${wpContent}` );
+    console.log( `Removing current files from ${ wpContent }` );
     await fs.emptyDir( wpContent );
 
     console.log( 'Copying files from the old wp-content folder' );
