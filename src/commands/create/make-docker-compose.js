@@ -5,6 +5,8 @@ const { images } = require( '../../docker-images' );
 
 module.exports = function makeDockerCompose( spinner ) {
     return async ( hosts, settings ) => {
+        spinner.start( 'Creating docker-compose configuration...' );
+
         const {
             php: phpVersion,
             wordpress,
@@ -12,9 +14,6 @@ module.exports = function makeDockerCompose( spinner ) {
         } = settings;
 
         const { type: wordpressType } = wordpress || {};
-
-        spinner.start( 'Creating docker-compose configuration...' );
-
         const allHosts = [ ...hosts, ...hosts.map( ( host ) => `*.${ host }` ) ];
 
         const baseConfig = {

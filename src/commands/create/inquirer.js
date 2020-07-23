@@ -244,8 +244,8 @@ module.exports = function makeInquirer( { prompt } ) {
             name: name || answers.title,
             domain: marshalDomains( domain, answers ),
             mediaProxy: answers.proxy || false,
-            php: answers.phpVersion,
-            elasticsearch: answers.elasticsearch,
+            php: php || answers.phpVersion,
+            elasticsearch: elasticsearch || answers.elasticsearch || false,
             wordpress: marshalWordPress( wordpress, answers ),
         };
     };
