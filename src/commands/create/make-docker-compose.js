@@ -6,10 +6,12 @@ const { images } = require( '../../docker-images' );
 module.exports = function makeDockerCompose( spinner ) {
     return async ( hosts, settings ) => {
         const {
-            phpVersion,
-            wordpressType,
+            php: phpVersion,
+            wordpress,
             elasticsearch,
         } = settings;
+
+        const { type: wordpressType } = wordpress || {};
 
         spinner.start( 'Creating docker-compose configuration...' );
 

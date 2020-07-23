@@ -1,3 +1,5 @@
+const { EOL } = require( 'os' );
+
 const inquirer = require( 'inquirer' );
 const chalk = require( 'chalk' );
 const logSymbols = require( 'log-symbols' );
@@ -5,6 +7,8 @@ const fsExtra = require( 'fs-extra' );
 const sudo = require( 'sudo-prompt' );
 const compose = require( 'docker-compose' );
 const which = require( 'which' );
+const boxen = require( 'boxen' );
+const terminalLink = require( 'terminal-link' );
 
 const { startGlobal } = require( '../gateway' );
 const environment = require( '../environment' );
@@ -21,16 +25,16 @@ const makeCopyConfigs = require( './create/copy-configs' );
 const makeDatabase = require( './create/create-database' );
 const makeInstallWordPress = require( './create/install-wordpress' );
 const makeSaveJsonFile = require( './create/save-json-file' );
-const makeAllHosts = require( './create/all-hosts' );
 const makeUpdateHosts = require( './create/update-hosts' );
 
 async function createCommand( spinner, defaults = {} ) {
     const answers = await makeInquirer( inquirer )( defaults );
 
-    const envHosts = makeAllHosts()( answers );
-    const envSlug = envUtils.envSlug( answers.hostname );
+    const hostname = Array.isArray( answers.domain ) ? answers.domain[0] : answers.domain;
+    const envHosts = Array.isArray( answers.domain ) ? answers.domain : [ answers.domain ];
+    const envSlug = envUtils.envSlug( hostname );
 
-    const paths = await makeFs( chalk, spinner )( answers );
+    const paths = await makeFs( chalk, spinner )( hostname );
     const saveYaml = makeSaveYamlFile( chalk, spinner, paths['/'] );
 
     const dockerComposer = await makeDockerCompose( spinner )( envHosts, answers );
@@ -43,7 +47,7 @@ async function createCommand( spinner, defaults = {} ) {
     await makeDatabase( spinner )( envSlug );
     await environment.start( envSlug, spinner );
 
-    await makeInstallWordPress( compose, spinner )( envSlug, answers );
+    await makeInstallWordPress( compose, spinner )( envSlug, hostname, answers.wordpress );
 
     await makeUpdateHosts( which, sudo, spinner )( envHosts );
     await makeSaveJsonFile( chalk, spinner, paths['/'] )( '.config.json', { envHosts } );
@@ -61,10 +65,26 @@ exports.handler = makeCommand( chalk, logSymbols, async () => {
     const spinner = makeSpinner();
     const answers = await createCommand( spinner, {} );
 
-    spinner.succeed( 'Successfully Created Site!' );
-    if ( answers.wordpressType === 'subdomain' ) {
+    if ( !! answers.wordpress && answers.wordpress.type === 'subdomain' ) {
         spinner.info( 'Note: Subdomain multisites require any additional subdomains to be added manually to your hosts file!' );
     }
+
+    const http = !! answers.wordpress && !! answers.wordpress.https ? 'https' : 'http';
+    let info = `Successfully Created Site!${ EOL }${ EOL }`;
+    ( Array.isArray( answers.domain ) ? answers.domain : [ answers.domain ] ).forEach( ( host ) => {
+        const home = `${ http }://${ host }/`;
+        const admin = `${ http }://${ host }/wp-admin/`;
+
+        info += `Homepage: ${ terminalLink( home, home ) }${ EOL }`;
+        info += `Admin: ${ terminalLink( admin, admin ) }${ EOL }`;
+        info += EOL;
+    } );
+
+    console.log( boxen( info.trim(), {
+        padding: 2,
+        align: 'left',
+        borderColor: 'magenta',
+    } ) );
 } );
 
 exports.createCommand = createCommand;

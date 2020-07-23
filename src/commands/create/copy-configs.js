@@ -5,7 +5,7 @@ const { srcPath } = require( '../../env-utils' );
 const { createProxyConfig } = require( '../../configure' );
 
 module.exports = function makeCopyConfigs( spinner, { copy } ) {
-    return async ( paths, { proxy, mediaProxy, wordpressType } ) => {
+    return async ( paths, { mediaProxy, wordpress } ) => {
         const envPath = paths['/'];
 
         spinner.start( 'Copying configuration files...' );
@@ -13,12 +13,13 @@ module.exports = function makeCopyConfigs( spinner, { copy } ) {
         await copy( join( srcPath, 'config' ), join( envPath, 'config' ) );
         await copy( join( srcPath, 'containers' ), join( envPath, '.containers' ) );
 
-        if ( mediaProxy === true ) {
-            const nginxConfig = wordpressType == 'dev' ? 'develop.conf' : 'default.conf';
+        if ( mediaProxy ) {
+            const { type } = wordpress || {};
+            const nginxConfig = type == 'dev' ? 'develop.conf' : 'default.conf';
             const nginxConfigPath = join( envPath, 'config', 'nginx', nginxConfig );
 
             const curConfig = await readFile( nginxConfigPath );
-            await writeFile( nginxConfigPath, createProxyConfig( proxy, curConfig ) );
+            await writeFile( nginxConfigPath, createProxyConfig( mediaProxy, curConfig ) );
         }
 
         spinner.succeed( 'Configuration files are copied...' );

@@ -52,17 +52,12 @@ exports.handler = makeCommand( chalk, logSymbols, async ( { url, branch, config 
     const configuration = await makePullConfig( spinner )( tempDir, config );
     // create environment
     const answers = await createCommand( spinner, configuration || {} );
-
-    const { 
-        mount_point: mountPoint,
-        snapshot_id: snapshotId,
-        paths,
-    } = answers;
+    const { mountPoint, snapshot, paths } = answers;
 
     // move repository
     await makeMoveRepository( chalk, spinner, fsExtra, paths.wordpress )( tempDir, mountPoint || 'wp-content' );
 
-    if ( snapshotId ) {
+    if ( snapshot ) {
         // @todo: run wpsnapshots
     }
 

@@ -4,7 +4,7 @@ const { stat, mkdir } = require( 'fs' ).promises;
 const envUtils = require( '../../env-utils' );
 
 module.exports = function makeFs( chalk, spinner ) {
-    return async ( { hostname } ) => {
+    return async ( hostname ) => {
         const envPath = await envUtils.envPath( hostname );
         const envPathStats = await stat( envPath ).catch( () => false );
 

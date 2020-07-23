@@ -39,19 +39,18 @@ async function configure( envSlug, compose, cwd, log, spinner ) {
     spinner.succeed( 'WordPress config is created...' );
 }
 
-async function install( answers, compose, cwd, log, spinner ) {
+async function install( hostname, wordpress, compose, cwd, log, spinner ) {
     const {
-        hostname,
         title,
         username,
         password,
         email,
-        wordpressType,
-        addHttps,
-    } = answers;
+        type,
+        https,
+    } = wordpress;
 
     const command = [ 'wp', 'core' ];
-    switch ( wordpressType ) {
+    switch ( type ) {
         case 'single':
         case 'dev':
             command.push( 'install' );
@@ -67,11 +66,10 @@ async function install( answers, compose, cwd, log, spinner ) {
             throw Error( 'Invalid Installation Type' );
     }
 
-    const http = addHttps ? 'https' : 'http';
-    const url = `${http}://${hostname}`;
+    const url = `${https ? 'https' : 'http'}://${hostname}`;
 
     command.push( `--url=${url}` );
-    command.push( `--title="${title}"` );
+    command.push( `--title=${title}` );
     command.push( `--admin_user=${username}` );
     command.push( `--admin_password=${password}` );
     command.push( `--admin_email=${email}` );
@@ -99,8 +97,7 @@ async function emptyContent( compose, cwd, log, spinner ) {
 }
 
 module.exports = function makeInstallWordPress( compose, spinner ) {
-    return async ( envSlug, answers ) => {
-        const { wordpress, wordpressType, emptyContent: clearContent } = answers;
+    return async ( envSlug, hostname, wordpress ) => {
         if ( ! wordpress ) {
             return;
         }
@@ -109,12 +106,12 @@ module.exports = function makeInstallWordPress( compose, spinner ) {
             const cwd = await envUtils.envPath( envSlug );
             const log = false;
 
-            await downloadWordPress( wordpressType, compose, cwd, log, spinner );
+            await downloadWordPress( wordpress.type, compose, cwd, log, spinner );
             await configure( envSlug, compose, cwd, log, spinner );
-            await install( answers, compose, cwd, log, spinner );
+            await install( hostname, wordpress, compose, cwd, log, spinner );
             await setRewrites( compose, cwd, log, spinner );
 
-            if ( clearContent ) {
+            if ( wordpress.purify ) {
                 await emptyContent( compose, cwd, log, spinner );
             }
         } catch( error ) {
