@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file, per [the Keep a Changelog standard](http://keepachangelog.com/).
 
-## [Unreleased] - TBD
+## [2.8.0] - TBD
 
 ## [2.7.0] - 2020-03-12
 ### Added
