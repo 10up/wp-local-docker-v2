@@ -64,15 +64,15 @@ exports.handler = makeCommand( chalk, logSymbols, async ( { verbose, pull, env }
                 const home = `http://${ host }/`;
                 const admin = `http://${ host }/wp-admin/`;
 
-                info += `Homepage: ${ terminalLink( home, home ) }${ EOL }`;
-                info += `Admin: ${ terminalLink( admin, admin ) }${ EOL }`;
+                info += `Homepage: ${ terminalLink( chalk.cyanBright( home ), home ) }${ EOL }`;
+                info += `WP admin: ${ terminalLink( chalk.cyanBright( admin ), admin ) }${ EOL }`;
                 info += EOL;
             } );
 
             console.log( boxen( info.trim(), {
                 padding: 2,
                 align: 'left',
-                borderColor: 'magenta',
+                borderColor: 'magentaBright',
             } ) );
         }
     }
