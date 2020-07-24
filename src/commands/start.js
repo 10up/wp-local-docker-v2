@@ -2,11 +2,12 @@ const { EOL } = require( 'os' );
 
 const chalk = require( 'chalk' );
 const logSymbols = require( 'log-symbols' );
-const boxen = require( 'boxen' );
 const terminalLink = require( 'terminal-link' );
 
 const makeCommand = require( '../utils/make-command' );
 const makeSpinner = require( '../utils/make-spinner' );
+const makeBoxen = require( '../utils/make-boxen' );
+
 const envUtils = require( '../env-utils' );
 const { startAll, start } = require( '../environment' );
 
@@ -69,11 +70,7 @@ exports.handler = makeCommand( chalk, logSymbols, async ( { verbose, pull, env }
                 info += EOL;
             } );
 
-            console.log( boxen( info.trim(), {
-                padding: 2,
-                align: 'left',
-                borderColor: 'magentaBright',
-            } ) );
+            makeBoxen()( info );
         }
     }
 } );

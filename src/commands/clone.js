@@ -1,15 +1,17 @@
 const { mkdtempSync } = require( 'fs' );
 const { join } = require( 'path' );
-const { tmpdir } = require( 'os' );
+const { tmpdir, EOL } = require( 'os' );
 
 const git = require( 'nodegit' );
 const chalk = require( 'chalk' );
 const logSymbols = require( 'log-symbols' );
 const inquirer = require( 'inquirer' );
 const fsExtra = require( 'fs-extra' );
+const terminalLink = require( 'terminal-link' );
 
 const makeSpinner = require( '../utils/make-spinner' );
 const makeCommand = require( '../utils/make-command' );
+const makeBoxen = require( '../utils/make-boxen' );
 
 const makeGitClone = require( './clone/git-clone' );
 const makePullConfig = require( './clone/pull-config' );
@@ -64,4 +66,17 @@ exports.handler = makeCommand( chalk, logSymbols, async ( { url, branch, config 
     if ( spinner.isSpinning ) {
         spinner.stop();
     }
+
+    const http = !! answers.wordpress && !! answers.wordpress.https ? 'https' : 'http';
+    let info = `Successfully Cloned Site!${ EOL }${ EOL }`;
+    ( Array.isArray( answers.domain ) ? answers.domain : [ answers.domain ] ).forEach( ( host ) => {
+        const home = `${ http }://${ host }/`;
+        const admin = `${ http }://${ host }/wp-admin/`;
+
+        info += `Homepage: ${ terminalLink( chalk.cyanBright( home ), home ) }${ EOL }`;
+        info += `WP admin: ${ terminalLink( chalk.cyanBright( admin ), admin ) }${ EOL }`;
+        info += EOL;
+    } );
+
+    makeBoxen()( info );
 } );

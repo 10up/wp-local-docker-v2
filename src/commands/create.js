@@ -7,7 +7,6 @@ const fsExtra = require( 'fs-extra' );
 const sudo = require( 'sudo-prompt' );
 const compose = require( 'docker-compose' );
 const which = require( 'which' );
-const boxen = require( 'boxen' );
 const terminalLink = require( 'terminal-link' );
 
 const { startGlobal } = require( '../gateway' );
@@ -16,6 +15,7 @@ const envUtils = require( '../env-utils' );
 
 const makeSpinner = require( '../utils/make-spinner' );
 const makeCommand = require( '../utils/make-command' );
+const makeBoxen = require( '../utils/make-boxen' );
 
 const makeInquirer = require( './create/inquirer' );
 const makeDockerCompose = require( './create/make-docker-compose' );
@@ -80,11 +80,7 @@ exports.handler = makeCommand( chalk, logSymbols, async () => {
         info += EOL;
     } );
 
-    console.log( boxen( info.trim(), {
-        padding: 2,
-        align: 'left',
-        borderColor: 'magentaBright',
-    } ) );
+    makeBoxen()( info );
 } );
 
 exports.createCommand = createCommand;
