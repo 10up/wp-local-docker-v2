@@ -38,7 +38,12 @@
     "type": "git",
     "url": "git@github.com:10up/wp-local-docker-v2.git"
   },
-  "author": "Chris Marslender",
+  "author": "10up",
+  "contributors": [
+    {
+      "name": "Chris Marslender"
+    }
+  ],
   "dependencies": {
     "@sindresorhus/slugify": "^0.3.0",
     "asyncro": "^3.0.0",
