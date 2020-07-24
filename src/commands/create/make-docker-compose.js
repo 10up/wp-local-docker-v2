@@ -121,15 +121,16 @@ module.exports = function makeDockerCompose( spinner ) {
             baseConfig.volumes.elasticsearchData = {};
         }
 
+        let dockerComposeConfig = { ...baseConfig };
         if ( typeof settings.dockerCompose === 'function' ) {
-            const filteredConfig = await settings.dockerCompose.call( null, baseConfig, settings, { spinner } );
+            const filteredConfig = await settings.dockerCompose.call( settings, baseConfig, { spinner } );
             if ( filteredConfig ) {
-                return filteredConfig;
+                dockerComposeConfig = { ...filteredConfig };
             }
         }
 
         spinner.succeed( 'Docker-compose configuration is created...' );
 
-        return baseConfig;
+        return dockerComposeConfig;
     };
 };
