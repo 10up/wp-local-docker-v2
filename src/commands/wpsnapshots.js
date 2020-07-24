@@ -8,7 +8,6 @@ const shellEscape = require( 'shell-escape' );
 
 const envUtils = require( '../env-utils' );
 const gateway = require( '../gateway' );
-const configure = require( '../configure' );
 const { images } = require( '../docker-images' );
 const makeCommand = require( '../utils/make-command' );
 const makeSpinner = require( '../utils/make-spinner' );
@@ -19,10 +18,7 @@ exports.desc = 'Runs a wp snapshots command.';
 
 exports.handler = makeCommand( chalk, logSymbols, async function( { _, env, verbose } ) {
     const spinner = ! verbose ? makeSpinner() : undefined;
-
-    // Ensure that the wpsnapshots folder is created and owned by the current user versus letting docker create it so we can enforce proper ownership later
-    const wpsnapshotsDir = await configure.get( 'snapshotsPath' );
-    await fs.ensureDir( wpsnapshotsDir );
+    const wpsnapshotsDir = await envUtils.getSnapshotsPath();
 
     // Get everything after the snapshots command, so we can pass to the docker container
     let wpsnapshotsCommand = false;

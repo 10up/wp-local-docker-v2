@@ -9,6 +9,8 @@ const inquirer = require( 'inquirer' );
 const fsExtra = require( 'fs-extra' );
 const terminalLink = require( 'terminal-link' );
 
+const envUtils = require( '../env-utils' );
+const { images } = require( '../docker-images' );
 const makeSpinner = require( '../utils/make-spinner' );
 const makeCommand = require( '../utils/make-command' );
 const makeBoxen = require( '../utils/make-boxen' );
@@ -16,6 +18,7 @@ const makeBoxen = require( '../utils/make-boxen' );
 const makeGitClone = require( './clone/git-clone' );
 const makePullConfig = require( './clone/pull-config' );
 const makeMoveRepository = require( './clone/move-repository' );
+const makePullSnapshot = require( './clone/pull-snapshot' );
 
 const { createCommand } = require( './create' );
 
@@ -59,12 +62,10 @@ exports.handler = makeCommand( chalk, logSymbols, async ( { url, branch, config 
     // move repository
     await makeMoveRepository( chalk, spinner, fsExtra, paths.wordpress )( tempDir, mountPoint || 'wp-content' );
 
+    // pull snapshot if available
     if ( snapshot ) {
-        // @todo: run wpsnapshots
-    }
-
-    if ( spinner.isSpinning ) {
-        spinner.stop();
+        const wpsnapshotsDir = await envUtils.getSnapshotsPath();
+        await makePullSnapshot( wpsnapshotsDir, images, inquirer, paths.wordpress )( snapshot );
     }
 
     const http = !! answers.wordpress && !! answers.wordpress.https ? 'https' : 'http';

@@ -18,18 +18,21 @@
  *  envPath     Path within `sitesPath` for the given environment
  */
 
-const slugify = require( '@sindresorhus/slugify' );
 const path = require( 'path' );
-const config = require( './configure' );
-const rootPath = path.dirname( __dirname );
-const srcPath = path.join( rootPath, 'src' );
-const cacheVolume = 'wplocaldockerCache';
-const globalPath = path.join( rootPath, 'global' );
+
+const slugify = require( '@sindresorhus/slugify' );
 const async = require( 'asyncro' );
 const fs = require( 'fs-extra' );
-const inquirer = require( 'inquirer' );
 const chalk = require( 'chalk' );
+const inquirer = require( 'inquirer' );
+
+const config = require( './configure' );
 const helper = require( './helpers' );
+
+const rootPath = path.dirname( __dirname );
+const srcPath = path.join( rootPath, 'src' );
+const globalPath = path.join( rootPath, 'global' );
+const cacheVolume = 'wplocaldockerCache';
 
 const CONFIG_FILENAME = '.config.json';
 
@@ -109,6 +112,13 @@ const getAllEnvironments = async function() {
     return dirContent;
 };
 
+async function getSnapshotsPath() {
+    // Ensure that the wpsnapshots folder is created and owned by the current user versus letting docker create it so we can enforce proper ownership later
+    const wpsnapshotsDir = await config.get( 'snapshotsPath' );
+    await fs.ensureDir( wpsnapshotsDir );
+    return wpsnapshotsDir;
+}
+
 const promptEnv = async function() {
     const environments = await getAllEnvironments();
 
@@ -182,4 +192,20 @@ const createDefaultProxy = function( value ) {
     return proxyUrl;
 };
 
-module.exports = { rootPath, srcPath, sitesPath, cacheVolume, globalPath, envSlug, envPath, parseEnvFromCWD, getAllEnvironments, promptEnv, parseOrPromptEnv, getEnvHosts, getPathOrError, createDefaultProxy };
+module.exports = {
+    rootPath,
+    srcPath,
+    sitesPath,
+    cacheVolume,
+    globalPath,
+    envSlug,
+    envPath,
+    parseEnvFromCWD,
+    getAllEnvironments,
+    promptEnv,
+    parseOrPromptEnv,
+    getEnvHosts,
+    getPathOrError,
+    createDefaultProxy,
+    getSnapshotsPath,
+};
