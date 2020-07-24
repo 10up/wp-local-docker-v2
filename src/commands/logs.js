@@ -10,7 +10,7 @@ const environment = require( '../environment' );
 const makeCommand = require( '../utils/make-command' );
 const makeSpinner = require( '../utils/make-spinner' );
 
-exports.command = 'logs [<container>]';
+exports.command = 'logs [container] [--tail=all]';
 exports.desc = 'Shows logs from the specified container in your environment (Defaults to all containers).';
 
 exports.builder = function( yargs ) {
@@ -18,9 +18,15 @@ exports.builder = function( yargs ) {
         describe: 'Container name',
         type: 'string',
     } );
+
+    yargs.option( 'tail', {
+        description: 'Number of lines to show from the end of the logs for each container',
+        default: 'all',
+        type: 'string',
+    } );
 };
 
-exports.handler = makeCommand( chalk, logSymbols, async ( { verbose, container, env } ) => {
+exports.handler = makeCommand( chalk, logSymbols, async ( { verbose, container, env, tail } ) => {
     let envSlug = env;
     if ( ! envSlug ) {
         envSlug = await envUtils.parseOrPromptEnv();
@@ -70,6 +76,7 @@ exports.handler = makeCommand( chalk, logSymbols, async ( { verbose, container, 
     }
 
     await compose.logs( services, {
+        commandOptions: [ `--tail=${ tail }` ],
         cwd: envPath,
         follow: true,
         log: true,
