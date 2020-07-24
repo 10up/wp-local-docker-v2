@@ -1,6 +1,6 @@
 {
   "name": "wp-local-docker",
-  "version": "2.7.0",
+  "version": "2.8.0-rc.1",
   "description": "WP Local Docker",
   "license": "MIT",
   "homepage": "https://10up.github.io/wp-local-docker-docs/",
@@ -40,10 +40,15 @@
     "type": "git",
     "url": "git@github.com:10up/wp-local-docker-v2.git"
   },
-  "author": "Chris Marslender",
   "engines": {
     "node": ">=10"
   },
+  "author": "10up",
+  "contributors": [
+    {
+      "name": "Chris Marslender"
+    }
+  ],
   "dependencies": {
     "@sindresorhus/slugify": "^1.0.0",
     "asyncro": "^3.0.0",
