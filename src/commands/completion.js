@@ -1,5 +1,4 @@
 const { resolve } = require( 'path' );
-const { EOL } = require( 'os' );
 
 const chalk = require( 'chalk' );
 
@@ -17,13 +16,13 @@ exports.handler = ( { shell } ) => {
     switch( shell ) {
         case 'bash': {
             const filename = resolve( __dirname, '..', 'scripts', '10updocker-completion.bash' );
-            process.stdout.write( `#${ EOL }` );
-            process.stdout.write( `# wp-local-docker command completion script${ EOL }` );
-            process.stdout.write( `#${ EOL }` );
-            process.stdout.write( `# Installation: ${ chalk.bold.cyan( '10updocker completion bash >> ~/.bashrc' ) }${ EOL }` );
-            process.stdout.write( `#    or ${ chalk.bold.cyan( '10updocker completion bash >> ~/.bash_profile' ) } on OSX.${ EOL }` );
-            process.stdout.write( `#${ EOL }` );
-            process.stdout.write( `source ${ filename }${ EOL }` );
+            console.log( '#' );
+            console.log( '# wp-local-docker command completion script' );
+            console.log( '#' );
+            console.log( `# Installation: ${ chalk.bold.cyan( '10updocker completion bash >> ~/.bashrc' ) }` );
+            console.log( `#    or ${ chalk.bold.cyan( '10updocker completion bash >> ~/.bash_profile' ) } on OSX.` );
+            console.log( '#' );
+            console.log( `source ${ filename }` );
             break;
         }
         case 'zsh':
