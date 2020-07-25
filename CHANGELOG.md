@@ -9,6 +9,7 @@ All notable changes to this project will be documented in this file, per [the Ke
 - Adds `clone` command to clone git repositories and create new environments for it.
 - Adds `completion <shell>` command to display instructions how to activate autocomplete for a specific shell. Currently only `bash` is supported.
 - Adds the ability to use project specific configuration files. It is read during clonning process and allows to define a configuration required for the project and allows to omit setup questions. If the configuration is not sufficient (for example, it misses php version), then appropriate questions will be asked fill gaps.
+- Adds `init` command to generate project configuration files.
 - Adds the ability to update a docker-compose config for an environment if the configuration file contains `dockerCompose` callback function.
 - Adds global `--env=<environment>` option to specify an environment to use and to skip environment selection prompt.
 - Adds global `--verbose` option to switch between quite and verbose output modes.

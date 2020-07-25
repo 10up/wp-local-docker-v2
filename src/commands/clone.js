@@ -42,7 +42,7 @@ exports.builder = function( yargs ) {
     yargs.option( 'c', {
         alias: 'config',
         description: 'Config file name',
-        default: 'wp-local-docker.json',
+        default: 'wp-local-docker.config.js',
         type: 'string',
     } );
 };
