@@ -326,7 +326,7 @@ const createEnv = async function() {
             'mem_limit': '1024M',
             'mem_reservation': '1024M',
             'environment': {
-                ES_JAVA_OPTS: '-Xms450m -Xmx450m'
+                ES_JAVA_OPTS: '-Xms512m -Xmx512m'
             }
         };
 
