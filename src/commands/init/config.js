@@ -66,6 +66,16 @@ exports.snapshot = {{snapshot}};
  * @type {string}
  */
 exports.mountPoint = {{mountPoint}};
+
+/**
+ * Optional. The callback function to modify docker-compose.yml file. Set FALSE
+ * if it is not needed.
+ *
+ * @type {function}
+ */
+exports.dockerCompose = function( baseConfig ) {
+    return baseConfig;
+};
 `;
 
 module.exports = function makeConfig() {
