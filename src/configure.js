@@ -1,12 +1,11 @@
-const chalk = require( 'chalk' );
 const os = require( 'os' );
-const fs = require( 'fs-extra' );
 const path = require( 'path' );
-const inquirer = require( 'inquirer' );
-const promptValidators = require( './prompt-validators' );
+
+const chalk = require( 'chalk' );
+const fs = require( 'fs-extra' );
+
 const rootPath = path.dirname( require.main.filename );
 const globalPath = path.join( rootPath, 'global' );
-
 
 // Tracks current config
 let config = null;
@@ -21,10 +20,6 @@ const getConfigFilePath = function() {
 
 const checkIfConfigured = async function() {
     return await fs.exists( getConfigFilePath() );
-};
-
-const resolveHome = function( input ) {
-    return input.replace( '~', os.homedir() );
 };
 
 const write = async function() {
@@ -70,76 +65,6 @@ const getDefaults = function() {
         manageHosts: true,
         overwriteGlobal: true
     };
-};
-
-const prompt = async function() {
-    const defaults = getDefaults();
-
-    const currentDir = await get( 'sitesPath' );
-    const currentHosts = await get( 'manageHosts' );
-    const currentSnapshots = await get( 'snapshotsPath' );
-
-    const questions = [
-        {
-            name: 'sitesPath',
-            type: 'input',
-            message: 'What directory would you like WP Local Docker to create environments within?',
-            default: currentDir || defaults.sitesPath,
-            validate: promptValidators.validateNotEmpty,
-            filter: resolveHome,
-            transformer: resolveHome,
-        },
-        {
-            name: 'snapshotsPath',
-            type: 'input',
-            message: 'What directory would you like to store WP Snapshots data within?',
-            default: currentSnapshots || defaults.snapshotsPath,
-            validate: promptValidators.validateNotEmpty,
-            filter: resolveHome,
-            transformer: resolveHome,
-        },
-        {
-            name: 'manageHosts',
-            type: 'confirm',
-            message: 'Would you like WP Local Docker to manage your hosts file?',
-            default: currentHosts !== undefined ? currentHosts : defaults.manageHosts,
-        }
-    ];
-
-    if ( fs.existsSync( path.join( getConfigDirectory(), 'global' ) ) ) {
-        questions.push(
-            {
-                name: 'overwriteGlobal',
-                type: 'confirm',
-                message: 'Do you want to reset your global services configuration? This will reset any customizations you have made.',
-                default: false
-            }
-        );
-    }
-
-    const answers = await inquirer.prompt( questions );
-
-    return Object.assign( defaults, answers );
-};
-
-const promptUnconfigured = async function() {
-    const questions = [
-        {
-            name: 'useDefaults',
-            type: 'confirm',
-            message: 'WP Local Docker is not configured. Would you like to configure using default settings?',
-            default: '',
-            validate: promptValidators.validateNotEmpty,
-        }
-    ];
-
-    const answers = await inquirer.prompt( questions );
-
-    if ( answers.useDefaults === true ) {
-        await configureDefaults();
-    } else {
-        await command();
-    }
 };
 
 const configureDefaults = async function() {
@@ -196,15 +121,7 @@ const configure = async function( configuration ) {
     await set( 'snapshotsPath', snapshotsPath );
     await set( 'manageHosts', configuration.manageHosts );
 
-
     console.log( chalk.green( 'Successfully Configured WP Local Docker!' ) );
-    console.log();
-};
-
-const command = async function() {
-    // not really any options for this command, but setting up the same structure anyways
-    const answers = await prompt();
-    await configure( answers );
 };
 
 /**
@@ -235,4 +152,13 @@ const createProxyConfig = ( proxy, curConfig ) => {
     return curConfig.replace( curConfig, newConfig );
 };
 
-module.exports = { command, promptUnconfigured, configureDefaults, checkIfConfigured, get, set, getConfigDirectory, createProxyConfig };
+module.exports = {
+    configure,
+    configureDefaults,
+    checkIfConfigured,
+    getDefaults,
+    get,
+    set,
+    getConfigDirectory,
+    createProxyConfig,
+};
