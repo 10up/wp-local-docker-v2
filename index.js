@@ -5,6 +5,7 @@ const chalk = require( 'chalk' );
 
 const commandUtils = require( './src/command-utils' );
 const config = require( './src/configure' );
+const ls = require( './src/ls' );
 
 const help = function() {
     const help = `
@@ -17,6 +18,8 @@ Commands:
   delete        Deletes a specific docker environment
   image         Manages docker images used by this environment
   logs          Shows logs from the specified container in your current environment (Defaults to all containers)
+  ls            Lists all the environments and meta information.
+  list          Lists all the environments and meta information.
   migrate       Migrates a V1 WP Local Docker environment to a new V2 environment.
   restart       Restarts a specific docker environment
   shell         Opens a shell for a specified container in your current environment (Defaults to the phpfpm container)
@@ -99,6 +102,10 @@ const init = async function() {
             break;
         case 'logs':
             await require( './src/logs' ).command();
+            break;
+        case 'list':
+        case 'ls':
+            ls.command();
             break;
         case 'migrate':
             await require( './src/migrate' ).command();
