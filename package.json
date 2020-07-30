@@ -1,6 +1,6 @@
 {
   "name": "wp-local-docker",
-  "version": "2.7.0",
+  "version": "2.8.0-rc.1",
   "description": "WP Local Docker",
   "license": "MIT",
   "homepage": "https://10up.github.io/wp-local-docker-docs/",
@@ -23,12 +23,14 @@
     "memcacheadmin",
     "mailcatcher"
   ],
+  "preferGlobal": true,
   "main": "index.js",
   "scripts": {
     "10updocker": "./index.js",
     "10updocker-hosts": "./hosts.js",
+    "test": "jest",
     "lint": "eslint . --ext .js --ignore-pattern node_modules",
-    "lint:fix": "npm run lint --silent -- --fix"
+    "format": "npm run lint --silent -- --fix"
   },
   "bin": {
     "10updocker": "./index.js",
@@ -38,27 +40,45 @@
     "type": "git",
     "url": "git@github.com:10up/wp-local-docker-v2.git"
   },
-  "author": "Chris Marslender",
+  "engines": {
+    "node": ">=10"
+  },
+  "author": "10up",
+  "contributors": [
+    {
+      "name": "Chris Marslender"
+    }
+  ],
   "dependencies": {
-    "@sindresorhus/slugify": "^0.3.0",
+    "@sindresorhus/slugify": "^1.0.0",
     "asyncro": "^3.0.0",
-    "chalk": "^2.4.2",
-    "fs-extra": "^7.0.1",
+    "boxen": "^4.2.0",
+    "chalk": "^4.1.0",
+    "docker-compose": "^0.23.4",
+    "dockerode": "^3.2.0",
+    "fs-extra": "^9.0.1",
     "hostile": "^1.3.2",
-    "inquirer": "^6.5.2",
+    "inquirer": "^7.3.2",
+    "log-symbols": "^4.0.0",
     "mysql": "^2.17.1",
     "netcat": "^1.4.0",
+    "nodegit": "^0.26.5",
+    "ora": "^4.0.4",
     "read-yaml": "^1.1.0",
     "shell-escape": "^0.2.0",
-    "sudo-prompt": "^8.2.5",
+    "sudo-prompt": "^9.2.1",
+    "terminal-link": "^2.1.1",
     "update-check": "^1.5.3",
-    "write-yaml": "^1.0.0"
+    "which": "^2.0.2",
+    "write-yaml": "^1.0.0",
+    "yargs": "^15.1.0"
   },
   "devDependencies": {
     "@10up/eslint-config": "^1.0.9",
     "babel-eslint": "^10.0.3",
     "eslint": "^6.8.0",
-    "husky": "^4.2.1"
+    "husky": "^4.2.1",
+    "jest": "^26.1.0"
   },
   "husky": {
     "hooks": {
@@ -69,7 +89,8 @@
     "extends": "@10up/eslint-config",
     "env": {
       "es6": true,
-      "node": true
+      "node": true,
+      "jest": true
     },
     "rules": {
       "array-bracket-spacing": [
@@ -111,6 +132,10 @@
       "yoda": [
         "error",
         "never"
+      ],
+      "template-curly-spacing": [
+        "error",
+        "always"
       ]
     }
   }

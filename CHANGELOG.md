@@ -2,7 +2,27 @@
 
 All notable changes to this project will be documented in this file, per [the Keep a Changelog standard](http://keepachangelog.com/).
 
-## [Unreleased] - TBD
+## [Unreleased]
+
+## [2.8.0] - TBD
+### Added
+- Adds `clone` command to clone git repositories and create new environments for it.
+- Adds `completion <shell>` command to display instructions how to activate autocomplete for a specific shell. Currently only `bash` is supported.
+- Adds the ability to use project specific configuration files. It is read during clonning process and allows to define a configuration required for the project and allows to omit setup questions. If the configuration is not sufficient (for example, it misses php version), then appropriate questions will be asked fill gaps.
+- Adds `init` command to generate project configuration files.
+- Adds the ability to update a docker-compose config for an environment if the configuration file contains `dockerCompose` callback function.
+- Adds global `--env=<environment>` option to specify an environment to use and to skip environment selection prompt.
+- Adds global `--verbose` option to switch between quite and verbose output modes.
+- Adds `--tail=<number>` argument to the `logs` command to limit the number of lines to show from the end of the logs for each container. It works the same way as it works for `docker-compose logs` itself and has `all` as default.
+- Adds `--pull` option to the `start` command to automatically pull latest images before an environment starts.
+- Adds `<cmd>` positional argument to the `shell` command to override command to run in the container. By default it is still `bash` but now it is possible to run different single commands without launching bash first.
+
+### Changed
+- Reworks all commands to use `yargs` cli framework.
+- Updates the way how `wp` and `wpsnapshots` commands determine subcommand arguments that needs to be passed into containers. Previously, wp-local-docker passed all arguments to the underlying command even if some arguments weren't intended for it. Now it passes everything that comes after the command keyword only, for example: `10updocker --env=my-site-test wp plugin install hello-dolly --version=1.7.2` runs `wp plugin install hello-dolly --version=1.7.2` command in the container of the `my-site-test` environment and doesn't pass `--env=my-site-test` argument itself.
+
+### Fixed
+- Fixes issues with hosts manipulations during environment creations and deletions when node.js executable is not in the root's PATH.
 
 ## [2.7.0] - 2020-03-12
 ### Added

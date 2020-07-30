@@ -42,7 +42,7 @@ _10updocker_completion() {
     )
 
     if [ ${COMP_CWORD} -eq 1 ]; then
-        _compreply cache configure create delete remove image logs migrate restart shell start stop wp wpspanshots spanshots upgrade
+        _compreply cache clone configure create delete remove image logs migrate restart shell start stop wp wpspanshots spanshots upgrade
     elif [ ${COMP_CWORD} -eq 2 ]; then
         case ${COMP_WORDS[1]} in
             cache)

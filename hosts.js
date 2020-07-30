@@ -1,9 +1,16 @@
 #!/usr/bin/env node
 
+const yargs = require( 'yargs' );
 const hostile = require( 'hostile' );
-const commandUtils = require( './src/command-utils' );
 
-const add = function( hosts ) {
+function options( yargs ) {
+    yargs.positional( 'hosts', {
+        describe: 'A host domain name.',
+        type: 'string',
+    } );
+}
+
+function add( { hosts } ) {
     hostile.set( '127.0.0.1', hosts.join( ' ' ), function( err ) {
         if ( err ) {
             console.error( err.message );
@@ -12,9 +19,9 @@ const add = function( hosts ) {
             console.log( 'Added to hosts file successfully!' );
         }
     } );
-};
+}
 
-const remove = function( hosts ) {
+function remove( { hosts } ) {
     hostile.remove( '127.0.0.1', hosts.join( ' ' ), function( err ) {
         if ( err ) {
             console.error( err.message );
@@ -23,24 +30,18 @@ const remove = function( hosts ) {
             console.log( 'Removed from hosts file successfully!' );
         }
     } );
-};
+}
 
-const command = function() {
-    const mode = commandUtils.command();
-    const args = commandUtils.commandArgs( false );
+// usage and help flag
+yargs.scriptName( '10updocker-hosts' );
+yargs.usage( 'Usage: 10updocker-hosts <command>' );
+yargs.help( 'h' );
+yargs.alias( 'h', 'help' );
 
-    switch( mode ) {
-        case 'add':
-            add( args );
-            break;
-        case 'remove':
-            remove( args );
-            break;
-        default:
-            console.error( 'Invalid hosts command' );
-            process.exit( 1 );
-            break;
-    }
-};
+// commands
+yargs.command( 'add <hosts..>', 'Add new hosts to the hosts file.', options, add );
+yargs.command( 'remove <hosts..>', 'Remove hosts from the hosts file.', options, remove );
 
-command();
+// parse and process CLI args
+yargs.demandCommand();
+yargs.parse();
