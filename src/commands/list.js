@@ -20,7 +20,8 @@ exports.desc = 'Lists all the environments and meta information.';
 exports.handler = makeCommand( chalk, logSymbols, async () => {
     // Get all the environments and initialize a status array.
     const environments = await envUtils.getAllEnvironments();
-    const envStatus = [ [ 'Name', 'Service Status', 'URL' ] ];
+    const envStatus = [ [ 'Name', 'Status', 'URL' ] ];
+    const docker = makeDocker();
 
     // Loop through each environment and add details.
     for ( const envSlug of environments ) {
@@ -32,14 +33,11 @@ exports.handler = makeCommand( chalk, logSymbols, async () => {
         const hostName = envHosts[0];
 
         try {
-            const docker = makeDocker();
             const containers = await docker.listContainers( { filters: { 'name': [ envSlug ] } } );
+
+            // Check containers availability and push to list with appropriate status.
             if ( Array.isArray( containers ) && containers.length ) {
-                const siteServices = containers.map( siteName => siteName.Names[0] );
-                const hasPHP = typeof siteServices.find( siteService => siteService.includes( `${ envSlug }_phpfpm` ) ) !== 'undefined' ? 'UP' : 'DOWN';
-                const hasNGINX = typeof siteServices.find( siteService => siteService.includes( `${ envSlug }_nginx` ) ) !== 'undefined' ? 'UP': 'DOWN';
-                // Check if php and nginx containers are available, if yes then add to list with it's status.
-                envStatus.push( [ envSlug, `php: ${ hasPHP }, nginx: ${ hasNGINX }`, hostName ] );
+                envStatus.push( [ envSlug, 'UP', hostName ] );
             } else {
                 envStatus.push( [ envSlug, 'DOWN', hostName ] );
             }
