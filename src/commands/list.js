@@ -1,17 +1,16 @@
 /**
  * External dependencies.
  */
-const tableImport = require( 'table' );
-const { table } = tableImport;
+const { table } = require( 'table' );
 const chalk = require( 'chalk' );
 const logSymbols = require( 'log-symbols' );
 
 /**
  * Internal dependencies.
  */
-const { execSync } = require( 'child_process' );
 const envUtils = require( '../env-utils' );
 const makeCommand = require( '../utils/make-command' );
+const makeDocker = require( '../utils/make-docker' );
 
 // Add command name, alias and description.
 exports.aliases = [ 'ls' ];
@@ -21,7 +20,7 @@ exports.desc = 'Lists all the environments and meta information.';
 exports.handler = makeCommand( chalk, logSymbols, async () => {
     // Get all the environments and initialize a status array.
     const environments = await envUtils.getAllEnvironments();
-    const envStatus = [ [ 'Name', 'Status', 'URL' ] ];
+    const envStatus = [ [ 'Name', 'Service Status', 'URL' ] ];
 
     // Loop through each environment and add details.
     for ( const envSlug of environments ) {
@@ -33,12 +32,14 @@ exports.handler = makeCommand( chalk, logSymbols, async () => {
         const hostName = envHosts[0];
 
         try {
-            // Get the container list for current environment passing name of the slug to filter.
-            const output = execSync( `docker ps --filter "name=${ envSlug }"` ).toString();
-
-            // Check if php and nginx containers are available, if yes then store with status UP, else DOWN.
-            if ( output.indexOf( `${ envSlug }_phpfpm` ) !== -1 && output.indexOf( `${ envSlug }_nginx` ) !== -1 ) {
-                envStatus.push( [ envSlug, 'UP', hostName ] );
+            const docker = makeDocker();
+            const containers = await docker.listContainers( { filters: { 'name': [ envSlug ] } } );
+            if ( Array.isArray( containers ) && containers.length ) {
+                const siteServices = containers.map( siteName => siteName.Names[0] );
+                const hasPHP = typeof siteServices.find( siteService => siteService.includes( `${ envSlug }_phpfpm` ) ) !== 'undefined' ? 'UP' : 'DOWN';
+                const hasNGINX = typeof siteServices.find( siteService => siteService.includes( `${ envSlug }_nginx` ) ) !== 'undefined' ? 'UP': 'DOWN';
+                // Check if php and nginx containers are available, if yes then add to list with it's status.
+                envStatus.push( [ envSlug, `php: ${ hasPHP }, nginx: ${ hasNGINX }`, hostName ] );
             } else {
                 envStatus.push( [ envSlug, 'DOWN', hostName ] );
             }
