@@ -4,6 +4,7 @@
 const { table } = require( 'table' );
 const chalk = require( 'chalk' );
 const logSymbols = require( 'log-symbols' );
+const terminalLink = require( 'terminal-link' );
 
 /**
  * Internal dependencies.
@@ -30,16 +31,16 @@ exports.handler = makeCommand( chalk, logSymbols, async () => {
 
         // Get current environment host name, use the starting index.
         const envHosts = await envUtils.getEnvHosts( envPath );
-        const hostName = envHosts[0];
+        const hostName = `http://${ envHosts[0] }/`;
 
         try {
             const containers = await docker.listContainers( { filters: { 'name': [ envSlug ] } } );
 
             // Check containers availability and push to list with appropriate status.
             if ( Array.isArray( containers ) && containers.length ) {
-                envStatus.push( [ envSlug, 'UP', hostName ] );
+                envStatus.push( [ envSlug, 'UP', terminalLink( chalk.cyanBright( hostName ), hostName ) ] );
             } else {
-                envStatus.push( [ envSlug, 'DOWN', hostName ] );
+                envStatus.push( [ envSlug, 'DOWN', terminalLink( chalk.cyanBright( hostName ), hostName ) ] );
             }
         } catch( ex ) {
             console.error( ex );
