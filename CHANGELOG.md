@@ -16,6 +16,7 @@ All notable changes to this project will be documented in this file, per [the Ke
 - Adds `--tail=<number>` argument to the `logs` command to limit the number of lines to show from the end of the logs for each container. It works the same way as it works for `docker-compose logs` itself and has `all` as default.
 - Adds `--pull` option to the `start` command to automatically pull latest images before an environment starts.
 - Adds `<cmd>` positional argument to the `shell` command to override command to run in the container. By default it is still `bash` but now it is possible to run different single commands without launching bash first.
+- Adds `list` and `ls` commands to list all the environments and meta information.
 
 ### Changed
 - Reworks all commands to use `yargs` cli framework.
