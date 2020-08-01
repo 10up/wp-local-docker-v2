@@ -49,9 +49,6 @@ exports.handler = makeCommand( chalk, logSymbols, async ( { verbose, env } ) => 
         spinner && spinner.succeed( 'Environment is running...' );
     }
 
-    // Check for TTY
-    const ttyFlag = process.stdin.isTTY ? '' : '-T';
-
     // Compose wp-cli command to run
     let wpCommand = false;
     const command = [];
@@ -65,9 +62,16 @@ exports.handler = makeCommand( chalk, logSymbols, async ( { verbose, env } ) => 
         }
     }
 
-    // Run the command
-    execSync( `docker-compose exec ${ ttyFlag } phpfpm ${ shellEscape( command ) }`, {
-        stdio: 'inherit',
-        cwd: envPath
-    } );
+    try {
+        // Check for TTY
+        const ttyFlag = process.stdin.isTTY ? '' : ' -T';
+
+        // Run the command
+        execSync( `docker-compose exec${ ttyFlag } phpfpm ${ shellEscape( command ) }`, {
+            stdio: 'inherit',
+            cwd: envPath
+        } );
+    } catch ( e ) {
+        // do nothing
+    }
 } );
