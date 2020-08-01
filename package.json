@@ -41,7 +41,7 @@
     "url": "git@github.com:10up/wp-local-docker-v2.git"
   },
   "engines": {
-    "node": ">=10"
+    "node": ">=12"
   },
   "author": "10up",
   "contributors": [
