@@ -17,6 +17,7 @@ All notable changes to this project will be documented in this file, per [the Ke
 - Adds `--pull` option to the `start` command to automatically pull latest images before an environment starts.
 - Adds `<cmd>` positional argument to the `shell` command to override command to run in the container. By default it is still `bash` but now it is possible to run different single commands without launching bash first.
 - Adds `list` and `ls` commands to list all the environments and meta information.
+- Adds engines information to the package.json to strictly denote that Node v12+ is required.
 
 ### Changed
 - Reworks all commands to use `yargs` cli framework.
