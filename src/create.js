@@ -323,10 +323,10 @@ const createEnv = async function() {
                 './config/elasticsearch/plugins:/usr/share/elasticsearch/plugins:cached',
                 'elasticsearchData:/usr/share/elasticsearch/data:delegated'
             ],
-            'mem_limit': '1024M',
-            'mem_reservation': '1024M',
+            'mem_limit': '1280M',
+            'mem_reservation': '1280M',
             'environment': {
-                ES_JAVA_OPTS: '-Xms450m -Xmx450m'
+                ES_JAVA_OPTS: '-Xms512m -Xmx512m'
             }
         };
 
