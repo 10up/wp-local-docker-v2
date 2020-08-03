@@ -1,5 +1,5 @@
 const makeDocker = require( './make-docker' );
-const displayMessage = require( './display-message' );
+const displayError = require( './display-error' );
 
 /**
  * Check if Docker app is running.
@@ -22,11 +22,11 @@ module.exports = function makeCommand( options = {}, command ) {
         if ( checkDocker === true ) {
             const ping = await pingDocker().catch( () => false );
             if ( ! ping ) {
-                displayMessage( 'error', 'Docker is not running...' );
+                displayError( 'Docker is not running...' );
             }
         }
         return command( ...params ).catch( ( err ) => {
-            displayMessage( 'error', err.message );
+            displayError( err.message );
         } );
     };
 };
