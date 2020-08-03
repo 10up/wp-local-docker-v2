@@ -78,7 +78,7 @@ async function updateIfUsed( docker, name, spinner ) {
     }
 }
 
-exports.handler = makeCommand( {}, {}, async function( { yes, verbose } ) {
+exports.handler = makeCommand( {}, async function( { yes, verbose } ) {
     if ( ! yes ) {
         const { confirm } = await inquirer.prompt( {
             name: 'confirm',

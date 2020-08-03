@@ -6,7 +6,7 @@ const makeSpinner = require( '../../utils/make-spinner' );
 exports.command = 'clear';
 exports.desc = 'Clears npm, wp-cli, and WP Snapshots caches.';
 
-exports.handler = makeCommand( {}, {}, async ( { verbose } ) => {
+exports.handler = makeCommand( {}, async ( { verbose } ) => {
     const docker = makeDocker();
     const spinner = ! verbose ? makeSpinner() : undefined;
 
