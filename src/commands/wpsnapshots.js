@@ -1,9 +1,7 @@
 const path = require( 'path' );
 const { execSync } = require( 'child_process' );
 
-const chalk = require( 'chalk' );
 const fs = require( 'fs-extra' );
-const logSymbols = require( 'log-symbols' );
 const shellEscape = require( 'shell-escape' );
 
 const envUtils = require( '../env-utils' );
@@ -16,7 +14,7 @@ exports.commmand = 'wpsnapshots';
 exports.aliases = [ 'snapshots' ];
 exports.desc = 'Runs a wp snapshots command.';
 
-exports.handler = makeCommand( chalk, logSymbols, async function( { _, env, verbose } ) {
+exports.handler = makeCommand( {}, {}, async function( { _, env, verbose } ) {
     const spinner = ! verbose ? makeSpinner() : undefined;
     const wpsnapshotsDir = await envUtils.getSnapshotsPath();
 

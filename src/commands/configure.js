@@ -1,8 +1,6 @@
 const os = require( 'os' );
 const path = require( 'path' );
 
-const chalk = require( 'chalk' );
-const logSymbols = require( 'log-symbols' );
 const inquirer = require( 'inquirer' );
 const fs = require( 'fs-extra' );
 
@@ -18,7 +16,7 @@ const {
 exports.command = 'configure';
 exports.desc = 'Set up a configuration for WP Local Docker.';
 
-exports.handler = makeCommand( chalk, logSymbols, async () => {
+exports.handler = makeCommand( {}, {}, async () => {
     const defaults = getDefaults();
 
     const currentDir = await get( 'sitesPath' );

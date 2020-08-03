@@ -1,8 +1,6 @@
 const { stat, writeFile } = require( 'fs' ).promises;
 const { join } = require( 'path' );
 
-const chalk = require( 'chalk' );
-const logSymbols = require( 'log-symbols' );
 const inquirer = require( 'inquirer' );
 
 const { validateNotEmpty } = require( '../prompt-validators' );
@@ -13,7 +11,7 @@ const makeConfig = require( './init/config' );
 exports.command = 'init';
 exports.desc = 'Creates a new configuration file to use for a project.';
 
-exports.handler = makeCommand( chalk, logSymbols, async () => {
+exports.handler = makeCommand( {}, {}, async () => {
     const { filename } = await inquirer.prompt( [
         {
             name: 'filename',

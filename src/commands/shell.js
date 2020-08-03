@@ -1,8 +1,6 @@
 const { EOL } = require( 'os' );
 const { execSync } = require( 'child_process' );
 
-const chalk = require( 'chalk' );
-const logSymbols = require( 'log-symbols' );
 const compose = require( 'docker-compose' );
 
 const envUtils = require( '../env-utils' );
@@ -28,7 +26,7 @@ exports.builder = function( yargs ) {
     } );
 };
 
-exports.handler = makeCommand( chalk, logSymbols, async ( { container, cmd, env, verbose } ) => {
+exports.handler = makeCommand( {}, {}, async ( { container, cmd, env, verbose } ) => {
     let envSlug = env;
     if ( ! envSlug ) {
         envSlug = await envUtils.parseOrPromptEnv();
