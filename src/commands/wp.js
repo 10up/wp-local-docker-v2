@@ -20,7 +20,7 @@ exports.builder = function( yargs ) {
     } );
 };
 
-exports.handler = makeCommand( {}, {}, async ( { verbose, env } ) => {
+exports.handler = makeCommand( {}, async ( { verbose, env } ) => {
     let envSlug = env;
     if ( ! envSlug ) {
         envSlug = await envUtils.parseOrPromptEnv();

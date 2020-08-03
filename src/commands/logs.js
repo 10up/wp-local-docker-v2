@@ -24,7 +24,7 @@ exports.builder = function( yargs ) {
     } );
 };
 
-exports.handler = makeCommand( {}, {}, async ( { verbose, container, env, tail } ) => {
+exports.handler = makeCommand( {}, async ( { verbose, container, env, tail } ) => {
     let envSlug = env;
     if ( ! envSlug ) {
         envSlug = await envUtils.parseOrPromptEnv();

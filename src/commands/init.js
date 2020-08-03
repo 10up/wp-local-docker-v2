@@ -11,7 +11,7 @@ const makeConfig = require( './init/config' );
 exports.command = 'init';
 exports.desc = 'Creates a new configuration file to use for a project.';
 
-exports.handler = makeCommand( {}, {}, async () => {
+exports.handler = makeCommand( { checkDocker: false }, async () => {
     const { filename } = await inquirer.prompt( [
         {
             name: 'filename',

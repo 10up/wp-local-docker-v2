@@ -46,7 +46,7 @@ exports.builder = function( yargs ) {
     } );
 };
 
-exports.handler = makeCommand( {}, {}, async ( { url, branch, config } ) => {
+exports.handler = makeCommand( {}, async ( { url, branch, config } ) => {
     const tempDir = mkdtempSync( join( tmpdir(), 'wpld-' ) );
     const spinner = makeSpinner();
 

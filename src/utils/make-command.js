@@ -1,7 +1,5 @@
-const { EOL } = require( 'os' );
-const chalk = require( 'chalk' );
-const logSymbols = require( 'log-symbols' );
-const makeDocker = require( '../utils/make-docker' );
+const makeDocker = require( './make-docker' );
+const displayMessage = require( './display-message' );
 
 /**
  * Check if Docker app is running.
@@ -17,21 +15,18 @@ async function pingDocker() {
     }
 }
 
-module.exports = function makeCommand( options = {}, { error }, command ) {
+module.exports = function makeCommand( options = {}, command ) {
     const { checkDocker = true } = options;
-    return ( ...params ) => {
+    return async ( ...params ) => {
         // Check if Docker is running.
         if ( checkDocker === true ) {
-            pingDocker().then( result => {
-                if ( result === false ) {
-                    console.log( logSymbols.error, chalk.red( 'Docker is not running...' ) );
-                    process.exit();
-                }
-            } );
+            const ping = await pingDocker().catch( () => false );
+            if ( ! ping ) {
+                displayMessage( 'error', 'Docker is not running...' );
+            }
         }
         return command( ...params ).catch( ( err ) => {
-            process.stderr.write( chalk.red( `${ EOL }${ error } ${ err.message || 'Unexpected error' }${ EOL }${ EOL }` ) );
-            process.exit( 1 );
+            displayMessage( 'error', err.message );
         } );
     };
 };

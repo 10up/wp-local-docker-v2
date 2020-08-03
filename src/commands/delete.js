@@ -14,7 +14,7 @@ exports.builder = function( yargs ) {
     } );
 };
 
-exports.handler = makeCommand( {}, {}, async ( { verbose, env } ) => {
+exports.handler = makeCommand( {}, async ( { verbose, env } ) => {
     const spinner = ! verbose ? makeSpinner() : undefined;
     const all = env === 'all';
 

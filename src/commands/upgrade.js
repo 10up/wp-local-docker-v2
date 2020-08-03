@@ -14,7 +14,7 @@ const { stop, start, upgradeEnv } = require( '../environment' );
 exports.command = 'upgrade';
 exports.desc = false; // @todo: "false" means that this command is hidden
 
-exports.handler = makeCommand( {}, {}, async ( { verbose } ) => {
+exports.handler = makeCommand( { checkDocker: false }, async ( { verbose } ) => {
     const spinner = ! verbose ? makeSpinner() : undefined;
 
     let env = await envUtils.parseEnvFromCWD();

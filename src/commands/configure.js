@@ -16,7 +16,7 @@ const {
 exports.command = 'configure';
 exports.desc = 'Set up a configuration for WP Local Docker.';
 
-exports.handler = makeCommand( {}, {}, async () => {
+exports.handler = makeCommand( { checkDocker: false }, async () => {
     const defaults = getDefaults();
 
     const currentDir = await get( 'sitesPath' );
