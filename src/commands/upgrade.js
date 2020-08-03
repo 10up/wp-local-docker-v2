@@ -2,8 +2,6 @@ const path = require( 'path' );
 const os = require( 'os' );
 
 const fs = require( 'fs-extra' );
-const chalk = require( 'chalk' );
-const logSymbols = require( 'log-symbols' );
 const readYaml = require( 'read-yaml' );
 const writeYaml = require( 'write-yaml' );
 
@@ -16,7 +14,7 @@ const { stop, start, upgradeEnv } = require( '../environment' );
 exports.command = 'upgrade';
 exports.desc = false; // @todo: "false" means that this command is hidden
 
-exports.handler = makeCommand( chalk, logSymbols, async ( { verbose } ) => {
+exports.handler = makeCommand( { checkDocker: false }, async ( { verbose } ) => {
     const spinner = ! verbose ? makeSpinner() : undefined;
 
     let env = await envUtils.parseEnvFromCWD();

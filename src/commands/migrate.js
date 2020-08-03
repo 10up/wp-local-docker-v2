@@ -4,7 +4,6 @@ const { exec } = require( 'child_process' );
 
 const fs = require( 'fs-extra' );
 const chalk = require( 'chalk' );
-const logSymbols = require( 'log-symbols' );
 const compose = require( 'docker-compose' );
 
 const envUtils = require( '../env-utils' );
@@ -92,7 +91,7 @@ async function copySiteFiles( oldEnv, newEnv ) {
     await fs.copy( oldWpContent, wpContent );
 }
 
-exports.handler = makeCommand( chalk, logSymbols, async function( { old, env, verbose } ) {
+exports.handler = makeCommand( {}, async function( { old, env, verbose } ) {
     const spinner = ! verbose ? makeSpinner() : undefined;
     const oldEnv = path.resolve( old );
 

@@ -2,7 +2,6 @@ const { EOL } = require( 'os' );
 
 const inquirer = require( 'inquirer' );
 const chalk = require( 'chalk' );
-const logSymbols = require( 'log-symbols' );
 const fsExtra = require( 'fs-extra' );
 const sudo = require( 'sudo-prompt' );
 const compose = require( 'docker-compose' );
@@ -61,7 +60,7 @@ async function createCommand( spinner, defaults = {} ) {
 exports.command = 'create';
 exports.desc = 'Create a new docker environment.';
 
-exports.handler = makeCommand( chalk, logSymbols, async () => {
+exports.handler = makeCommand( {}, async () => {
     const spinner = makeSpinner();
     const answers = await createCommand( spinner, {} );
 
