@@ -2,7 +2,6 @@ const os = require( 'os' );
 
 const inquirer = require( 'inquirer' );
 const chalk = require( 'chalk' );
-const logSymbols = require( 'log-symbols' );
 
 const { stopAll } = require( '../../environment' );
 const promptValidators = require( '../../prompt-validators' );
@@ -79,7 +78,7 @@ async function updateIfUsed( docker, name, spinner ) {
     }
 }
 
-exports.handler = makeCommand( chalk, logSymbols, async function( { yes, verbose } ) {
+exports.handler = makeCommand( {}, async function( { yes, verbose } ) {
     if ( ! yes ) {
         const { confirm } = await inquirer.prompt( {
             name: 'confirm',

@@ -3,7 +3,6 @@
  */
 const { table } = require( 'table' );
 const chalk = require( 'chalk' );
-const logSymbols = require( 'log-symbols' );
 const terminalLink = require( 'terminal-link' );
 
 /**
@@ -18,11 +17,12 @@ exports.aliases = [ 'ls' ];
 exports.command = 'list';
 exports.desc = 'Lists all the environments and meta information.';
 
-exports.handler = makeCommand( chalk, logSymbols, async () => {
+exports.handler = makeCommand( {}, async () => {
+    // Create docker object and make sure it is available.
+    const docker = makeDocker();
     // Get all the environments and initialize a status array.
     const environments = await envUtils.getAllEnvironments();
     const envStatus = [ [ 'Name', 'Status', 'URL' ] ];
-    const docker = makeDocker();
 
     // Loop through each environment and add details.
     for ( const envSlug of environments ) {

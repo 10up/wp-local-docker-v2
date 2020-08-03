@@ -4,7 +4,6 @@ const { tmpdir, EOL } = require( 'os' );
 
 const git = require( 'nodegit' );
 const chalk = require( 'chalk' );
-const logSymbols = require( 'log-symbols' );
 const inquirer = require( 'inquirer' );
 const fsExtra = require( 'fs-extra' );
 const terminalLink = require( 'terminal-link' );
@@ -47,7 +46,7 @@ exports.builder = function( yargs ) {
     } );
 };
 
-exports.handler = makeCommand( chalk, logSymbols, async ( { url, branch, config } ) => {
+exports.handler = makeCommand( {}, async ( { url, branch, config } ) => {
     const tempDir = mkdtempSync( join( tmpdir(), 'wpld-' ) );
     const spinner = makeSpinner();
 

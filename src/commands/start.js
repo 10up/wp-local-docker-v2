@@ -1,7 +1,6 @@
 const { EOL } = require( 'os' );
 
 const chalk = require( 'chalk' );
-const logSymbols = require( 'log-symbols' );
 const terminalLink = require( 'terminal-link' );
 
 const makeCommand = require( '../utils/make-command' );
@@ -27,7 +26,7 @@ exports.builder = function( yargs ) {
     } );
 };
 
-exports.handler = makeCommand( chalk, logSymbols, async ( { verbose, pull, env } ) => {
+exports.handler = makeCommand( {}, async ( { verbose, pull, env } ) => {
     const spinner = ! verbose ? makeSpinner() : undefined;
     const all = env === 'all';
 
