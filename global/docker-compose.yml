@@ -19,6 +19,7 @@ services:
       - 127.0.0.1:80:80
       - 127.0.0.1:443:443
     volumes:
+      - ./ssl-certs:/etc/nginx/certs:ro
       - /var/run/docker.sock:/tmp/docker.sock:ro
     networks:
       wplocaldocker:

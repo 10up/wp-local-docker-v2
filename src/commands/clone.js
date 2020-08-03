@@ -68,11 +68,10 @@ exports.handler = makeCommand( chalk, logSymbols, async ( { url, branch, config 
         await makePullSnapshot( wpsnapshotsDir, images, inquirer, paths.wordpress )( snapshot );
     }
 
-    const http = !! answers.wordpress && !! answers.wordpress.https ? 'https' : 'http';
     let info = `Successfully Cloned Site!${ EOL }${ EOL }`;
     ( Array.isArray( answers.domain ) ? answers.domain : [ answers.domain ] ).forEach( ( host ) => {
-        const home = `${ http }://${ host }/`;
-        const admin = `${ http }://${ host }/wp-admin/`;
+        const home = `https://${ host }/`;
+        const admin = `https://${ host }/wp-admin/`;
 
         info += `Homepage: ${ terminalLink( chalk.cyanBright( home ), home ) }${ EOL }`;
         info += `WP admin: ${ terminalLink( chalk.cyanBright( admin ), admin ) }${ EOL }`;

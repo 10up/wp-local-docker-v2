@@ -48,7 +48,6 @@ exports.wordpress = {
     username: {{username}},
     password: {{password}},
     email: {{email}},
-    https: {{addHttps}},
     purify: {{emptyContent}},
 };
 

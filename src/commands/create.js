@@ -8,6 +8,7 @@ const sudo = require( 'sudo-prompt' );
 const compose = require( 'docker-compose' );
 const which = require( 'which' );
 const terminalLink = require( 'terminal-link' );
+const mkcert = require( 'mkcert' );
 
 const { startGlobal } = require( '../gateway' );
 const environment = require( '../environment' );
@@ -26,6 +27,7 @@ const makeDatabase = require( './create/create-database' );
 const makeInstallWordPress = require( './create/install-wordpress' );
 const makeSaveJsonFile = require( './create/save-json-file' );
 const makeUpdateHosts = require( './create/update-hosts' );
+const makeCert = require( './create/make-cert' );
 
 async function createCommand( spinner, defaults = {} ) {
     const answers = await makeInquirer( inquirer )( defaults );
@@ -37,11 +39,12 @@ async function createCommand( spinner, defaults = {} ) {
     const paths = await makeFs( chalk, spinner )( hostname );
     const saveYaml = makeSaveYamlFile( chalk, spinner, paths['/'] );
 
-    const dockerComposer = await makeDockerCompose( spinner )( envHosts, answers );
+    const dockerComposer = await makeDockerCompose( spinner )( envSlug, envHosts, answers );
     await saveYaml( 'docker-compose.yml', dockerComposer );
     await saveYaml( 'wp-cli.yml', { ssh: 'docker-compose:phpfpm' } );
 
     await makeCopyConfigs( spinner, fsExtra )( paths, answers );
+    await makeCert( mkcert )( envSlug, envHosts );
 
     await startGlobal( spinner );
     await makeDatabase( spinner )( envSlug );
@@ -69,11 +72,10 @@ exports.handler = makeCommand( chalk, logSymbols, async () => {
         spinner.info( 'Note: Subdomain multisites require any additional subdomains to be added manually to your hosts file!' );
     }
 
-    const http = !! answers.wordpress && !! answers.wordpress.https ? 'https' : 'http';
     let info = `Successfully Created Site!${ EOL }${ EOL }`;
     ( Array.isArray( answers.domain ) ? answers.domain : [ answers.domain ] ).forEach( ( host ) => {
-        const home = `${ http }://${ host }/`;
-        const admin = `${ http }://${ host }/wp-admin/`;
+        const home = `https://${ host }/`;
+        const admin = `https://${ host }/wp-admin/`;
 
         info += `Homepage: ${ terminalLink( chalk.cyanBright( home ), home ) }${ EOL }`;
         info += `WP admin: ${ terminalLink( chalk.cyanBright( admin ), admin ) }${ EOL }`;

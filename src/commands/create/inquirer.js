@@ -43,10 +43,6 @@ function marshalWordPress( original, answers ) {
         wp.type = answers.wordpressType;
     }
 
-    if ( answers.addHttps ) {
-        wp.https = answers.addHttps;
-    }
-
     if ( answers.emptyContent ) {
         wp.purify = true;
     }
@@ -71,7 +67,6 @@ module.exports = function makeInquirer( { prompt } ) {
             username: wordpressUsername,
             password: wordpressPassword,
             email: wordpressEmail,
-            https: wordpressHttps,
             purify: wordpressPurify,
         } = wordpress || {};
 
@@ -218,15 +213,6 @@ module.exports = function makeInquirer( { prompt } ) {
                 validate: validateNotEmpty,
                 when( answers ) {
                     return answers.wordpress === true || ! wordpressEmail;
-                },
-            },
-            {
-                name: 'addHttps',
-                type: 'confirm',
-                message: 'Do you want to enable HTTPS?',
-                default: true,
-                when( answers ) {
-                    return answers.wordpress === true || typeof wordpressHttps === 'undefined';
                 },
             },
             {

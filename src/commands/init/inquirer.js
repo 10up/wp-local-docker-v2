@@ -132,15 +132,6 @@ module.exports = function makeInquirer( inquirer ) {
                 },
             },
             {
-                name: 'addHttps',
-                type: 'confirm',
-                message: 'Do you want to enable HTTPS?',
-                default: true,
-                when( answers ) {
-                    return answers.wordpress === true;
-                },
-            },
-            {
                 name: 'emptyContent',
                 type: 'confirm',
                 message: 'Do you want to remove the default content?',
