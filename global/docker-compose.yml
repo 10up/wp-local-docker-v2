@@ -64,4 +64,3 @@ networks:
 volumes:
   mysqlData:
   elasticsearchData:
-  ssl-certs:
