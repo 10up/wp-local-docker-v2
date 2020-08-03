@@ -6,7 +6,6 @@ const fsExtra = require( 'fs-extra' );
 const sudo = require( 'sudo-prompt' );
 const compose = require( 'docker-compose' );
 const which = require( 'which' );
-const terminalLink = require( 'terminal-link' );
 
 const { startGlobal } = require( '../gateway' );
 const environment = require( '../environment' );
@@ -15,6 +14,7 @@ const envUtils = require( '../env-utils' );
 const makeSpinner = require( '../utils/make-spinner' );
 const makeCommand = require( '../utils/make-command' );
 const makeBoxen = require( '../utils/make-boxen' );
+const makeLink = require( '../utils/make-link' );
 
 const makeInquirer = require( './create/inquirer' );
 const makeDockerCompose = require( './create/make-docker-compose' );
@@ -74,8 +74,8 @@ exports.handler = makeCommand( {}, async () => {
         const home = `${ http }://${ host }/`;
         const admin = `${ http }://${ host }/wp-admin/`;
 
-        info += `Homepage: ${ terminalLink( chalk.cyanBright( home ), home ) }${ EOL }`;
-        info += `WP admin: ${ terminalLink( chalk.cyanBright( admin ), admin ) }${ EOL }`;
+        info += `Homepage: ${ makeLink( chalk.cyanBright( home ), home ) }${ EOL }`;
+        info += `WP admin: ${ makeLink( chalk.cyanBright( admin ), admin ) }${ EOL }`;
         info += EOL;
     } );
 

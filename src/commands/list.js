@@ -3,7 +3,6 @@
  */
 const { table } = require( 'table' );
 const chalk = require( 'chalk' );
-const terminalLink = require( 'terminal-link' );
 
 /**
  * Internal dependencies.
@@ -11,6 +10,7 @@ const terminalLink = require( 'terminal-link' );
 const envUtils = require( '../env-utils' );
 const makeCommand = require( '../utils/make-command' );
 const makeDocker = require( '../utils/make-docker' );
+const makeLink = require( '../utils/make-link' );
 
 // Add command name, alias and description.
 exports.aliases = [ 'ls' ];
@@ -38,9 +38,9 @@ exports.handler = makeCommand( {}, async () => {
 
             // Check containers availability and push to list with appropriate status.
             if ( Array.isArray( containers ) && containers.length ) {
-                envStatus.push( [ envSlug, 'UP', terminalLink( chalk.cyanBright( hostName ), hostName ) ] );
+                envStatus.push( [ envSlug, 'UP', makeLink( chalk.cyanBright( hostName ), hostName ) ] );
             } else {
-                envStatus.push( [ envSlug, 'DOWN', terminalLink( chalk.cyanBright( hostName ), hostName ) ] );
+                envStatus.push( [ envSlug, 'DOWN', makeLink( chalk.cyanBright( hostName ), hostName ) ] );
             }
         } catch( ex ) {
             console.error( ex );

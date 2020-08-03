@@ -6,13 +6,13 @@ const git = require( 'nodegit' );
 const chalk = require( 'chalk' );
 const inquirer = require( 'inquirer' );
 const fsExtra = require( 'fs-extra' );
-const terminalLink = require( 'terminal-link' );
 
 const envUtils = require( '../env-utils' );
 const { images } = require( '../docker-images' );
 const makeSpinner = require( '../utils/make-spinner' );
 const makeCommand = require( '../utils/make-command' );
 const makeBoxen = require( '../utils/make-boxen' );
+const makeLink = require( '../utils/make-link' );
 
 const makeGitClone = require( './clone/git-clone' );
 const makePullConfig = require( './clone/pull-config' );
@@ -73,8 +73,8 @@ exports.handler = makeCommand( {}, async ( { url, branch, config } ) => {
         const home = `${ http }://${ host }/`;
         const admin = `${ http }://${ host }/wp-admin/`;
 
-        info += `Homepage: ${ terminalLink( chalk.cyanBright( home ), home ) }${ EOL }`;
-        info += `WP admin: ${ terminalLink( chalk.cyanBright( admin ), admin ) }${ EOL }`;
+        info += `Homepage: ${ makeLink( chalk.cyanBright( home ), home ) }${ EOL }`;
+        info += `WP admin: ${ makeLink( chalk.cyanBright( admin ), admin ) }${ EOL }`;
         info += EOL;
     } );
 

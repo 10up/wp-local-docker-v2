@@ -1,11 +1,11 @@
 const { EOL } = require( 'os' );
 
 const chalk = require( 'chalk' );
-const terminalLink = require( 'terminal-link' );
 
 const makeCommand = require( '../utils/make-command' );
 const makeSpinner = require( '../utils/make-spinner' );
 const makeBoxen = require( '../utils/make-boxen' );
+const makeLink = require( '../utils/make-link' );
 
 const envUtils = require( '../env-utils' );
 const { startAll, start } = require( '../environment' );
@@ -64,8 +64,8 @@ exports.handler = makeCommand( {}, async ( { verbose, pull, env } ) => {
                 const home = `http://${ host }/`;
                 const admin = `http://${ host }/wp-admin/`;
 
-                info += `Homepage: ${ terminalLink( chalk.cyanBright( home ), home ) }${ EOL }`;
-                info += `WP admin: ${ terminalLink( chalk.cyanBright( admin ), admin ) }${ EOL }`;
+                info += `Homepage: ${ makeLink( chalk.cyanBright( home ), home ) }${ EOL }`;
+                info += `WP admin: ${ makeLink( chalk.cyanBright( admin ), admin ) }${ EOL }`;
                 info += EOL;
             } );
 
