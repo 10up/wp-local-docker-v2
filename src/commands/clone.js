@@ -6,13 +6,13 @@ const git = require( 'nodegit' );
 const chalk = require( 'chalk' );
 const inquirer = require( 'inquirer' );
 const fsExtra = require( 'fs-extra' );
-const terminalLink = require( 'terminal-link' );
 
 const envUtils = require( '../env-utils' );
 const { images } = require( '../docker-images' );
 const makeSpinner = require( '../utils/make-spinner' );
 const makeCommand = require( '../utils/make-command' );
 const makeBoxen = require( '../utils/make-boxen' );
+const { replaceLinks } = require( '../utils/make-link' );
 
 const makeGitClone = require( './clone/git-clone' );
 const makePullConfig = require( './clone/pull-config' );
@@ -46,7 +46,7 @@ exports.builder = function( yargs ) {
     } );
 };
 
-exports.handler = makeCommand( {}, async ( { url, branch, config } ) => {
+exports.handler = makeCommand( async ( { url, branch, config } ) => {
     const tempDir = mkdtempSync( join( tmpdir(), 'wpld-' ) );
     const spinner = makeSpinner();
 
@@ -68,14 +68,21 @@ exports.handler = makeCommand( {}, async ( { url, branch, config } ) => {
     }
 
     let info = `Successfully Cloned Site!${ EOL }${ EOL }`;
+    const links = {};
+
     ( Array.isArray( answers.domain ) ? answers.domain : [ answers.domain ] ).forEach( ( host ) => {
         const home = `https://${ host }/`;
         const admin = `https://${ host }/wp-admin/`;
 
-        info += `Homepage: ${ terminalLink( chalk.cyanBright( home ), home ) }${ EOL }`;
-        info += `WP admin: ${ terminalLink( chalk.cyanBright( admin ), admin ) }${ EOL }`;
+        links[ home ] = home;
+        links[ admin ] = admin;
+
+        info += `Homepage: ${ home }${ EOL }`;
+        info += `WP admin: ${ admin }${ EOL }`;
         info += EOL;
     } );
 
-    makeBoxen()( info );
+    info = replaceLinks( makeBoxen()( info ), links );
+
+    console.log( info );
 } );

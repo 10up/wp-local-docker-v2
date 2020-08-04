@@ -1,28 +1,24 @@
 /**
- * External dependencies.
- */
-const { table } = require( 'table' );
-const chalk = require( 'chalk' );
-const terminalLink = require( 'terminal-link' );
-
-/**
  * Internal dependencies.
  */
 const envUtils = require( '../env-utils' );
 const makeCommand = require( '../utils/make-command' );
 const makeDocker = require( '../utils/make-docker' );
+const { replaceLinks } = require( '../utils/make-link' );
+const makeTable = require( '../utils/make-table' );
 
 // Add command name, alias and description.
 exports.aliases = [ 'ls' ];
 exports.command = 'list';
 exports.desc = 'Lists all the environments and meta information.';
 
-exports.handler = makeCommand( {}, async () => {
+exports.handler = makeCommand( async () => {
     // Create docker object and make sure it is available.
     const docker = makeDocker();
     // Get all the environments and initialize a status array.
     const environments = await envUtils.getAllEnvironments();
-    const envStatus = [ [ 'Name', 'Status', 'URL' ] ];
+    const envStatus = [ [ 'Name', 'Status', 'URL', 'Home' ] ];
+    const links = {};
 
     // Loop through each environment and add details.
     for ( const envSlug of environments ) {
@@ -33,20 +29,23 @@ exports.handler = makeCommand( {}, async () => {
         const envHosts = await envUtils.getEnvHosts( envPath );
         const hostName = `http://${ envHosts[0] }/`;
 
+        links[ hostName ] = hostName;
+
         try {
             const containers = await docker.listContainers( { filters: { 'name': [ envSlug ] } } );
 
             // Check containers availability and push to list with appropriate status.
-            if ( Array.isArray( containers ) && containers.length ) {
-                envStatus.push( [ envSlug, 'UP', terminalLink( chalk.cyanBright( hostName ), hostName ) ] );
-            } else {
-                envStatus.push( [ envSlug, 'DOWN', terminalLink( chalk.cyanBright( hostName ), hostName ) ] );
-            }
+            envStatus.push( [
+                envSlug,
+                Array.isArray( containers ) && containers.length ? 'UP' : 'DOWN',
+                hostName,
+                envPath,
+            ] );
         } catch( ex ) {
             console.error( ex );
         }
     }
 
     // Output the environment status.
-    console.log( table( envStatus ) );
+    console.log( replaceLinks( makeTable( envStatus ), links ) );
 } );

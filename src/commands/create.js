@@ -6,7 +6,6 @@ const fsExtra = require( 'fs-extra' );
 const sudo = require( 'sudo-prompt' );
 const compose = require( 'docker-compose' );
 const which = require( 'which' );
-const terminalLink = require( 'terminal-link' );
 const mkcert = require( 'mkcert' );
 
 const { startGlobal } = require( '../gateway' );
@@ -16,6 +15,7 @@ const envUtils = require( '../env-utils' );
 const makeSpinner = require( '../utils/make-spinner' );
 const makeCommand = require( '../utils/make-command' );
 const makeBoxen = require( '../utils/make-boxen' );
+const { replaceLinks } = require( '../utils/make-link' );
 
 const makeInquirer = require( './create/inquirer' );
 const makeDockerCompose = require( './create/make-docker-compose' );
@@ -63,7 +63,7 @@ async function createCommand( spinner, defaults = {} ) {
 exports.command = 'create';
 exports.desc = 'Create a new docker environment.';
 
-exports.handler = makeCommand( {}, async () => {
+exports.handler = makeCommand( async () => {
     const spinner = makeSpinner();
     const answers = await createCommand( spinner, {} );
 
@@ -72,16 +72,21 @@ exports.handler = makeCommand( {}, async () => {
     }
 
     let info = `Successfully Created Site!${ EOL }${ EOL }`;
+    const links = {};
+
     ( Array.isArray( answers.domain ) ? answers.domain : [ answers.domain ] ).forEach( ( host ) => {
         const home = `https://${ host }/`;
         const admin = `https://${ host }/wp-admin/`;
 
-        info += `Homepage: ${ terminalLink( chalk.cyanBright( home ), home ) }${ EOL }`;
-        info += `WP admin: ${ terminalLink( chalk.cyanBright( admin ), admin ) }${ EOL }`;
+        links[ home ] = home;
+        links[ admin ] = admin;
+
+        info += `Homepage: ${ home }${ EOL }`;
+        info += `WP admin: ${ admin }${ EOL }`;
         info += EOL;
     } );
 
-    makeBoxen()( info );
+    console.log( replaceLinks( makeBoxen()( info ), links ) );
 } );
 
 exports.createCommand = createCommand;

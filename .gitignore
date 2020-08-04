@@ -14,6 +14,7 @@ Thumbs.db
 nbproject/
 /tags
 .netbeans.xml
+.vscode/
 
 # Compass/SASS/SCSS
 .sass-cache
