@@ -35,11 +35,12 @@ exports.handler = makeCommand( {}, async () => {
             const containers = await docker.listContainers( { filters: { 'name': [ envSlug ] } } );
 
             // Check containers availability and push to list with appropriate status.
-            if ( Array.isArray( containers ) && containers.length ) {
-                envStatus.push( [ envSlug, 'UP', hostName, envPath ] );
-            } else {
-                envStatus.push( [ envSlug, 'DOWN', hostName, envPath ] );
-            }
+            envStatus.push( [
+                envSlug,
+                Array.isArray( containers ) && containers.length ? 'UP' : 'DOWN',
+                hostName,
+                envPath,
+            ] );
         } catch( ex ) {
             console.error( ex );
         }
