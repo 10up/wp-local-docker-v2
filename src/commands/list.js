@@ -17,7 +17,7 @@ exports.handler = makeCommand( {}, async () => {
     const docker = makeDocker();
     // Get all the environments and initialize a status array.
     const environments = await envUtils.getAllEnvironments();
-    const envStatus = [ [ 'Name', 'Status', 'URL' ] ];
+    const envStatus = [ [ 'Name', 'Status', 'URL', 'Home' ] ];
     const links = {};
 
     // Loop through each environment and add details.
@@ -36,9 +36,9 @@ exports.handler = makeCommand( {}, async () => {
 
             // Check containers availability and push to list with appropriate status.
             if ( Array.isArray( containers ) && containers.length ) {
-                envStatus.push( [ envSlug, 'UP', hostName ] );
+                envStatus.push( [ envSlug, 'UP', hostName, envPath ] );
             } else {
-                envStatus.push( [ envSlug, 'DOWN', hostName ] );
+                envStatus.push( [ envSlug, 'DOWN', hostName, envPath ] );
             }
         } catch( ex ) {
             console.error( ex );
