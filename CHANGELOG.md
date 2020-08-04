@@ -18,10 +18,12 @@ All notable changes to this project will be documented in this file, per [the Ke
 - Adds `<cmd>` positional argument to the `shell` command to override command to run in the container. By default it is still `bash` but now it is possible to run different single commands without launching bash first.
 - Adds `list` and `ls` commands to list all the environments and meta information.
 - Adds engines information to the package.json to strictly denote that Node v12+ is required.
+- Adds `cert install` command to install a new local CA in the system trust store.
 
 ### Changed
 - Reworks all commands to use `yargs` cli framework.
 - Updates the way how `wp` and `wpsnapshots` commands determine subcommand arguments that needs to be passed into containers. Previously, wp-local-docker passed all arguments to the underlying command even if some arguments weren't intended for it. Now it passes everything that comes after the command keyword only, for example: `10updocker --env=my-site-test wp plugin install hello-dolly --version=1.7.2` runs `wp plugin install hello-dolly --version=1.7.2` command in the container of the `my-site-test` environment and doesn't pass `--env=my-site-test` argument itself.
+- Removes https question and updates `create` command to create sites with HTTPS only.
 
 ### Fixed
 - Fixes issues with hosts manipulations during environment creations and deletions when node.js executable is not in the root's PATH.
