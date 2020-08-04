@@ -6,7 +6,8 @@ const fsExtra = require( 'fs-extra' );
 const sudo = require( 'sudo-prompt' );
 const compose = require( 'docker-compose' );
 const which = require( 'which' );
-const mkcert = require( 'mkcert' );
+const mkcert = require( 'mkcert-prebuilt' );
+const shellEscape = require( 'shell-escape' );
 
 const { startGlobal } = require( '../gateway' );
 const environment = require( '../environment' );
@@ -43,7 +44,7 @@ async function createCommand( spinner, defaults = {} ) {
     await saveYaml( 'wp-cli.yml', { ssh: 'docker-compose:phpfpm' } );
 
     await makeCopyConfigs( spinner, fsExtra )( paths, answers );
-    await makeCert( mkcert )( envSlug, envHosts );
+    await makeCert( spinner, mkcert, shellEscape )( envSlug, envHosts );
 
     await startGlobal( spinner );
     await makeDatabase( spinner )( envSlug );
