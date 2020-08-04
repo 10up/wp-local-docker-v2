@@ -1,16 +1,11 @@
 /**
- * External dependencies.
- */
-const { table } = require( 'table' );
-const chalk = require( 'chalk' );
-
-/**
  * Internal dependencies.
  */
 const envUtils = require( '../env-utils' );
 const makeCommand = require( '../utils/make-command' );
 const makeDocker = require( '../utils/make-docker' );
-const makeLink = require( '../utils/make-link' );
+const { replaceLinks } = require( '../utils/make-link' );
+const makeTable = require( '../utils/make-table' );
 
 // Add command name, alias and description.
 exports.aliases = [ 'ls' ];
@@ -23,6 +18,7 @@ exports.handler = makeCommand( {}, async () => {
     // Get all the environments and initialize a status array.
     const environments = await envUtils.getAllEnvironments();
     const envStatus = [ [ 'Name', 'Status', 'URL' ] ];
+    const links = {};
 
     // Loop through each environment and add details.
     for ( const envSlug of environments ) {
@@ -33,14 +29,16 @@ exports.handler = makeCommand( {}, async () => {
         const envHosts = await envUtils.getEnvHosts( envPath );
         const hostName = `http://${ envHosts[0] }/`;
 
+        links[ hostName ] = hostName;
+
         try {
             const containers = await docker.listContainers( { filters: { 'name': [ envSlug ] } } );
 
             // Check containers availability and push to list with appropriate status.
             if ( Array.isArray( containers ) && containers.length ) {
-                envStatus.push( [ envSlug, 'UP', makeLink( chalk.cyanBright( hostName ), hostName ) ] );
+                envStatus.push( [ envSlug, 'UP', hostName ] );
             } else {
-                envStatus.push( [ envSlug, 'DOWN', makeLink( chalk.cyanBright( hostName ), hostName ) ] );
+                envStatus.push( [ envSlug, 'DOWN', hostName ] );
             }
         } catch( ex ) {
             console.error( ex );
@@ -48,5 +46,5 @@ exports.handler = makeCommand( {}, async () => {
     }
 
     // Output the environment status.
-    console.log( table( envStatus ) );
+    console.log( replaceLinks( makeTable( envStatus ), links ) );
 } );

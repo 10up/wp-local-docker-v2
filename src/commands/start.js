@@ -1,11 +1,9 @@
 const { EOL } = require( 'os' );
 
-const chalk = require( 'chalk' );
-
 const makeCommand = require( '../utils/make-command' );
 const makeSpinner = require( '../utils/make-spinner' );
 const makeBoxen = require( '../utils/make-boxen' );
-const makeLink = require( '../utils/make-link' );
+const { replaceLinks } = require( '../utils/make-link' );
 
 const envUtils = require( '../env-utils' );
 const { startAll, start } = require( '../environment' );
@@ -59,17 +57,21 @@ exports.handler = makeCommand( {}, async ( { verbose, pull, env } ) => {
         const envHosts = await envUtils.getEnvHosts( envPath );
         if ( Array.isArray( envHosts ) && envHosts.length > 0 ) {
             let info = '';
+            const links = {};
 
             envHosts.forEach( ( host ) => {
                 const home = `http://${ host }/`;
                 const admin = `http://${ host }/wp-admin/`;
 
-                info += `Homepage: ${ makeLink( chalk.cyanBright( home ), home ) }${ EOL }`;
-                info += `WP admin: ${ makeLink( chalk.cyanBright( admin ), admin ) }${ EOL }`;
+                links[ home ] = home;
+                links[ admin ] = admin;
+
+                info += `Homepage: ${ home }${ EOL }`;
+                info += `WP admin: ${ admin }${ EOL }`;
                 info += EOL;
             } );
 
-            makeBoxen()( info );
+            console.log( replaceLinks( makeBoxen()( info ), links ) );
         }
     }
 } );

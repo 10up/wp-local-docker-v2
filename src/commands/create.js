@@ -14,7 +14,7 @@ const envUtils = require( '../env-utils' );
 const makeSpinner = require( '../utils/make-spinner' );
 const makeCommand = require( '../utils/make-command' );
 const makeBoxen = require( '../utils/make-boxen' );
-const makeLink = require( '../utils/make-link' );
+const { replaceLinks } = require( '../utils/make-link' );
 
 const makeInquirer = require( './create/inquirer' );
 const makeDockerCompose = require( './create/make-docker-compose' );
@@ -68,18 +68,23 @@ exports.handler = makeCommand( {}, async () => {
         spinner.info( 'Note: Subdomain multisites require any additional subdomains to be added manually to your hosts file!' );
     }
 
-    const http = !! answers.wordpress && !! answers.wordpress.https ? 'https' : 'http';
     let info = `Successfully Created Site!${ EOL }${ EOL }`;
+    const http = !! answers.wordpress && !! answers.wordpress.https ? 'https' : 'http';
+    const links = {};
+
     ( Array.isArray( answers.domain ) ? answers.domain : [ answers.domain ] ).forEach( ( host ) => {
         const home = `${ http }://${ host }/`;
         const admin = `${ http }://${ host }/wp-admin/`;
 
-        info += `Homepage: ${ makeLink( chalk.cyanBright( home ), home ) }${ EOL }`;
-        info += `WP admin: ${ makeLink( chalk.cyanBright( admin ), admin ) }${ EOL }`;
+        links[ home ] = home;
+        links[ admin ] = admin;
+
+        info += `Homepage: ${ home }${ EOL }`;
+        info += `WP admin: ${ admin }${ EOL }`;
         info += EOL;
     } );
 
-    makeBoxen()( info );
+    console.log( replaceLinks( makeBoxen()( info ), links ) );
 } );
 
 exports.createCommand = createCommand;
