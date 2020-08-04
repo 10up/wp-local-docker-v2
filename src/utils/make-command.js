@@ -1,32 +1,25 @@
 const makeDocker = require( './make-docker' );
 const displayError = require( './display-error' );
 
-/**
- * Check if Docker app is running.
- *
- * @return {Promise<boolean|*>}
- */
-async function pingDocker() {
-    try{
-        const docker = makeDocker();
-        return await docker.ping();
-    } catch( ex ) {
-        return false;
-    }
-}
+function makeCommand( options, command ) {
+    const cmd = typeof options === 'function' ? options : command;
+    const {
+        checkDocker = true,
+    } = typeof options === 'object' ? options : {};
 
-module.exports = function makeCommand( options = {}, command ) {
-    const { checkDocker = true } = options;
     return async ( ...params ) => {
-        // Check if Docker is running.
         if ( checkDocker === true ) {
-            const ping = await pingDocker().catch( () => false );
+            const docker = makeDocker();
+            const ping = await docker.ping().catch( () => false );
             if ( ! ping ) {
                 displayError( 'Docker is not running...' );
             }
         }
-        return command( ...params ).catch( ( err ) => {
+
+        return cmd( ...params ).catch( ( err ) => {
             displayError( err.message );
         } );
     };
-};
+}
+
+module.exports = makeCommand;

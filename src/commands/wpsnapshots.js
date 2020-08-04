@@ -14,7 +14,7 @@ exports.commmand = 'wpsnapshots';
 exports.aliases = [ 'snapshots' ];
 exports.desc = 'Runs a wp snapshots command.';
 
-exports.handler = makeCommand( {}, async function( { _, env, verbose } ) {
+exports.handler = makeCommand( async function( { _, env, verbose } ) {
     const spinner = ! verbose ? makeSpinner() : undefined;
     const wpsnapshotsDir = await envUtils.getSnapshotsPath();
 

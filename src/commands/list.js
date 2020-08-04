@@ -12,7 +12,7 @@ exports.aliases = [ 'ls' ];
 exports.command = 'list';
 exports.desc = 'Lists all the environments and meta information.';
 
-exports.handler = makeCommand( {}, async () => {
+exports.handler = makeCommand( async () => {
     // Create docker object and make sure it is available.
     const docker = makeDocker();
     // Get all the environments and initialize a status array.
