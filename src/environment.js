@@ -129,6 +129,7 @@ async function restart( env, spinner ) {
 async function deleteEnv( env, spinner ) {
     const envPath = await getPathOrError( env, spinner );
     const envSlug = envUtils.envSlug( env );
+    const envHosts = await envUtils.getEnvHosts( envPath );
 
     const answers = await inquirer.prompt( {
         name: 'confirm',
@@ -207,8 +208,6 @@ async function deleteEnv( env, spinner ) {
             }
 
             const sudoOptions = { name: 'WP Local Docker' };
-            const envHosts = await envUtils.getEnvHosts( envPath );
-
             const node = await which( 'node' );
             const hostsScript = path.join( path.resolve( __dirname, '..' ), 'hosts.js' );
             const hostsToDelete = envHosts.join( ' ' );
