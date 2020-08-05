@@ -29,7 +29,7 @@ exports.handler = makeCommand( { checkDocker: false }, async ( { domains, env, v
         console.log( 'Generating certificates:' );
     }
 
-    await generate( envName, domains, verbose );
+    await generate( envName, domains );
 
     if ( spinner ) {
         spinner.succeed( 'Certificates are generated...' );

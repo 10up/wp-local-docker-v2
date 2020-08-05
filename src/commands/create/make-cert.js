@@ -6,7 +6,7 @@ module.exports = function makeCert( spinner ) {
             console.log( 'Generating certificates:' );
         }
 
-        await generate( envSlug, hosts, ! spinner );
+        await generate( envSlug, hosts );
 
         if ( spinner ) {
             spinner.succeed( 'Certificates are generated...' );
