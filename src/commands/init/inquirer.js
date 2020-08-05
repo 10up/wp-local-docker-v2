@@ -39,35 +39,11 @@ module.exports = function makeInquirer( inquirer ) {
                 },
             },
             {
-                name: 'mediaProxy',
-                type: 'confirm',
-                message: 'Do you want to set a proxy for media assets? (i.e. Serving /uploads/ directory assets from a production site)',
-                default: false,
-            },
-            {
-                name: 'proxy',
-                type: 'input',
-                message: 'Proxy URL',
-                default( { hostname } ) {
-                    return createDefaultProxy( hostname );
-                },
-                validate: validateNotEmpty,
-                filter: parseProxyUrl,
-                when( answers ) {
-                    return answers.mediaProxy === true;
-                },
-            },
-            {
                 name: 'phpVersion',
                 type: 'list',
                 message: 'What version of PHP would you like to use?',
                 choices: [ '7.4', '7.3', '7.2', '7.1', '7.0', '5.6' ],
                 default: '7.3',
-            },
-            {
-                name: 'elasticsearch',
-                type: 'confirm',
-                message: 'Do you need Elasticsearch',
             },
             {
                 name: 'wordpress',
@@ -135,14 +111,40 @@ module.exports = function makeInquirer( inquirer ) {
                 name: 'emptyContent',
                 type: 'confirm',
                 message: 'Do you want to remove the default content?',
+                default: false,
                 when( answers ) {
                     return answers.wordpress === true;
                 },
             },
             {
+                name: 'mediaProxy',
+                type: 'confirm',
+                message: 'Do you want to set a proxy for media assets? (i.e. Serving /uploads/ directory assets from a production site)',
+                default: false,
+            },
+            {
+                name: 'proxy',
+                type: 'input',
+                message: 'Proxy URL',
+                default( { hostname } ) {
+                    return createDefaultProxy( hostname );
+                },
+                validate: validateNotEmpty,
+                filter: parseProxyUrl,
+                when( answers ) {
+                    return answers.mediaProxy === true;
+                },
+            },
+            {
+                name: 'elasticsearch',
+                type: 'confirm',
+                message: 'Do you need Elasticsearch',
+                default: false,
+            },
+            {
                 name: 'snapshot',
                 type: 'input',
-                message: 'Do you want to use a snapshot?',
+                message: 'Do you want to use a snapshot? Leave empty if you don\'t need it.',
             },
             {
                 name: 'mountPoint',
