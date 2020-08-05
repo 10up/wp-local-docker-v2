@@ -26,7 +26,6 @@ async function generate( envName, hosts, verbose ) {
     execSync( `${ mkcert } ${ certFile } ${ keyFile } ${ shellEscape( allHosts ) }`, {
         stdio: verbose ? 'inherit' : 'ignore',
     } );
-
 }
 
 module.exports = {
