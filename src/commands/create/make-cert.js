@@ -1,21 +1,12 @@
 const { join } = require( 'path' );
 const { execSync } = require( 'child_process' );
-const { existsSync, promises: fsPromises } = require( 'fs' );
 
-const config = require( '../../configure' );
+const { getSslCertsDir } = require( '../../configure' );
 
 module.exports = function makeCert( spinner, mkcert, shellEscape ) {
     return async ( envSlug, hosts ) => {
-        const { mkdir } = fsPromises;
-        const global = join( config.getConfigDirectory(), 'global', 'ssl-certs' );
-        if ( ! existsSync( global ) ) {
-            mkdir( global, {
-                mode: 0o755,
-                recursive: true,
-            } );
-        }
-
-        const filename = join( global, envSlug );
+        const sslDir = await getSslCertsDir();
+        const filename = join( sslDir, envSlug );
         const certFile = `-cert-file ${ filename }.crt`;
         const keyFile = `-key-file ${ filename }.key`;
 

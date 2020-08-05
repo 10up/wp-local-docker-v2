@@ -16,8 +16,9 @@ module.exports = function makeUpdateHosts( which, sudo, spinner ) {
                         spinner.warn( 'Something went wrong adding host file entries. You may need to add the /etc/hosts entries manually.' );
                     } else {
                         spinner.succeed( 'Added domains to the hosts file...' );
-                        resolve();
                     }
+
+                    resolve();
                 } );
             } );
         }

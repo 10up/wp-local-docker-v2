@@ -2,7 +2,7 @@ const os = require( 'os' );
 const path = require( 'path' );
 
 const chalk = require( 'chalk' );
-const fs = require( 'fs-extra' );
+const fsExtra = require( 'fs-extra' );
 
 const rootPath = path.dirname( require.main.filename );
 const globalPath = path.join( rootPath, 'global' );
@@ -10,35 +10,47 @@ const globalPath = path.join( rootPath, 'global' );
 // Tracks current config
 let config = null;
 
-const getConfigDirectory = function() {
+function getConfigDirectory() {
     return path.join( os.homedir(), '.wplocaldocker' );
-};
+}
 
-const getConfigFilePath = function() {
+function getConfigFilePath() {
     return path.join( getConfigDirectory(), 'config.json' );
-};
+}
 
-const checkIfConfigured = async function() {
-    return await fs.exists( getConfigFilePath() );
-};
+async function getSslCertsDir( create = true ) {
+    const dir = path.join( getConfigDirectory(), 'global', 'ssl-certs' );
 
-const write = async function() {
+    if ( create ) {
+        await fsExtra.ensureDir( dir );
+    }
+
+    return dir;
+}
+
+async function checkIfConfigured() {
+    const exists = await fsExtra.pathExists( getConfigFilePath() );
+    return exists;
+}
+
+async function write() {
     // Make sure we have our config directory present
-    await fs.ensureDir( getConfigDirectory() );
-    await fs.writeJson( getConfigFilePath(), config );
-};
+    await fsExtra.ensureDir( getConfigDirectory() );
+    await fsExtra.writeJson( getConfigFilePath(), config );
+}
 
-const read = async function() {
+async function read() {
     let readConfig = {};
 
-    if ( await fs.exists( getConfigFilePath() ) ) {
-        readConfig = await fs.readJson( getConfigFilePath() );
+    const exists = await fsExtra.pathExists( getConfigFilePath() );
+    if ( exists ) {
+        readConfig = await fsExtra.readJson( getConfigFilePath() );
     }
 
     config = Object.assign( {}, readConfig );
-};
+}
 
-const get = async function( key ) {
+async function get( key ) {
     const defaults = getDefaults();
 
     if ( config === null ) {
@@ -46,9 +58,9 @@ const get = async function( key ) {
     }
 
     return ( typeof config[ key ] === 'undefined' ) ? defaults[ key ] : config[ key ];
-};
+}
 
-const set = async function( key, value ) {
+async function set( key, value ) {
     if ( config === null ) {
         await read();
     }
@@ -56,32 +68,30 @@ const set = async function( key, value ) {
     config[ key ] = value;
 
     await write();
-};
+}
 
-const getDefaults = function() {
+function getDefaults() {
     return {
         sitesPath: path.join( os.homedir(), 'wp-local-docker-sites' ),
         snapshotsPath: path.join( os.homedir(), '.wpsnapshots' ),
         manageHosts: true,
         overwriteGlobal: true
     };
-};
+}
 
-const configureDefaults = async function() {
-    const defaults = getDefaults();
+async function configureDefaults() {
+    await configure( getDefaults() );
+}
 
-    await configure( defaults );
-};
-
-const configure = async function( configuration ) {
+async function configure( configuration ) {
     const sitesPath = path.resolve( configuration.sitesPath );
     const snapshotsPath = path.resolve( configuration.snapshotsPath );
     const globalServicesPath = path.join( getConfigDirectory(), 'global' );
 
     if ( configuration.overwriteGlobal ) {
         try {
-            await fs.ensureDir( globalServicesPath );
-            await fs.copy( globalPath, path.join( getConfigDirectory(), 'global' ) );
+            await fsExtra.ensureDir( globalServicesPath );
+            await fsExtra.copy( globalPath, path.join( getConfigDirectory(), 'global' ) );
         } catch ( ex ) {
             console.error( ex );
             console.error( 'Error: Unable to copy global services definition!' );
@@ -91,7 +101,7 @@ const configure = async function( configuration ) {
 
     // Attempt to create the sites directory
     try {
-        await fs.ensureDir( sitesPath );
+        await fsExtra.ensureDir( sitesPath );
     } catch ( ex ) {
         console.error( 'Error: Could not create directory for environments!' );
         process.exit( 1 );
@@ -100,8 +110,8 @@ const configure = async function( configuration ) {
     // Make sure we can write to the sites directory
     try {
         const testfile = path.join( sitesPath, 'testfile' );
-        await fs.ensureFile( testfile );
-        await fs.remove( testfile );
+        await fsExtra.ensureFile( testfile );
+        await fsExtra.remove( testfile );
     } catch ( ex ) {
         console.error( 'Error: The environment directory is not writable' );
         process.exit( 1 );
@@ -110,8 +120,8 @@ const configure = async function( configuration ) {
     // Make sure we can write to the snapshots
     try {
         const testfile = path.join( snapshotsPath, 'testfile' );
-        await fs.ensureFile( testfile );
-        await fs.remove( testfile );
+        await fsExtra.ensureFile( testfile );
+        await fsExtra.remove( testfile );
     } catch ( ex ) {
         console.error( 'Error: The snapshots directory is not writable' );
         process.exit( 1 );
@@ -122,21 +132,20 @@ const configure = async function( configuration ) {
     await set( 'manageHosts', configuration.manageHosts );
 
     console.log( chalk.green( 'Successfully Configured WP Local Docker!' ) );
-};
+}
 
 /**
  * Create the NGINX directive to set a media URL proxy
  *
- * @param  string proxy     	The URL to set the proxy to
- * @param  string curConfig 	Complete content of the existing config file
- * @return string          		New content for the config file
+ * @param {string} proxy The URL to set the proxy to
+ * @param {string} curConfig  content of the existing config file
+ * @return {string} New content for the config file
  */
-const createProxyConfig = ( proxy, curConfig ) => {
-
+function createProxyConfig( proxy, curConfig ) {
     const proxyMarkup = 'location @production {\r\n' // eslint-disable-line prefer-template
-		+ '        resolver 8.8.8.8;\r\n'
-		+ '        proxy_pass ' + proxy + '/$uri;\r\n'
-		+ '    }';
+        + '        resolver 8.8.8.8;\r\n'
+        + '        proxy_pass ' + proxy + '/$uri;\r\n'
+        + '    }';
 
     const proxyMapObj = {
         '#{TRY_PROXY}': 'try_files $uri @production;',
@@ -144,13 +153,12 @@ const createProxyConfig = ( proxy, curConfig ) => {
     };
 
     const re = new RegExp( Object.keys( proxyMapObj ).join( '|' ), 'gi' );
-
     const newConfig = curConfig.replace( re, function( matched ) {
         return proxyMapObj[matched];
     } );
 
     return curConfig.replace( curConfig, newConfig );
-};
+}
 
 module.exports = {
     configure,
@@ -160,5 +168,6 @@ module.exports = {
     get,
     set,
     getConfigDirectory,
+    getSslCertsDir,
     createProxyConfig,
 };

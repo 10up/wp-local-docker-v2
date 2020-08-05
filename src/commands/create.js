@@ -52,8 +52,8 @@ async function createCommand( spinner, defaults = {} ) {
 
     await makeInstallWordPress( compose, spinner )( envSlug, hostname, answers.wordpress );
 
-    await makeUpdateHosts( which, sudo, spinner )( envHosts );
     await makeSaveJsonFile( chalk, spinner, paths['/'] )( '.config.json', { envHosts } );
+    await makeUpdateHosts( which, sudo, spinner )( envHosts );
 
     return {
         ...answers,
