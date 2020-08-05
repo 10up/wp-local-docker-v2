@@ -60,8 +60,8 @@ exports.handler = makeCommand( async ( { verbose, pull, env } ) => {
             const links = {};
 
             envHosts.forEach( ( host ) => {
-                const home = `http://${ host }/`;
-                const admin = `http://${ host }/wp-admin/`;
+                const home = `https://${ host }/`;
+                const admin = `https://${ host }/wp-admin/`;
 
                 links[ home ] = home;
                 links[ admin ] = admin;

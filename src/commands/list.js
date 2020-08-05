@@ -27,7 +27,7 @@ exports.handler = makeCommand( async () => {
 
         // Get current environment host name, use the starting index.
         const envHosts = await envUtils.getEnvHosts( envPath );
-        const hostName = `http://${ envHosts[0] }/`;
+        const hostName = `https://${ envHosts[0] }/`;
 
         links[ hostName ] = hostName;
 
