@@ -5,7 +5,7 @@ const { deleteAll, deleteEnv } = require( '../environment' );
 
 exports.command = 'delete [<env>]';
 exports.desc = 'Deletes a specific environment.';
-exports.aliases = [ 'remove' ];
+exports.aliases = [ 'remove', 'rm' ];
 
 exports.builder = function( yargs ) {
     yargs.positional( 'env', {

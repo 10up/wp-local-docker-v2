@@ -1,6 +1,6 @@
 const path = require( 'path' );
 
-const fs = require( 'fs-extra' );
+const fsExtra = require( 'fs-extra' );
 const inquirer = require( 'inquirer' );
 const sudo = require( 'sudo-prompt' );
 const chalk = require( 'chalk' );
@@ -165,6 +165,39 @@ async function deleteEnv( env, spinner ) {
         spinner.start( 'Containers are deleted...' );
     }
 
+    if ( spinner ) {
+        spinner.start( 'Deleting environment files...' );
+    } else {
+        console.log( 'Deleting Files' );
+    }
+
+    await fsExtra.remove( envPath );
+
+    if ( spinner ) {
+        spinner.succeed( 'Environment files are deleted...' );
+        spinner.start( 'Deleting certificates...' );
+    } else {
+        console.log( 'Deleting Certificates' );
+    }
+
+    const sslDir = await config.getSslCertsDir( false );
+    const filename = path.join( sslDir, envSlug );
+    await fsExtra.remove( `${ filename }.crt` );
+    await fsExtra.remove( `${ filename }.key` );
+
+    if ( spinner ) {
+        spinner.succeed( 'Environment certificates are deleted...' );
+        spinner.start( 'Deleting database...' );
+    } else {
+        console.log( 'Deleting Database' );
+    }
+
+    await database.deleteDatabase( envSlug );
+
+    if ( spinner ) {
+        spinner.succeed( 'Database is deleted...' );
+    }
+
     if ( await config.get( 'manageHosts' ) === true ) {
         try {
             if ( spinner ) {
@@ -211,27 +244,6 @@ async function deleteEnv( env, spinner ) {
                 console.error( `${ chalk.bold.yellow( 'Warning: ' ) }Something went wrong deleting host file entries. There may still be remnants in /etc/hosts` );
             }
         }
-    }
-
-    if ( spinner ) {
-        spinner.start( 'Deleting environment files...' );
-    } else {
-        console.log( 'Deleting Files' );
-    }
-
-    await fs.remove( envPath );
-
-    if ( spinner ) {
-        spinner.succeed( 'Environment files are deleted...' );
-        spinner.start( 'Deleting Database...' );
-    } else {
-        console.log( 'Deleting Database' );
-    }
-
-    await database.deleteDatabase( envSlug );
-
-    if ( spinner ) {
-        spinner.succeed( 'Database is deleted...' );
     }
 }
 
