@@ -11,7 +11,7 @@ const { start } = require( '../environment' );
 const makeCommand = require( '../utils/make-command' );
 const makeSpinner = require( '../utils/make-spinner' );
 
-exports.command = 'migrate old [env]';
+exports.command = 'migrate <old> [env]';
 exports.desc = 'Migrates a V1 WP Local Docker environment to a new V2 environment. Before running this command, create a new environment using the `10updocker create` command.';
 
 exports.builder = function( yargs ) {
