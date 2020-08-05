@@ -19,6 +19,7 @@ All notable changes to this project will be documented in this file, per [the Ke
 - Adds `list` and `ls` commands to list all the environments and meta information.
 - Adds engines information to the package.json to strictly denote that Node v12+ is required.
 - Adds `cert install` command to install a new local CA in the system trust store.
+- Adds `cert generate <domains..>` command to generate self-signed SSL certificates for certain domains.
 
 ### Changed
 - Reworks all commands to use `yargs` cli framework.

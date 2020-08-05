@@ -1,27 +1,12 @@
-const { join } = require( 'path' );
-const { execSync } = require( 'child_process' );
+const { generate } = require( '../../certificates' );
 
-const { getSslCertsDirectory } = require( '../../configure' );
-
-module.exports = function makeCert( spinner, mkcert, shellEscape ) {
+module.exports = function makeCert( spinner ) {
     return async ( envSlug, hosts ) => {
-        const sslDir = await getSslCertsDirectory();
-        const filename = join( sslDir, envSlug );
-        const certFile = `-cert-file ${ filename }.crt`;
-        const keyFile = `-key-file ${ filename }.key`;
-
-        const allHosts = [ ...hosts, ...hosts.map( ( host ) => `*.${ host }` ) ];
-
         if ( ! spinner ) {
             console.log( 'Generating certificates:' );
         }
 
-        execSync(
-            `${ mkcert } ${ certFile } ${ keyFile } ${ shellEscape( allHosts ) }`,
-            {
-                stdio: spinner ? 'ignore' : 'inherit',
-            },
-        );
+        await generate( envSlug, hosts, ! spinner );
 
         if ( spinner ) {
             spinner.succeed( 'Certificates are generated...' );
