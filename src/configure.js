@@ -148,14 +148,17 @@ async function configure( configuration ) {
  * @return {string} New content for the config file
  */
 function createProxyConfig( proxy, curConfig ) {
-    const proxyMarkup = 'location @production {\r\n' // eslint-disable-line prefer-template
-        + '        resolver 8.8.8.8;\r\n'
-        + '        proxy_pass ' + proxy + '/$uri;\r\n'
-        + '    }';
+    const proxyMarkup = [];
+
+    // the number of spaces in the proxy markpu is intended
+    proxyMarkup.push( 'location @production {' );
+    proxyMarkup.push( '        resolver 8.8.8.8;' );
+    proxyMarkup.push( `        proxy_pass ${ proxy }/$uri;` );
+    proxyMarkup.push( '    }' );
 
     const proxyMapObj = {
         '#{TRY_PROXY}': 'try_files $uri @production;',
-        '#{PROXY_URL}': proxyMarkup
+        '#{PROXY_URL}': proxyMarkup.join( os.EOL ),
     };
 
     const re = new RegExp( Object.keys( proxyMapObj ).join( '|' ), 'gi' );
