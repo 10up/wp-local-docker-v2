@@ -63,6 +63,7 @@ async function createCommand( spinner, defaults = {} ) {
 
 exports.command = 'create';
 exports.desc = 'Create a new docker environment.';
+exports.aliases = [ 'new' ];
 
 exports.handler = makeCommand( async () => {
     const spinner = makeSpinner();

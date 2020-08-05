@@ -193,6 +193,7 @@ module.exports = function makeInquirer( { prompt } ) {
                 name: 'emptyContent',
                 type: 'confirm',
                 message: 'Do you want to remove the default content?',
+                default: false,
                 when( answers ) {
                     return answers.wordpress === true && ! wordpressPurify;
                 },
@@ -221,6 +222,7 @@ module.exports = function makeInquirer( { prompt } ) {
                 name: 'elasticsearch',
                 type: 'confirm',
                 message: 'Do you need Elasticsearch',
+                default: false,
                 when: defaultIsUndefined( elasticsearch ),
             },
         ] );
