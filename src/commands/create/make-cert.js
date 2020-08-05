@@ -1,11 +1,11 @@
 const { join } = require( 'path' );
 const { execSync } = require( 'child_process' );
 
-const { getSslCertsDir } = require( '../../configure' );
+const { getSslCertsDirectory } = require( '../../configure' );
 
 module.exports = function makeCert( spinner, mkcert, shellEscape ) {
     return async ( envSlug, hosts ) => {
-        const sslDir = await getSslCertsDir();
+        const sslDir = await getSslCertsDirectory();
         const filename = join( sslDir, envSlug );
         const certFile = `-cert-file ${ filename }.crt`;
         const keyFile = `-key-file ${ filename }.key`;

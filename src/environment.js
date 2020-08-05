@@ -180,7 +180,7 @@ async function deleteEnv( env, spinner ) {
         console.log( 'Deleting Certificates' );
     }
 
-    const sslDir = await config.getSslCertsDir( false );
+    const sslDir = await config.getSslCertsDirectory( false );
     const filename = path.join( sslDir, envSlug );
     await fsExtra.remove( `${ filename }.crt` );
     await fsExtra.remove( `${ filename }.key` );

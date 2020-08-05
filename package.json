@@ -25,7 +25,15 @@
   ],
   "preferGlobal": true,
   "main": "index.js",
+  "files": [
+    "src",
+    "global",
+    "scripts",
+    "index.js",
+    "hosts.js"
+  ],
   "scripts": {
+    "postinstall": "npm run 10updocker postinstall --silent",
     "10updocker": "./index.js",
     "10updocker-hosts": "./hosts.js",
     "test": "jest",

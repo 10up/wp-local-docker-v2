@@ -4,9 +4,6 @@ const path = require( 'path' );
 const chalk = require( 'chalk' );
 const fsExtra = require( 'fs-extra' );
 
-const rootPath = path.dirname( require.main.filename );
-const globalPath = path.join( rootPath, 'global' );
-
 // Tracks current config
 let config = null;
 
@@ -18,8 +15,12 @@ function getConfigFilePath() {
     return path.join( getConfigDirectory(), 'config.json' );
 }
 
-async function getSslCertsDir( create = true ) {
-    const dir = path.join( getConfigDirectory(), 'global', 'ssl-certs' );
+function getGlobalDirectory() {
+    return path.join( getConfigDirectory(), 'global' );
+}
+
+async function getSslCertsDirectory( create = true ) {
+    const dir = path.join( getGlobalDirectory(), 'ssl-certs' );
 
     if ( create ) {
         await fsExtra.ensureDir( dir );
@@ -86,12 +87,17 @@ async function configureDefaults() {
 async function configure( configuration ) {
     const sitesPath = path.resolve( configuration.sitesPath );
     const snapshotsPath = path.resolve( configuration.snapshotsPath );
-    const globalServicesPath = path.join( getConfigDirectory(), 'global' );
+    const globalServicesPath = getGlobalDirectory();
 
     if ( configuration.overwriteGlobal ) {
         try {
+            const localGlobalPath = path.join(
+                path.dirname( require.main.filename ),
+                'global',
+            );
+
             await fsExtra.ensureDir( globalServicesPath );
-            await fsExtra.copy( globalPath, path.join( getConfigDirectory(), 'global' ) );
+            await fsExtra.copy( localGlobalPath, globalServicesPath );
         } catch ( ex ) {
             console.error( ex );
             console.error( 'Error: Unable to copy global services definition!' );
@@ -168,6 +174,7 @@ module.exports = {
     get,
     set,
     getConfigDirectory,
-    getSslCertsDir,
+    getGlobalDirectory,
+    getSslCertsDirectory,
     createProxyConfig,
 };
