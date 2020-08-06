@@ -1,11 +1,9 @@
 const path = require( 'path' );
 
-const fs = require( 'fs-extra' );
+const fsExtra = require( 'fs-extra' );
 const inquirer = require( 'inquirer' );
 const sudo = require( 'sudo-prompt' );
 const chalk = require( 'chalk' );
-const readYaml = require( 'read-yaml' );
-const writeYaml = require( 'write-yaml' );
 const compose = require( 'docker-compose' );
 const which = require( 'which' );
 
@@ -14,6 +12,7 @@ const promptValidators = require( './prompt-validators' );
 const database = require( './database' );
 const envUtils = require( './env-utils' );
 const gateway = require( './gateway' );
+const { readYaml, writeYaml } = require( './utils/yaml' );
 
 function getPathOrError( env, spinner ) {
     // @ts-ignore
@@ -129,6 +128,7 @@ async function restart( env, spinner ) {
 async function deleteEnv( env, spinner ) {
     const envPath = await getPathOrError( env, spinner );
     const envSlug = envUtils.envSlug( env );
+    const envHosts = await envUtils.getEnvHosts( envPath );
 
     const answers = await inquirer.prompt( {
         name: 'confirm',
@@ -165,6 +165,39 @@ async function deleteEnv( env, spinner ) {
         spinner.start( 'Containers are deleted...' );
     }
 
+    if ( spinner ) {
+        spinner.start( 'Deleting environment files...' );
+    } else {
+        console.log( 'Deleting Files' );
+    }
+
+    await fsExtra.remove( envPath );
+
+    if ( spinner ) {
+        spinner.succeed( 'Environment files are deleted...' );
+        spinner.start( 'Deleting certificates...' );
+    } else {
+        console.log( 'Deleting Certificates' );
+    }
+
+    const sslDir = await config.getSslCertsDirectory( false );
+    const filename = path.join( sslDir, envSlug );
+    await fsExtra.remove( `${ filename }.crt` );
+    await fsExtra.remove( `${ filename }.key` );
+
+    if ( spinner ) {
+        spinner.succeed( 'Environment certificates are deleted...' );
+        spinner.start( 'Deleting database...' );
+    } else {
+        console.log( 'Deleting Database' );
+    }
+
+    await database.deleteDatabase( envSlug );
+
+    if ( spinner ) {
+        spinner.succeed( 'Database is deleted...' );
+    }
+
     if ( await config.get( 'manageHosts' ) === true ) {
         try {
             if ( spinner ) {
@@ -174,8 +207,6 @@ async function deleteEnv( env, spinner ) {
             }
 
             const sudoOptions = { name: 'WP Local Docker' };
-            const envHosts = await envUtils.getEnvHosts( envPath );
-
             const node = await which( 'node' );
             const hostsScript = path.join( path.resolve( __dirname, '..' ), 'hosts.js' );
             const hostsToDelete = envHosts.join( ' ' );
@@ -212,37 +243,14 @@ async function deleteEnv( env, spinner ) {
             }
         }
     }
-
-    if ( spinner ) {
-        spinner.start( 'Deleting environment files...' );
-    } else {
-        console.log( 'Deleting Files' );
-    }
-
-    await fs.remove( envPath );
-
-    if ( spinner ) {
-        spinner.succeed( 'Environment files are deleted...' );
-        spinner.start( 'Deleting Database...' );
-    } else {
-        console.log( 'Deleting Database' );
-    }
-
-    await database.deleteDatabase( envSlug );
-
-    if ( spinner ) {
-        spinner.succeed( 'Database is deleted...' );
-    }
 }
 
 async function upgradeEnv( env ) {
     const envPath = await envUtils.getPathOrError( env );
-
-    // If we got the path from the cwd, we don't have a slug yet, so get it
     const envSlug = envUtils.envSlug( env );
 
-    const yaml = readYaml.sync( path.join( envPath, 'docker-compose.yml' ) );
-
+    const dockerCompose = path.join( envPath, 'docker-compose.yml' );
+    const yaml = readYaml( dockerCompose );
     const services = [ 'nginx', 'phpfpm', 'elasticsearch' ];
 
     // Update defined services to have all cached volumes
@@ -261,15 +269,13 @@ async function upgradeEnv( env ) {
         }
     }
 
-    await new Promise( resolve => {
-        writeYaml( path.join( envPath, 'docker-compose.yml' ), yaml, { 'lineWidth': 500 }, function( err ) {
-            if ( err ) {
-                console.log( err );
-            }
-            console.log( `Finished updating ${ envSlug }` );
-            resolve();
-        } );
-    } );
+
+    try {
+        await writeYaml( dockerCompose, yaml );
+        console.log( `Finished updating ${ envSlug }` );
+    } catch ( err ) {
+        console.error( err );
+    }
 }
 
 async function startAll( spinner, pull ) {

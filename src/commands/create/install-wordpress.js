@@ -46,7 +46,6 @@ async function install( hostname, wordpress, compose, cwd, log, spinner ) {
         password,
         email,
         type,
-        https,
     } = wordpress;
 
     const command = [ 'wp', 'core' ];
@@ -66,9 +65,7 @@ async function install( hostname, wordpress, compose, cwd, log, spinner ) {
             throw Error( 'Invalid Installation Type' );
     }
 
-    const url = `${ https ? 'https' : 'http' }://${ hostname }`;
-
-    command.push( `--url=${ url }` );
+    command.push( `--url=https://${ hostname }` );
     command.push( `--title=${ title }` );
     command.push( `--admin_user=${ username }` );
     command.push( `--admin_password=${ password }` );

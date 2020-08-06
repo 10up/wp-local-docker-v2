@@ -2,14 +2,13 @@ const path = require( 'path' );
 const os = require( 'os' );
 
 const fs = require( 'fs-extra' );
-const readYaml = require( 'read-yaml' );
-const writeYaml = require( 'write-yaml' );
 
 const makeCommand = require( '../utils/make-command' );
 const makeSpinner = require( '../utils/make-spinner' );
 const envUtils = require( '../env-utils' );
 const { images } = require( '../docker-images' );
 const { stop, start, upgradeEnv } = require( '../environment' );
+const { readYaml, writeYaml } = require( '../utils/yaml' );
 
 exports.command = 'upgrade';
 exports.desc = false; // @todo: "false" means that this command is hidden
@@ -30,16 +29,15 @@ exports.handler = makeCommand( { checkDocker: false }, async ( { verbose } ) => 
     await stop( envSlug, spinner );
 
     // Create a backup of the old yaml.
-    const yaml = readYaml.sync( path.join( envPath, 'docker-compose.yml' ) );
-    await new Promise( resolve => {
-        writeYaml( path.join( envPath, 'docker-compose.yml.bak' ), yaml, { 'lineWidth': 500 }, function( err ) {
-            if ( err ) {
-                console.log( err );
-            }
-            console.log( `Created backup of previous configuration ${ envSlug }` );
-            resolve();
-        } );
-    } );
+    const dockerCompose = path.join( envPath, 'docker-compose.yml' );
+    const yaml = readYaml( dockerCompose );
+
+    try {
+        await writeYaml( `${ dockerCompose }.bak`, yaml );
+        console.log( `Created backup of previous configuration ${ envSlug }` );
+    } catch ( err ) {
+        console.log( err );
+    }
 
     // perform the previous upgrade first
     await upgradeEnv( env );
@@ -111,15 +109,12 @@ exports.handler = makeCommand( { checkDocker: false }, async ( { verbose } ) => 
         upgraded.services.phpfpm.volumes.push( '~/.ssh:/home/www-data/.ssh:cached' );
     }
 
-    await new Promise( resolve => {
-        writeYaml( path.join( envPath, 'docker-compose.yml' ), upgraded, { 'lineWidth': 500 }, function( err ) {
-            if ( err ) {
-                console.log( err );
-            }
-            console.log( `Finished updating ${ envSlug } for WP Local Docker v2.6` );
-            resolve();
-        } );
-    } );
+    try {
+        await writeYaml( dockerCompose, upgraded );
+        console.log( `Finished updating ${ envSlug } for WP Local Docker v2.6` );
+    } catch ( err ) {
+        console.error( err );
+    }
 
     start( envSlug, spinner );
 } );

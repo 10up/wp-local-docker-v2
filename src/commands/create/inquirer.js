@@ -43,10 +43,6 @@ function marshalWordPress( original, answers ) {
         wp.type = answers.wordpressType;
     }
 
-    if ( answers.addHttps ) {
-        wp.https = answers.addHttps;
-    }
-
     if ( answers.emptyContent ) {
         wp.purify = true;
     }
@@ -71,7 +67,6 @@ module.exports = function makeInquirer( { prompt } ) {
             username: wordpressUsername,
             password: wordpressPassword,
             email: wordpressEmail,
-            https: wordpressHttps,
             purify: wordpressPurify,
         } = wordpress || {};
 
@@ -127,26 +122,6 @@ module.exports = function makeInquirer( { prompt } ) {
                 },
             },
             {
-                name: 'mediaProxy',
-                type: 'confirm',
-                message: 'Do you want to set a proxy for media assets? (i.e. Serving /uploads/ directory assets from a production site)',
-                default: false,
-                when: defaultIsUndefined( mediaProxy ),
-            },
-            {
-                name: 'proxy',
-                type: 'input',
-                message: 'Proxy URL',
-                default( { hostname } ) {
-                    return createDefaultProxy( hostname );
-                },
-                validate: validateNotEmpty,
-                filter: parseProxyUrl,
-                when( answers ) {
-                    return answers.mediaProxy === true;
-                },
-            },
-            {
                 name: 'phpVersion',
                 type: 'list',
                 message: 'What version of PHP would you like to use?',
@@ -155,12 +130,6 @@ module.exports = function makeInquirer( { prompt } ) {
                 when() {
                     return ! phpVersions.includes( php );
                 },
-            },
-            {
-                name: 'elasticsearch',
-                type: 'confirm',
-                message: 'Do you need Elasticsearch',
-                when: defaultIsUndefined( elasticsearch ),
             },
             {
                 name: 'wordpress',
@@ -221,21 +190,40 @@ module.exports = function makeInquirer( { prompt } ) {
                 },
             },
             {
-                name: 'addHttps',
-                type: 'confirm',
-                message: 'Do you want to enable HTTPS?',
-                default: true,
-                when( answers ) {
-                    return answers.wordpress === true || typeof wordpressHttps === 'undefined';
-                },
-            },
-            {
                 name: 'emptyContent',
                 type: 'confirm',
                 message: 'Do you want to remove the default content?',
+                default: false,
                 when( answers ) {
                     return answers.wordpress === true && ! wordpressPurify;
                 },
+            },
+            {
+                name: 'mediaProxy',
+                type: 'confirm',
+                message: 'Do you want to set a proxy for media assets? (i.e. Serving /uploads/ directory assets from a production site)',
+                default: false,
+                when: defaultIsUndefined( mediaProxy ),
+            },
+            {
+                name: 'proxy',
+                type: 'input',
+                message: 'Proxy URL',
+                default( { hostname } ) {
+                    return createDefaultProxy( hostname );
+                },
+                validate: validateNotEmpty,
+                filter: parseProxyUrl,
+                when( answers ) {
+                    return answers.mediaProxy === true;
+                },
+            },
+            {
+                name: 'elasticsearch',
+                type: 'confirm',
+                message: 'Do you need Elasticsearch',
+                default: false,
+                when: defaultIsUndefined( elasticsearch ),
             },
         ] );
 

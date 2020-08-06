@@ -18,7 +18,7 @@ module.exports = function makeCopyConfigs( spinner, { copy } ) {
             const nginxConfig = type == 'dev' ? 'develop.conf' : 'default.conf';
             const nginxConfigPath = join( envPath, 'config', 'nginx', nginxConfig );
 
-            const curConfig = await readFile( nginxConfigPath );
+            const curConfig = await readFile( nginxConfigPath, { encoding: 'utf-8' } );
             await writeFile( nginxConfigPath, createProxyConfig( mediaProxy, curConfig ) );
         }
 

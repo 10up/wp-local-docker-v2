@@ -68,12 +68,11 @@ exports.handler = makeCommand( async ( { url, branch, config } ) => {
     }
 
     let info = `Successfully Cloned Site!${ EOL }${ EOL }`;
-    const http = !! answers.wordpress && !! answers.wordpress.https ? 'https' : 'http';
     const links = {};
 
     ( Array.isArray( answers.domain ) ? answers.domain : [ answers.domain ] ).forEach( ( host ) => {
-        const home = `${ http }://${ host }/`;
-        const admin = `${ http }://${ host }/wp-admin/`;
+        const home = `https://${ host }/`;
+        const admin = `https://${ host }/wp-admin/`;
 
         links[ home ] = home;
         links[ admin ] = admin;

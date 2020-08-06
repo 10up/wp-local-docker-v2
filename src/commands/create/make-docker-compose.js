@@ -4,7 +4,7 @@ const { cacheVolume } = require( '../../env-utils' );
 const { images } = require( '../../docker-images' );
 
 module.exports = function makeDockerCompose( spinner ) {
-    return async ( hosts, settings ) => {
+    return async ( envSlug, hosts, settings ) => {
         spinner.start( 'Creating docker-compose configuration...' );
 
         const {
@@ -30,7 +30,7 @@ module.exports = function makeDockerCompose( spinner ) {
                     networks: [ 'default', 'wplocaldocker' ],
                     volumes: [ './wordpress:/var/www/html:cached' ],
                     environment: {
-                        CERT_NAME: 'localhost',
+                        CERT_NAME: envSlug,
                         HTTPS_METHOD: 'noredirect',
                         VIRTUAL_HOST: allHosts.join( ',' ),
                     },

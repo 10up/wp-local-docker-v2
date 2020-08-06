@@ -44,11 +44,10 @@ const envSlug = function( env ) {
     return slugify( env );
 };
 
-const envPath = async function( env ) {
+async function envPath( env ) {
     const envPath = path.join( await sitesPath(), envSlug( env ) );
-
     return envPath;
-};
+}
 
 const parseEnvFromCWD = async function() {
     // Compare both of these as all lowercase to account for any misconfigurations
@@ -82,6 +81,27 @@ const parseEnvFromCWD = async function() {
     return cwd;
 };
 
+async function resolveEnvironment( env ) {
+    let envName = ( env || '' ).trim();
+    if ( ! envName ) {
+        envName = await parseEnvFromCWD();
+    }
+
+    if ( envName ) {
+        const root = await envPath( envName );
+        const dockerComposeExists = await fs.pathExists( path.join( root, 'docker-compose.yml' ) );
+        if ( ! dockerComposeExists ) {
+            envName = false;
+        }
+    }
+
+    if ( ! envName ) {
+        envName = await promptEnv();
+    }
+
+    return envName;
+}
+
 const getAllEnvironments = async function() {
     const sitePath = await sitesPath();
     let dirContent = await fs.readdir( sitePath );
@@ -101,7 +121,7 @@ const getAllEnvironments = async function() {
     dirContent = await async.filter( dirContent, async item => {
         const configFile = path.join( item, CONFIG_FILENAME );
 
-        return await fs.exists( configFile );
+        return await fs.pathExists( configFile );
     } );
 
     // Back to just the basename
@@ -201,6 +221,7 @@ module.exports = {
     envSlug,
     envPath,
     parseEnvFromCWD,
+    resolveEnvironment,
     getAllEnvironments,
     promptEnv,
     parseOrPromptEnv,
