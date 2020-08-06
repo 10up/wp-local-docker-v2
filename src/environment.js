@@ -4,8 +4,6 @@ const fsExtra = require( 'fs-extra' );
 const inquirer = require( 'inquirer' );
 const sudo = require( 'sudo-prompt' );
 const chalk = require( 'chalk' );
-const readYaml = require( 'read-yaml' );
-const writeYaml = require( 'write-yaml' );
 const compose = require( 'docker-compose' );
 const which = require( 'which' );
 
@@ -14,6 +12,7 @@ const promptValidators = require( './prompt-validators' );
 const database = require( './database' );
 const envUtils = require( './env-utils' );
 const gateway = require( './gateway' );
+const { readYaml, writeYaml } = require( './utils/yaml' );
 
 function getPathOrError( env, spinner ) {
     // @ts-ignore
@@ -248,12 +247,10 @@ async function deleteEnv( env, spinner ) {
 
 async function upgradeEnv( env ) {
     const envPath = await envUtils.getPathOrError( env );
-
-    // If we got the path from the cwd, we don't have a slug yet, so get it
     const envSlug = envUtils.envSlug( env );
 
-    const yaml = readYaml.sync( path.join( envPath, 'docker-compose.yml' ) );
-
+    const dockerCompose = path.join( envPath, 'docker-compose.yml' );
+    const yaml = readYaml( dockerCompose );
     const services = [ 'nginx', 'phpfpm', 'elasticsearch' ];
 
     // Update defined services to have all cached volumes
@@ -272,15 +269,13 @@ async function upgradeEnv( env ) {
         }
     }
 
-    await new Promise( resolve => {
-        writeYaml( path.join( envPath, 'docker-compose.yml' ), yaml, { 'lineWidth': 500 }, function( err ) {
-            if ( err ) {
-                console.log( err );
-            }
-            console.log( `Finished updating ${ envSlug }` );
-            resolve();
-        } );
-    } );
+
+    try {
+        await writeYaml( dockerCompose, yaml );
+        console.log( `Finished updating ${ envSlug }` );
+    } catch ( err ) {
+        console.error( err );
+    }
 }
 
 async function startAll( spinner, pull ) {

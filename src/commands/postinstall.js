@@ -1,11 +1,10 @@
 const { join } = require( 'path' );
 
 const fsExtra = require( 'fs-extra' );
-const readYaml = require( 'read-yaml' );
-const writeYaml = require( 'write-yaml' );
 
 const { installCA } = require( '../certificates' );
 const { getGlobalDirectory } = require( '../configure' );
+const { writeYaml, readYaml } = require( '../utils/yaml' );
 const makeCommand = require( '../utils/make-command' );
 
 exports.command = 'postinstall';
@@ -26,7 +25,7 @@ exports.handler = makeCommand( async function() {
     const globalDockerComposeExists = await fsExtra.pathExists( globalDockerCompose );
     if ( globalDockerComposeExists ) {
         let changed = false;
-        const yaml = readYaml.sync( globalDockerCompose );
+        const yaml = readYaml( globalDockerCompose );
 
         if ( yaml && yaml.services && yaml.services.gateway ) {
             if ( ! yaml.services.gateway.volumes || ! Array.isArray( yaml.services.gateway.volumes ) ) {
@@ -41,14 +40,8 @@ exports.handler = makeCommand( async function() {
         }
 
         if ( changed ) {
-            await new Promise( resolve => {
-                writeYaml( globalDockerCompose, yaml, { 'lineWidth': 500 }, ( err ) => {
-                    if ( err ) {
-                        console.error( err );
-                    }
-
-                    resolve();
-                } );
+            await writeYaml( globalDockerCompose, yaml ).catch( ( err ) => {
+                console.error( err );
             } );
         }
     }
