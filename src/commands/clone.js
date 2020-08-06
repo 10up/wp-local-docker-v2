@@ -2,7 +2,6 @@ const { mkdtempSync } = require( 'fs' );
 const { join } = require( 'path' );
 const { tmpdir, EOL } = require( 'os' );
 
-const git = require( 'nodegit' );
 const chalk = require( 'chalk' );
 const inquirer = require( 'inquirer' );
 const fsExtra = require( 'fs-extra' );
@@ -18,7 +17,6 @@ const makeGitClone = require( './clone/git-clone' );
 const makePullConfig = require( './clone/pull-config' );
 const makeMoveRepository = require( './clone/move-repository' );
 const makePullSnapshot = require( './clone/pull-snapshot' );
-
 const { createCommand } = require( './create' );
 
 exports.command = 'clone <url> [--branch=<branch>] [--config=<config>]';
@@ -47,6 +45,8 @@ exports.builder = function( yargs ) {
 };
 
 exports.handler = makeCommand( async ( { url, branch, config } ) => {
+    const git = require( 'nodegit' ); // nodegit must be required here
+
     const tempDir = mkdtempSync( join( tmpdir(), 'wpld-' ) );
     const spinner = makeSpinner();
 
