@@ -15,7 +15,7 @@ exports.builder = function( yargs ) {
 exports.handler = ( { shell } ) => {
     switch( shell ) {
         case 'bash': {
-            const filename = resolve( __dirname, '..', 'scripts', '10updocker-completion.bash' );
+            const filename = resolve( __dirname, '../../scripts/10updocker-completion.bash' );
             console.log( '#' );
             console.log( '# wp-local-docker command completion script' );
             console.log( '#' );

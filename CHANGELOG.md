@@ -25,6 +25,7 @@ All notable changes to this project will be documented in this file, per [the Ke
 - Reworks all commands to use `yargs` cli framework.
 - Updates the way how `wp` and `wpsnapshots` commands determine subcommand arguments that needs to be passed into containers. Previously, wp-local-docker passed all arguments to the underlying command even if some arguments weren't intended for it. Now it passes everything that comes after the command keyword only, for example: `10updocker --env=my-site-test wp plugin install hello-dolly --version=1.7.2` runs `wp plugin install hello-dolly --version=1.7.2` command in the container of the `my-site-test` environment and doesn't pass `--env=my-site-test` argument itself.
 - Removes https question and updates `create` command to create sites with HTTPS only.
+- Updates bash completion script to support new commands and aliases.
 
 ### Fixed
 - Fixes issues with hosts manipulations during environment creations and deletions when node.js executable is not in the root's PATH.
