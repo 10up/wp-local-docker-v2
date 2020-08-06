@@ -28,18 +28,10 @@ exports.handler = makeCommand( async ( { verbose, pull, env } ) => {
     const spinner = ! verbose ? makeSpinner() : undefined;
     const all = env === 'all';
 
-    let envName = ( env || '' ).trim();
-    if ( ! envName ) {
-        envName = await envUtils.parseEnvFromCWD();
-    }
-
-    if ( ! envName ) {
-        envName = await envUtils.promptEnv();
-    }
-
     if ( all ) {
         await startAll( spinner, pull );
     } else {
+        const envName = await envUtils.resolveEnvironment( env || '' );
         await start( envName, spinner, pull );
 
         // @ts-ignore

@@ -1,4 +1,4 @@
-const envUtils = require( '../../env-utils' );
+const { resolveEnvironment } = require( '../../env-utils' );
 const { generate } = require( '../../certificates' );
 const makeCommand = require( '../../utils/make-command' );
 const makeSpinner = require( '../../utils/make-spinner' );
@@ -15,15 +15,7 @@ exports.builder = function( yargs ) {
 
 exports.handler = makeCommand( { checkDocker: false }, async ( { domains, env, verbose } ) => {
     const spinner = ! verbose ? makeSpinner() : undefined;
-
-    let envName = ( env || '' ).trim();
-    if ( ! envName ) {
-        envName = await envUtils.parseEnvFromCWD();
-    }
-
-    if ( ! envName ) {
-        envName = await envUtils.promptEnv();
-    }
+    const envName = await resolveEnvironment( env );
 
     if ( ! spinner ) {
         console.log( 'Generating certificates:' );
