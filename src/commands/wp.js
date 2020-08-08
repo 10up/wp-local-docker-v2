@@ -14,62 +14,62 @@ exports.command = 'wp <cmd..>';
 exports.desc = 'Runs a wp-cli command in your environment.';
 
 exports.builder = function( yargs ) {
-    yargs.positional( 'cmd', {
-        describe: 'Command to run',
-        type: 'string',
-    } );
+	yargs.positional( 'cmd', {
+		describe: 'Command to run',
+		type: 'string',
+	} );
 };
 
 exports.handler = makeCommand( async ( { verbose, env } ) => {
-    let envSlug = env;
-    if ( ! envSlug ) {
-        envSlug = await envUtils.parseOrPromptEnv();
-    }
+	let envSlug = env;
+	if ( ! envSlug ) {
+		envSlug = await envUtils.parseOrPromptEnv();
+	}
 
-    if ( envSlug === false ) {
-        throw new Error( 'Error: Unable to determine which environment to use WP CLI with. Please run this command from within your environment\'s directory.' );
-    }
+	if ( envSlug === false ) {
+		throw new Error( 'Error: Unable to determine which environment to use WP CLI with. Please run this command from within your environment\'s directory.' );
+	}
 
-    const envPath = await envUtils.envPath( envSlug );
-    const spinner = ! verbose ? makeSpinner() : undefined;
+	const envPath = await envUtils.envPath( envSlug );
+	const spinner = ! verbose ? makeSpinner() : undefined;
 
-    spinner && spinner.start( 'Checking if the environment running...' );
-    // Check if the container is running, otherwise, start up the stacks
-    const { out } = await compose.ps( {
-        cwd: envPath,
-    } );
+	spinner && spinner.start( 'Checking if the environment running...' );
+	// Check if the container is running, otherwise, start up the stacks
+	const { out } = await compose.ps( {
+		cwd: envPath,
+	} );
 
-    if ( out.split( EOL ).filter( ( line ) => line.trim().length > 0 ).length <= 2 ) {
-        spinner && spinner.info( 'Environment is not running, starting it...' );
-        await gateway.startGlobal( spinner );
-        await environment.start( envSlug, spinner );
-    } else {
-        spinner && spinner.succeed( 'Environment is running...' );
-    }
+	if ( out.split( EOL ).filter( ( line ) => line.trim().length > 0 ).length <= 2 ) {
+		spinner && spinner.info( 'Environment is not running, starting it...' );
+		await gateway.startGlobal( spinner );
+		await environment.start( envSlug, spinner );
+	} else {
+		spinner && spinner.succeed( 'Environment is running...' );
+	}
 
-    // Compose wp-cli command to run
-    let wpCommand = false;
-    const command = [];
-    for ( let i = 0; i < process.argv.length; i++ ) {
-        if ( process.argv[i].toLowerCase() === 'wp' ) {
-            wpCommand = true;
-        }
+	// Compose wp-cli command to run
+	let wpCommand = false;
+	const command = [];
+	for ( let i = 0; i < process.argv.length; i++ ) {
+		if ( process.argv[i].toLowerCase() === 'wp' ) {
+			wpCommand = true;
+		}
 
-        if ( wpCommand ) {
-            command.push( process.argv[i] );
-        }
-    }
+		if ( wpCommand ) {
+			command.push( process.argv[i] );
+		}
+	}
 
-    try {
-        // Check for TTY
-        const ttyFlag = process.stdin.isTTY ? '' : ' -T';
+	try {
+		// Check for TTY
+		const ttyFlag = process.stdin.isTTY ? '' : ' -T';
 
-        // Run the command
-        execSync( `docker-compose exec${ ttyFlag } phpfpm ${ shellEscape( command ) }`, {
-            stdio: 'inherit',
-            cwd: envPath
-        } );
-    } catch ( e ) {
-        // do nothing
-    }
+		// Run the command
+		execSync( `docker-compose exec${ ttyFlag } phpfpm ${ shellEscape( command ) }`, {
+			stdio: 'inherit',
+			cwd: envPath
+		} );
+	} catch ( e ) {
+		// do nothing
+	}
 } );

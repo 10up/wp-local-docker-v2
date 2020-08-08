@@ -24,65 +24,65 @@ exports.command = 'clone <url> [--branch=<branch>] [--config=<config>]';
 exports.desc = 'Clones an environment from a remote repository.';
 
 exports.builder = function( yargs ) {
-    yargs.positional( 'url', {
-        describe: 'A remote repository URL',
-        type: 'string',
-    } );
+	yargs.positional( 'url', {
+		describe: 'A remote repository URL',
+		type: 'string',
+	} );
 
-    yargs.option( 'b', {
-        alias: 'branch',
-        description: 'Branch name to checkout',
-        default: 'master',
-        type: 'string',
-    } );
+	yargs.option( 'b', {
+		alias: 'branch',
+		description: 'Branch name to checkout',
+		default: 'master',
+		type: 'string',
+	} );
 
-    yargs.option( 'c', {
-        alias: 'config',
-        description: 'Config file name',
-        default: 'wp-local-docker.config.js',
-        type: 'string',
-    } );
+	yargs.option( 'c', {
+		alias: 'config',
+		description: 'Config file name',
+		default: 'wp-local-docker.config.js',
+		type: 'string',
+	} );
 };
 
 exports.handler = makeCommand( async ( { url, branch, config } ) => {
-    const git = require( 'nodegit' ); // nodegit must be required here
+	const git = require( 'nodegit' ); // nodegit must be required here
 
-    const tempDir = mkdtempSync( join( tmpdir(), 'wpld-' ) );
-    const spinner = makeSpinner();
+	const tempDir = mkdtempSync( join( tmpdir(), 'wpld-' ) );
+	const spinner = makeSpinner();
 
-    // clone repository
-    await makeGitClone( spinner, chalk, git, inquirer )( tempDir, url, branch );
-    // read configuration from the config file in the repo if it exists
-    const configuration = await makePullConfig( spinner )( tempDir, config );
-    // create environment
-    const answers = await createCommand( spinner, configuration || {} );
-    const { mountPoint, snapshot, paths } = answers;
+	// clone repository
+	await makeGitClone( spinner, chalk, git, inquirer )( tempDir, url, branch );
+	// read configuration from the config file in the repo if it exists
+	const configuration = await makePullConfig( spinner )( tempDir, config );
+	// create environment
+	const answers = await createCommand( spinner, configuration || {} );
+	const { mountPoint, snapshot, paths } = answers;
 
-    // move repository
-    await makeMoveRepository( chalk, spinner, fsExtra, paths.wordpress )( tempDir, mountPoint || 'wp-content' );
+	// move repository
+	await makeMoveRepository( chalk, spinner, fsExtra, paths.wordpress )( tempDir, mountPoint || 'wp-content' );
 
-    // pull snapshot if available
-    if ( snapshot ) {
-        const wpsnapshotsDir = await envUtils.getSnapshotsPath();
-        await makePullSnapshot( wpsnapshotsDir, images, inquirer, paths.wordpress )( snapshot );
-    }
+	// pull snapshot if available
+	if ( snapshot ) {
+		const wpsnapshotsDir = await envUtils.getSnapshotsPath();
+		await makePullSnapshot( wpsnapshotsDir, images, inquirer, paths.wordpress )( snapshot );
+	}
 
-    let info = `Successfully Cloned Site!${ EOL }${ EOL }`;
-    const links = {};
+	let info = `Successfully Cloned Site!${ EOL }${ EOL }`;
+	const links = {};
 
-    ( Array.isArray( answers.domain ) ? answers.domain : [ answers.domain ] ).forEach( ( host ) => {
-        const home = `https://${ host }/`;
-        const admin = `https://${ host }/wp-admin/`;
+	( Array.isArray( answers.domain ) ? answers.domain : [ answers.domain ] ).forEach( ( host ) => {
+		const home = `https://${ host }/`;
+		const admin = `https://${ host }/wp-admin/`;
 
-        links[ home ] = home;
-        links[ admin ] = admin;
+		links[ home ] = home;
+		links[ admin ] = admin;
 
-        info += `Homepage: ${ home }${ EOL }`;
-        info += `WP admin: ${ admin }${ EOL }`;
-        info += EOL;
-    } );
+		info += `Homepage: ${ home }${ EOL }`;
+		info += `WP admin: ${ admin }${ EOL }`;
+		info += EOL;
+	} );
 
-    info = replaceLinks( makeBoxen()( info ), links );
+	info = replaceLinks( makeBoxen()( info ), links );
 
-    console.log( info );
+	console.log( info );
 } );

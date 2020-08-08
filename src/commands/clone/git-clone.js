@@ -1,71 +1,71 @@
 const { EOL } = require( 'os' );
 
 module.exports = function makeGitClone( spinner, chalk, { Clone, Cred }, { prompt } ) {
-    const { TYPE } = Cred;
+	const { TYPE } = Cred;
 
-    return async ( dir, repository, branch ) => {
-        let cloneAttempted = false;
+	return async ( dir, repository, branch ) => {
+		let cloneAttempted = false;
 
-        spinner.start( 'Cloning the repository...' );
+		spinner.start( 'Cloning the repository...' );
 
-        try {
-            await Clone.clone( repository, dir, {
-                checkoutBranch: branch,
-                fetchOpts: {
-                    callbacks: {
-                        certificateCheck() {
-                            // certificate check doesn't work correctly on MacOS,
-                            // thus turn off it there
-                            return process.platform !== 'darwin';
-                        },
-                        credentials: async ( url, user, type ) => {
-                            if ( ( TYPE.SSH_KEY & type ) > 0 ) {
-                                return Cred.sshKeyFromAgent( user );
-                            }
+		try {
+			await Clone.clone( repository, dir, {
+				checkoutBranch: branch,
+				fetchOpts: {
+					callbacks: {
+						certificateCheck() {
+							// certificate check doesn't work correctly on MacOS,
+							// thus turn off it there
+							return process.platform !== 'darwin';
+						},
+						credentials: async ( url, user, type ) => {
+							if ( ( TYPE.SSH_KEY & type ) > 0 ) {
+								return Cred.sshKeyFromAgent( user );
+							}
 
-                            if ( ( TYPE.USERPASS_PLAINTEXT & type ) === 0 ) {
-                                // return default credetials to emulate an error condition
-                                // if the current authentication type is not USERPASS_PLAINTEXT
-                                return Cred.defaultNew();
-                            }
+							if ( ( TYPE.USERPASS_PLAINTEXT & type ) === 0 ) {
+								// return default credetials to emulate an error condition
+								// if the current authentication type is not USERPASS_PLAINTEXT
+								return Cred.defaultNew();
+							}
 
-                            spinner.stop();
-                            if ( cloneAttempted ) {
-                                spinner.fail( chalk.red( 'Invalid credentials, please, try again.' ) );
-                            }
+							spinner.stop();
+							if ( cloneAttempted ) {
+								spinner.fail( chalk.red( 'Invalid credentials, please, try again.' ) );
+							}
 
-                            cloneAttempted = true;
+							cloneAttempted = true;
 
-                            const origin = url.split( '/' ).slice( 0, 3 ).join( '/' );
-                            const questions = [
-                                {
-                                    type: 'input',
-                                    name: 'username',
-                                    message: `Username for ${ origin }:`,
-                                },
-                                {
-                                    type: 'password',
-                                    name: 'password',
-                                    message( { username } ) {
-                                        const originWithUser = origin.split( '://' ).join( `://${ username }@` );
-                                        return `Password for ${ originWithUser }:`;
-                                    },
-                                },
-                            ];
+							const origin = url.split( '/' ).slice( 0, 3 ).join( '/' );
+							const questions = [
+								{
+									type: 'input',
+									name: 'username',
+									message: `Username for ${ origin }:`,
+								},
+								{
+									type: 'password',
+									name: 'password',
+									message( { username } ) {
+										const originWithUser = origin.split( '://' ).join( `://${ username }@` );
+										return `Password for ${ originWithUser }:`;
+									},
+								},
+							];
 
-                            const answers = await prompt( questions );
-                            spinner.start( 'Cloning the repository...' );
-                            return Cred.userpassPlaintextNew( answers.username, answers.password );
-                        },
-                    },
-                },
-            } );
-        } catch ( err ) {
-            spinner.stop();
-            process.stderr.write( err.toString() + EOL );
-            throw new Error( 'An error happened during cloning your repository. Please, submit a new issue: https://github.com/10up/wp-local-docker-v2/issues' );
-        }
+							const answers = await prompt( questions );
+							spinner.start( 'Cloning the repository...' );
+							return Cred.userpassPlaintextNew( answers.username, answers.password );
+						},
+					},
+				},
+			} );
+		} catch ( err ) {
+			spinner.stop();
+			process.stderr.write( err.toString() + EOL );
+			throw new Error( 'An error happened during cloning your repository. Please, submit a new issue: https://github.com/10up/wp-local-docker-v2/issues' );
+		}
 
-        spinner.succeed( 'The repository is cloned...' );
-    };
+		spinner.succeed( 'The repository is cloned...' );
+	};
 };

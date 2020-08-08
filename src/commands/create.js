@@ -28,35 +28,35 @@ const makeUpdateHosts = require( './create/update-hosts' );
 const makeCert = require( './create/make-cert' );
 
 async function createCommand( spinner, defaults = {} ) {
-    const answers = await makeInquirer( inquirer )( defaults );
+	const answers = await makeInquirer( inquirer )( defaults );
 
-    const hostname = Array.isArray( answers.domain ) ? answers.domain[0] : answers.domain;
-    const envHosts = Array.isArray( answers.domain ) ? answers.domain : [ answers.domain ];
-    const envSlug = envUtils.envSlug( hostname );
+	const hostname = Array.isArray( answers.domain ) ? answers.domain[0] : answers.domain;
+	const envHosts = Array.isArray( answers.domain ) ? answers.domain : [ answers.domain ];
+	const envSlug = envUtils.envSlug( hostname );
 
-    const paths = await makeFs( chalk, spinner )( hostname );
-    const saveYaml = makeSaveYamlFile( chalk, spinner, paths['/'] );
+	const paths = await makeFs( chalk, spinner )( hostname );
+	const saveYaml = makeSaveYamlFile( chalk, spinner, paths['/'] );
 
-    const dockerComposer = await makeDockerCompose( spinner )( envSlug, envHosts, answers );
-    await saveYaml( 'docker-compose.yml', dockerComposer );
-    await saveYaml( 'wp-cli.yml', { ssh: 'docker-compose:phpfpm' } );
+	const dockerComposer = await makeDockerCompose( spinner )( envSlug, envHosts, answers );
+	await saveYaml( 'docker-compose.yml', dockerComposer );
+	await saveYaml( 'wp-cli.yml', { ssh: 'docker-compose:phpfpm' } );
 
-    await makeCopyConfigs( spinner, fsExtra )( paths, answers );
-    await makeCert( spinner )( envSlug, envHosts );
+	await makeCopyConfigs( spinner, fsExtra )( paths, answers );
+	await makeCert( spinner )( envSlug, envHosts );
 
-    await startGlobal( spinner );
-    await makeDatabase( spinner )( envSlug );
-    await environment.start( envSlug, spinner );
+	await startGlobal( spinner );
+	await makeDatabase( spinner )( envSlug );
+	await environment.start( envSlug, spinner );
 
-    await makeInstallWordPress( compose, spinner )( envSlug, hostname, answers.wordpress );
+	await makeInstallWordPress( compose, spinner )( envSlug, hostname, answers.wordpress );
 
-    await makeSaveJsonFile( chalk, spinner, paths['/'] )( '.config.json', { envHosts } );
-    await makeUpdateHosts( which, sudo, spinner )( envHosts );
+	await makeSaveJsonFile( chalk, spinner, paths['/'] )( '.config.json', { envHosts } );
+	await makeUpdateHosts( which, sudo, spinner )( envHosts );
 
-    return {
-        ...answers,
-        paths,
-    };
+	return {
+		...answers,
+		paths,
+	};
 }
 
 exports.command = 'create';
@@ -64,29 +64,29 @@ exports.desc = 'Create a new docker environment.';
 exports.aliases = [ 'new' ];
 
 exports.handler = makeCommand( async () => {
-    const spinner = makeSpinner();
-    const answers = await createCommand( spinner, {} );
+	const spinner = makeSpinner();
+	const answers = await createCommand( spinner, {} );
 
-    if ( !! answers.wordpress && answers.wordpress.type === 'subdomain' ) {
-        spinner.info( 'Note: Subdomain multisites require any additional subdomains to be added manually to your hosts file!' );
-    }
+	if ( !! answers.wordpress && answers.wordpress.type === 'subdomain' ) {
+		spinner.info( 'Note: Subdomain multisites require any additional subdomains to be added manually to your hosts file!' );
+	}
 
-    let info = `Successfully Created Site!${ EOL }${ EOL }`;
-    const links = {};
+	let info = `Successfully Created Site!${ EOL }${ EOL }`;
+	const links = {};
 
-    ( Array.isArray( answers.domain ) ? answers.domain : [ answers.domain ] ).forEach( ( host ) => {
-        const home = `https://${ host }/`;
-        const admin = `https://${ host }/wp-admin/`;
+	( Array.isArray( answers.domain ) ? answers.domain : [ answers.domain ] ).forEach( ( host ) => {
+		const home = `https://${ host }/`;
+		const admin = `https://${ host }/wp-admin/`;
 
-        links[ home ] = home;
-        links[ admin ] = admin;
+		links[ home ] = home;
+		links[ admin ] = admin;
 
-        info += `Homepage: ${ home }${ EOL }`;
-        info += `WP admin: ${ admin }${ EOL }`;
-        info += EOL;
-    } );
+		info += `Homepage: ${ home }${ EOL }`;
+		info += `WP admin: ${ admin }${ EOL }`;
+		info += EOL;
+	} );
 
-    console.log( replaceLinks( makeBoxen()( info ), links ) );
+	console.log( replaceLinks( makeBoxen()( info ), links ) );
 } );
 
 exports.createCommand = createCommand;

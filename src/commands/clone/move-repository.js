@@ -1,33 +1,33 @@
 const { join } = require( 'path' );
 
 module.exports = function makeMoveRepository( chalk, spinner, { remove, move, readdirSync, chmodSync }, root ) {
-    const getDirectories = ( dir ) => {
-        const files = readdirSync( dir, { withFileTypes: true } );
-        const results = [];
+	const getDirectories = ( dir ) => {
+		const files = readdirSync( dir, { withFileTypes: true } );
+		const results = [];
         
-        for ( const file of files ) {
-            if ( file.isDirectory() && file.name !== '.git' ) {
-                const fullpath = join( dir, file.name );
-                results.push( fullpath, ...getDirectories( fullpath ) );
-            }
-        }
+		for ( const file of files ) {
+			if ( file.isDirectory() && file.name !== '.git' ) {
+				const fullpath = join( dir, file.name );
+				results.push( fullpath, ...getDirectories( fullpath ) );
+			}
+		}
     
-        return results;
-    };
+		return results;
+	};
 
-    return async ( from, to ) => {
-        const dest = join( root, to );
+	return async ( from, to ) => {
+		const dest = join( root, to );
 
-        spinner.start( `Moving cloned repository to ${ chalk.cyan( to ) }...` );
-        await remove( dest );
-        await move( from, dest );
-        spinner.succeed( `The cloned respository is moved to ${ chalk.cyan( to ) }...` );
+		spinner.start( `Moving cloned repository to ${ chalk.cyan( to ) }...` );
+		await remove( dest );
+		await move( from, dest );
+		spinner.succeed( `The cloned respository is moved to ${ chalk.cyan( to ) }...` );
 
-        chmodSync( dest, 0o755 );
-        getDirectories( dest ).forEach( ( dir ) => {
-            chmodSync( dir, 0o755 );
-        } );
+		chmodSync( dest, 0o755 );
+		getDirectories( dest ).forEach( ( dir ) => {
+			chmodSync( dir, 0o755 );
+		} );
 
-        spinner.succeed( 'Directory permisions have been updated to 0755...' );
-    };
+		spinner.succeed( 'Directory permisions have been updated to 0755...' );
+	};
 };

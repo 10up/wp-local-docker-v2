@@ -78,13 +78,13 @@ exports.dockerCompose = function( baseConfig ) {
 `;
 
 module.exports = function makeConfig() {
-    return ( answers ) => {
-        let config = template;
+	return ( answers ) => {
+		let config = template;
 
-        Object.keys( answers ).forEach( ( key ) => {
-            config = config.split( `{{${ key }}}` ).join( JSON.stringify( answers[ key ] ) );
-        } );
+		Object.keys( answers ).forEach( ( key ) => {
+			config = config.split( `{{${ key }}}` ).join( JSON.stringify( answers[ key ] ) );
+		} );
 
-        return config;
-    };
+		return config;
+	};
 };

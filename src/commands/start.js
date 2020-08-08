@@ -12,58 +12,58 @@ exports.command = 'start [<env>] [--pull]';
 exports.desc = 'Starts a specific docker environment.';
 
 exports.builder = function( yargs ) {
-    yargs.positional( 'env', {
-        type: 'string',
-        describe: 'Optional. Environment name.',
-    } );
+	yargs.positional( 'env', {
+		type: 'string',
+		describe: 'Optional. Environment name.',
+	} );
 
-    yargs.option( 'pull', {
-        description: 'Pull images when environment starts',
-        default: false,
-        type: 'boolean',
-    } );
+	yargs.option( 'pull', {
+		description: 'Pull images when environment starts',
+		default: false,
+		type: 'boolean',
+	} );
 };
 
 exports.handler = makeCommand( async ( { verbose, pull, env } ) => {
-    const spinner = ! verbose ? makeSpinner() : undefined;
-    const all = env === 'all';
+	const spinner = ! verbose ? makeSpinner() : undefined;
+	const all = env === 'all';
 
-    if ( all ) {
-        await startAll( spinner, pull );
-    } else {
-        const envName = await envUtils.resolveEnvironment( env || '' );
-        await start( envName, spinner, pull );
+	if ( all ) {
+		await startAll( spinner, pull );
+	} else {
+		const envName = await envUtils.resolveEnvironment( env || '' );
+		await start( envName, spinner, pull );
 
-        // @ts-ignore
-        const envPath = await envUtils.getPathOrError( envName, {
-            log() {},
-            error( err ) {
-                if ( spinner ) {
-                    throw new Error( err );
-                } else {
-                    console.error( err );
-                }
-            },
-        } );
+		// @ts-ignore
+		const envPath = await envUtils.getPathOrError( envName, {
+			log() {},
+			error( err ) {
+				if ( spinner ) {
+					throw new Error( err );
+				} else {
+					console.error( err );
+				}
+			},
+		} );
 
-        const envHosts = await envUtils.getEnvHosts( envPath );
-        if ( Array.isArray( envHosts ) && envHosts.length > 0 ) {
-            let info = '';
-            const links = {};
+		const envHosts = await envUtils.getEnvHosts( envPath );
+		if ( Array.isArray( envHosts ) && envHosts.length > 0 ) {
+			let info = '';
+			const links = {};
 
-            envHosts.forEach( ( host ) => {
-                const home = `https://${ host }/`;
-                const admin = `https://${ host }/wp-admin/`;
+			envHosts.forEach( ( host ) => {
+				const home = `https://${ host }/`;
+				const admin = `https://${ host }/wp-admin/`;
 
-                links[ home ] = home;
-                links[ admin ] = admin;
+				links[ home ] = home;
+				links[ admin ] = admin;
 
-                info += `Homepage: ${ home }${ EOL }`;
-                info += `WP admin: ${ admin }${ EOL }`;
-                info += EOL;
-            } );
+				info += `Homepage: ${ home }${ EOL }`;
+				info += `WP admin: ${ admin }${ EOL }`;
+				info += EOL;
+			} );
 
-            console.log( replaceLinks( makeBoxen()( info ), links ) );
-        }
-    }
+			console.log( replaceLinks( makeBoxen()( info ), links ) );
+		}
+	}
 } );

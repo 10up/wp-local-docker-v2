@@ -4,32 +4,32 @@ const yargs = require( 'yargs' );
 const hostile = require( 'hostile' );
 
 function options( yargs ) {
-    yargs.positional( 'hosts', {
-        describe: 'A host domain name.',
-        type: 'string',
-    } );
+	yargs.positional( 'hosts', {
+		describe: 'A host domain name.',
+		type: 'string',
+	} );
 }
 
 function add( { hosts } ) {
-    hostile.set( '127.0.0.1', hosts.join( ' ' ), function( err ) {
-        if ( err ) {
-            console.error( err.message );
-            process.exit( err.errno );
-        } else {
-            console.log( 'Added to hosts file successfully!' );
-        }
-    } );
+	hostile.set( '127.0.0.1', hosts.join( ' ' ), function( err ) {
+		if ( err ) {
+			console.error( err.message );
+			process.exit( err.errno );
+		} else {
+			console.log( 'Added to hosts file successfully!' );
+		}
+	} );
 }
 
 function remove( { hosts } ) {
-    hostile.remove( '127.0.0.1', hosts.join( ' ' ), function( err ) {
-        if ( err ) {
-            console.error( err.message );
-            process.exit( err.errno );
-        } else {
-            console.log( 'Removed from hosts file successfully!' );
-        }
-    } );
+	hostile.remove( '127.0.0.1', hosts.join( ' ' ), function( err ) {
+		if ( err ) {
+			console.error( err.message );
+			process.exit( err.errno );
+		} else {
+			console.log( 'Removed from hosts file successfully!' );
+		}
+	} );
 }
 
 // usage and help flag

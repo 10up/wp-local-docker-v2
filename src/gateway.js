@@ -14,128 +14,128 @@ const config = require( './configure' );
 let started = false;
 
 async function ensureNetworkExists( docker, spinner ) {
-    if ( spinner ) {
-        spinner.start( 'Ensuring global network exists...' );
-    } else {
-        console.log( 'Ensuring global network exists' );
-    }
+	if ( spinner ) {
+		spinner.start( 'Ensuring global network exists...' );
+	} else {
+		console.log( 'Ensuring global network exists' );
+	}
 
-    const networkName = 'wplocaldocker';
+	const networkName = 'wplocaldocker';
 
-    const network = docker.getNetwork( networkName );
-    const data = await network.inspect().catch( () => false );
-    if ( data ) {
-        if ( spinner ) {
-            spinner.succeed( 'Global network exists...' );
-        } else {
-            console.log( ' - Network exists' );
-        }
-        return;
-    }
+	const network = docker.getNetwork( networkName );
+	const data = await network.inspect().catch( () => false );
+	if ( data ) {
+		if ( spinner ) {
+			spinner.succeed( 'Global network exists...' );
+		} else {
+			console.log( ' - Network exists' );
+		}
+		return;
+	}
 
-    if ( spinner ) {
-        spinner.warn( 'Global network doesn\'t exist...' );
-        spinner.start( 'Creating global network...' );
-    } else {
-        console.log( ' - Creating network' );
-    }
+	if ( spinner ) {
+		spinner.warn( 'Global network doesn\'t exist...' );
+		spinner.start( 'Creating global network...' );
+	} else {
+		console.log( ' - Creating network' );
+	}
 
-    // --ip-range is only half of the subnet, so that we have a bunch of addresses in front to assign manually
-    await docker.createNetwork( {
-        Name: networkName,
-        IPAM: {
-            Driver: 'default',
-            Config: [
-                {
-                    Subnet: '10.0.0.0/16',
-                    IPRange: '10.0.128.0/17',
-                    Gateway: '10.0.0.1',
-                },
-            ],
-        },
-    } );
+	// --ip-range is only half of the subnet, so that we have a bunch of addresses in front to assign manually
+	await docker.createNetwork( {
+		Name: networkName,
+		IPAM: {
+			Driver: 'default',
+			Config: [
+				{
+					Subnet: '10.0.0.0/16',
+					IPRange: '10.0.128.0/17',
+					Gateway: '10.0.0.1',
+				},
+			],
+		},
+	} );
 
-    if ( spinner ) {
-        spinner.succeed( 'Global network created...' );
-    }
+	if ( spinner ) {
+		spinner.succeed( 'Global network created...' );
+	}
 }
 
 async function removeNetwork( docker, spinner ) {
-    if ( spinner ) {
-        spinner.start( 'Removing Global Network...' );
-    } else {
-        console.log( 'Removing Global Network' );
-    }
+	if ( spinner ) {
+		spinner.start( 'Removing Global Network...' );
+	} else {
+		console.log( 'Removing Global Network' );
+	}
 
-    const network = docker.getNetwork( 'wplocaldocker' );
-    const data = await network.inspect().catch( () => false );
-    if ( ! data ) {
-        spinner.info( 'Global Network does not exist. Skipping removal...' );
-        return;
-    }
+	const network = docker.getNetwork( 'wplocaldocker' );
+	const data = await network.inspect().catch( () => false );
+	if ( ! data ) {
+		spinner.info( 'Global Network does not exist. Skipping removal...' );
+		return;
+	}
 
-    await network.remove();
+	await network.remove();
 
-    if ( spinner ) {
-        spinner.succeed( 'Global Network is deleted...' );
-    } else {
-        console.log( ' - Network Removed' );
-    }
+	if ( spinner ) {
+		spinner.succeed( 'Global Network is deleted...' );
+	} else {
+		console.log( ' - Network Removed' );
+	}
 }
 
 async function ensureCacheExists( docker, spinner ) {
-    if ( spinner ) {
-        spinner.start( 'Ensuring global cache volume exists...' );
-    } else {
-        console.log( 'Ensuring global cache volume exists' );
-    }
+	if ( spinner ) {
+		spinner.start( 'Ensuring global cache volume exists...' );
+	} else {
+		console.log( 'Ensuring global cache volume exists' );
+	}
 
-    const volume = docker.getVolume( envUtils.cacheVolume );
-    const data = await volume.inspect().catch( () => false );
+	const volume = docker.getVolume( envUtils.cacheVolume );
+	const data = await volume.inspect().catch( () => false );
 
-    if ( data ) {
-        if ( spinner ) {
-            spinner.succeed( 'Global cache volume exists...' );
-        } else {
-            console.log( ' - Volume Exists' );
-        }
-    } else {
-        if ( spinner ) {
-            spinner.warn( 'Global cache volume doesn\'t exist...' );
-            spinner.start( 'Creating global cache volume...' );
-        } else {
-            console.log( ' - Creating Volume' );
-        }
+	if ( data ) {
+		if ( spinner ) {
+			spinner.succeed( 'Global cache volume exists...' );
+		} else {
+			console.log( ' - Volume Exists' );
+		}
+	} else {
+		if ( spinner ) {
+			spinner.warn( 'Global cache volume doesn\'t exist...' );
+			spinner.start( 'Creating global cache volume...' );
+		} else {
+			console.log( ' - Creating Volume' );
+		}
 
-        await docker.createVolume( {
-            Name: envUtils.cacheVolume,
-        } );
+		await docker.createVolume( {
+			Name: envUtils.cacheVolume,
+		} );
 
-        if ( spinner ) {
-            spinner.succeed( 'Global cache volume created...' );
-        }
-    }
+		if ( spinner ) {
+			spinner.succeed( 'Global cache volume created...' );
+		}
+	}
 }
 
 async function removeCacheVolume( docker, spinner ) {
-    const volume = docker.getVolume( envUtils.cacheVolume );
-    const data = await volume.inspect().catch( () => false );
+	const volume = docker.getVolume( envUtils.cacheVolume );
+	const data = await volume.inspect().catch( () => false );
 
-    if ( data ) {
-        if ( spinner ) {
-            spinner.start( 'Removing cache volume...' );
-        } else {
-            console.log( 'Removing cache volume' );
-        }
+	if ( data ) {
+		if ( spinner ) {
+			spinner.start( 'Removing cache volume...' );
+		} else {
+			console.log( 'Removing cache volume' );
+		}
 
-        await volume.remove();
+		await volume.remove();
 
-        if ( spinner ) {
-            spinner.succeed( 'Cache volume is removed...' );
-        } else {
-            console.log( ' - Volume Removed' );
-        }
-    }
+		if ( spinner ) {
+			spinner.succeed( 'Cache volume is removed...' );
+		} else {
+			console.log( ' - Volume Removed' );
+		}
+	}
 }
 
 /**
@@ -147,155 +147,155 @@ async function removeCacheVolume( docker, spinner ) {
  * MySQL is ready for work.
  */
 function waitForDB( spinner ) {
-    if ( spinner ) {
-        spinner.start( 'Waiting for mysql...' );
-    } else {
-        console.log( 'Waiting for mysql...' );
-    }
+	if ( spinner ) {
+		spinner.start( 'Waiting for mysql...' );
+	} else {
+		console.log( 'Waiting for mysql...' );
+	}
 
-    return new Promise( ( resolve ) => {
-        const interval = setInterval( () => {
-            const netcat = new nc();
+	return new Promise( ( resolve ) => {
+		const interval = setInterval( () => {
+			const netcat = new nc();
 
-            netcat.address( '127.0.0.1' );
-            netcat.port( 3306 );
-            netcat.connect();
-            netcat.on( 'data', function(  ) {
-                netcat.close();
+			netcat.address( '127.0.0.1' );
+			netcat.port( 3306 );
+			netcat.connect();
+			netcat.on( 'data', function(  ) {
+				netcat.close();
 
-                if ( spinner ) {
-                    spinner.succeed( 'Mysql has started...' );
-                }
+				if ( spinner ) {
+					spinner.succeed( 'Mysql has started...' );
+				}
 
-                clearInterval( interval );
-                resolve();
-            } );
-        }, 1000 );
-    } );
+				clearInterval( interval );
+				resolve();
+			} );
+		}, 1000 );
+	} );
 }
 
 async function startGateway( spinner, pull ) {
-    let cwd = path.join( config.getConfigDirectory(), 'global' );
-    if ( ! fs.existsSync( cwd ) ) {
-        cwd = envUtils.globalPath;
-    }
+	let cwd = path.join( config.getConfigDirectory(), 'global' );
+	if ( ! fs.existsSync( cwd ) ) {
+		cwd = envUtils.globalPath;
+	}
 
-    const composeArgs = {
-        cwd,
-        log: !spinner,
-    };
+	const composeArgs = {
+		cwd,
+		log: !spinner,
+	};
 
-    if ( pull ) {
-        if ( spinner ) {
-            spinner.start( 'Pulling latest images for global services...' );
-        } else {
-            console.log( 'Pulling latest images for global services' );
-        }
+	if ( pull ) {
+		if ( spinner ) {
+			spinner.start( 'Pulling latest images for global services...' );
+		} else {
+			console.log( 'Pulling latest images for global services' );
+		}
 
-        await compose.pullAll( composeArgs );
+		await compose.pullAll( composeArgs );
 
-        if ( spinner ) {
-            spinner.succeed( 'Global images are up-to-date...' );
-        }
-    }
+		if ( spinner ) {
+			spinner.succeed( 'Global images are up-to-date...' );
+		}
+	}
 
-    if ( spinner ) {
-        spinner.start( 'Ensuring global services are running...' );
-    } else {
-        console.log( 'Ensuring global services are running' );
-    }
+	if ( spinner ) {
+		spinner.start( 'Ensuring global services are running...' );
+	} else {
+		console.log( 'Ensuring global services are running' );
+	}
 
-    await compose.upAll( composeArgs );
+	await compose.upAll( composeArgs );
 
-    if ( spinner ) {
-        spinner.succeed( 'Global services are running...' );
-    }
+	if ( spinner ) {
+		spinner.succeed( 'Global services are running...' );
+	}
 
-    await waitForDB( spinner );
+	await waitForDB( spinner );
 }
 
 async function stopGateway( spinner ) {
-    if ( spinner ) {
-        spinner.start( 'Stopping global services...' );
-    } else {
-        console.log( 'Stopping global services' );
-    }
+	if ( spinner ) {
+		spinner.start( 'Stopping global services...' );
+	} else {
+		console.log( 'Stopping global services' );
+	}
 
-    await compose.down( {
-        cwd: envUtils.globalPath,
-        log: !spinner,
-    } );
+	await compose.down( {
+		cwd: envUtils.globalPath,
+		log: !spinner,
+	} );
 
-    if ( spinner ) {
-        spinner.succeed( 'Global services are stopped...' );
-    } else {
-        console.log();
-    }
+	if ( spinner ) {
+		spinner.succeed( 'Global services are stopped...' );
+	} else {
+		console.log();
+	}
 }
 
 async function restartGateway( spinner ) {
-    if ( spinner ) {
-        spinner.start( 'Restarting global services...' );
-    } else {
-        console.log( 'Restarting global services' );
-    }
+	if ( spinner ) {
+		spinner.start( 'Restarting global services...' );
+	} else {
+		console.log( 'Restarting global services' );
+	}
 
-    await compose.restartAll( {
-        cwd: envUtils.globalPath,
-        log: !spinner,
-    } );
+	await compose.restartAll( {
+		cwd: envUtils.globalPath,
+		log: !spinner,
+	} );
 
-    if ( spinner ) {
-        spinner.succeed( 'Global services are restarted...' );
-    } else {
-        console.log();
-    }
+	if ( spinner ) {
+		spinner.succeed( 'Global services are restarted...' );
+	} else {
+		console.log();
+	}
 }
 
 async function startGlobal( spinner, pull ) {
-    if ( started === true ) {
-        return;
-    }
+	if ( started === true ) {
+		return;
+	}
 
-    const docker = makeDocker();
+	const docker = makeDocker();
 
-    await ensureNetworkExists( docker, spinner );
-    await ensureCacheExists( docker, spinner );
-    await startGateway( spinner, pull );
+	await ensureNetworkExists( docker, spinner );
+	await ensureCacheExists( docker, spinner );
+	await startGateway( spinner, pull );
 
-    started = true;
+	started = true;
 }
 
 async function stopGlobal( spinner ) {
-    try {
-        const docker = makeDocker();
+	try {
+		const docker = makeDocker();
 
-        await stopGateway( spinner );
-        await removeNetwork( docker, spinner );
-    } catch ( err ) {
-        process.stderr.write( err.toString() + EOL );
-    }
+		await stopGateway( spinner );
+		await removeNetwork( docker, spinner );
+	} catch ( err ) {
+		process.stderr.write( err.toString() + EOL );
+	}
 
-    started = false;
+	started = false;
 }
 
 async function restartGlobal( spinner ) {
-    try {
-        const docker = makeDocker();
+	try {
+		const docker = makeDocker();
 
-        await ensureNetworkExists( docker, spinner );
-        await restartGateway( spinner );
+		await ensureNetworkExists( docker, spinner );
+		await restartGateway( spinner );
 
-        started = true;
-    } catch ( err ) {
-        process.stderr.write( err.toString() + EOL );
-    }
+		started = true;
+	} catch ( err ) {
+		process.stderr.write( err.toString() + EOL );
+	}
 }
 
 module.exports = {
-    startGlobal,
-    stopGlobal,
-    restartGlobal,
-    removeCacheVolume,
-    ensureCacheExists,
+	startGlobal,
+	stopGlobal,
+	restartGlobal,
+	removeCacheVolume,
+	ensureCacheExists,
 };
