@@ -50,7 +50,7 @@
   "engines": {
     "node": ">=12"
   },
-  "author": "10up",
+  "author": "10up <info@10up.com> (https://10up.com/)",
   "contributors": [
     {
       "name": "Chris Marslender"
