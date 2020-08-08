@@ -12,24 +12,9 @@ const promptValidators = require( './prompt-validators' );
 const database = require( './database' );
 const envUtils = require( './env-utils' );
 const gateway = require( './gateway' );
-const { readYaml, writeYaml } = require( './utils/yaml' );
-
-function getPathOrError( env, spinner ) {
-    // @ts-ignore
-    return envUtils.getPathOrError( env, {
-        log() {},
-        error( err ) {
-            if ( spinner ) {
-                throw new Error( err );
-            } else {
-                console.error( err );
-            }
-        },
-    } );
-}
 
 async function start( env, spinner, pull ) {
-    const envPath = await getPathOrError( env, spinner );
+    const envPath = await envUtils.getPathOrError( env, spinner );
     const envSlug = envUtils.envSlug( env );
 
     await gateway.startGlobal( spinner, pull );
@@ -49,7 +34,7 @@ async function start( env, spinner, pull ) {
         await compose.pullAll( composeArgs );
 
         if ( spinner ) {
-            spinner.succeed( `${ chalk.cyan( envSlug ) } environment images are up-to-date...` );
+            spinner.succeed( `${ chalk.cyan( envSlug ) } images are up-to-date...` );
         }
     }
 
@@ -62,14 +47,14 @@ async function start( env, spinner, pull ) {
     await compose.upAll( composeArgs );
 
     if ( spinner ) {
-        spinner.succeed( `${ chalk.cyan( envSlug ) } environment is started...` );
+        spinner.succeed( `${ chalk.cyan( envSlug ) } is started...` );
     } else {
         console.log();
     }
 }
 
 async function stop( env, spinner ) {
-    const envPath = await getPathOrError( env, spinner );
+    const envPath = await envUtils.getPathOrError( env, spinner );
     const envSlug = envUtils.envSlug( env );
 
     if ( spinner ) {
@@ -84,14 +69,14 @@ async function stop( env, spinner ) {
     } );
 
     if ( spinner ) {
-        spinner.succeed( `${ chalk.cyan( envSlug ) } environment is stopped...` );
+        spinner.succeed( `${ chalk.cyan( envSlug ) } is stopped...` );
     } else {
         console.log();
     }
 }
 
 async function restart( env, spinner ) {
-    const envPath = await getPathOrError( env, spinner );
+    const envPath = await envUtils.getPathOrError( env, spinner );
     const envSlug = envUtils.envSlug( env );
 
     await gateway.startGlobal( spinner );
@@ -119,15 +104,15 @@ async function restart( env, spinner ) {
     }
 
     if ( spinner ) {
-        spinner.succeed( `${ chalk.cyan( envSlug ) } environment is restarted...` );
+        spinner.succeed( `${ chalk.cyan( envSlug ) } is restarted...` );
     } else {
         console.log();
     }
 }
 
 async function deleteEnv( env, spinner ) {
-    const envPath = await getPathOrError( env, spinner );
     const envSlug = envUtils.envSlug( env );
+    const envPath = await envUtils.getPathOrError( env, spinner );
     const envHosts = await envUtils.getEnvHosts( envPath );
 
     const answers = await inquirer.prompt( {
@@ -245,39 +230,6 @@ async function deleteEnv( env, spinner ) {
     }
 }
 
-async function upgradeEnv( env ) {
-    const envPath = await envUtils.getPathOrError( env );
-    const envSlug = envUtils.envSlug( env );
-
-    const dockerCompose = path.join( envPath, 'docker-compose.yml' );
-    const yaml = readYaml( dockerCompose );
-    const services = [ 'nginx', 'phpfpm', 'elasticsearch' ];
-
-    // Update defined services to have all cached volumes
-    for ( const service of services ) {
-        if ( ! yaml.services[ service ] ) {
-            continue;
-        }
-        for ( const key in yaml.services[ service ].volumes ) {
-            const volume = yaml.services[ service ].volumes[ key ];
-            const parts = volume.split( ':' );
-            if ( parts.length === 2 ) {
-                parts.push( 'cached' );
-            }
-
-            yaml.services[ service ].volumes[ key ] = parts.join( ':' );
-        }
-    }
-
-
-    try {
-        await writeYaml( dockerCompose, yaml );
-        console.log( `Finished updating ${ envSlug }` );
-    } catch ( err ) {
-        console.error( err );
-    }
-}
-
 async function startAll( spinner, pull ) {
     const envs = await envUtils.getAllEnvironments();
 
@@ -325,5 +277,4 @@ module.exports = {
     deleteAll,
     restart,
     restartAll,
-    upgradeEnv,
 };

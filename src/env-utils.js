@@ -177,17 +177,24 @@ const getEnvHosts = async function( envPath ) {
     }
 };
 
-async function getPathOrError( env, { log, error } = console ) {
+async function getPathOrError( env, spinner ) {
     if ( env === false || undefined === env || env.trim().length === 0 ) {
         env = await promptEnv();
     }
 
-    log( `Locating project files for ${ env }` );
+    if ( ! spinner ) {
+        console.log( `Locating project files for ${ env }` );
+    }
 
     const _envPath = await envPath( env );
-    if ( ! await fs.pathExists( _envPath ) ) {
-        error( `Cannot find ${ env } environment!` );
-        process.exit( 1 );
+    const exists = await fs.pathExists( _envPath );
+    if ( ! exists ) {
+        if ( spinner ) {
+            throw new Error( `Cannot find ${ env } environment!` );
+        } else {
+            console.error( `Cannot find ${ env } environment!` );
+            process.exit( 1 );
+        }
     }
 
     return _envPath;

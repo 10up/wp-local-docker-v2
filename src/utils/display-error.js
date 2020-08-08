@@ -1,9 +1,13 @@
 const { EOL } = require( 'os' );
 
 const chalk = require( 'chalk' );
-const logSymbols = require( 'log-symbols' );
 
 module.exports = function displayError( message = 'Unexpected error' ) {
-    process.stderr.write( chalk.red( `${ EOL }${ logSymbols.error } ${ message }${ EOL }${ EOL }` ) );
+    process.stderr.write( EOL );
+    process.stderr.write( chalk.bgHex( '#a70334' )( ' Error ' ) );
+    process.stderr.write( chalk.gray( ': ' ) );
+    process.stderr.write( chalk.whiteBright( message ) );
+    process.stderr.write( EOL );
+    process.stderr.write( EOL );
     process.exit( 1 );
 };

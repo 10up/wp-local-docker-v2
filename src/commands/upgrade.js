@@ -1,30 +1,31 @@
 const path = require( 'path' );
 const os = require( 'os' );
 
-const fs = require( 'fs-extra' );
+const fsExtra = require( 'fs-extra' );
+const chalk = require( 'chalk' );
 
 const makeCommand = require( '../utils/make-command' );
 const makeSpinner = require( '../utils/make-spinner' );
+const { readYaml, writeYaml } = require( '../utils/yaml' );
 const envUtils = require( '../env-utils' );
 const { images } = require( '../docker-images' );
-const { stop, start, upgradeEnv } = require( '../environment' );
-const { readYaml, writeYaml } = require( '../utils/yaml' );
+const { stop, start } = require( '../environment' );
 
-exports.command = 'upgrade';
-exports.desc = false; // @todo: "false" means that this command is hidden
+exports.command = 'upgrade [<env>]';
+exports.desc = 'Upgrades environment to the latest version.';
 
-exports.handler = makeCommand( { checkDocker: false }, async ( { verbose } ) => {
+exports.builder = function( yargs ) {
+    yargs.positional( 'env', {
+        type: 'string',
+        describe: 'Optional. Environment name.',
+    } );
+};
+
+exports.handler = makeCommand( { checkDocker: false }, async ( { verbose, env } ) => {
     const spinner = ! verbose ? makeSpinner() : undefined;
-
-    let env = await envUtils.parseEnvFromCWD();
-    if ( ! env ) {
-        env = await envUtils.promptEnv();
-    }
-
-    const envPath = await envUtils.getPathOrError( env );
-
-    // If we got the path from the cwd, we don't have a slug yet, so get it
-    const envSlug = envUtils.envSlug( env );
+    const envName = await envUtils.resolveEnvironment( env || '' );
+    const envPath = await envUtils.getPathOrError( envName, spinner );
+    const envSlug = envUtils.envSlug( envName );
 
     await stop( envSlug, spinner );
 
@@ -33,34 +34,63 @@ exports.handler = makeCommand( { checkDocker: false }, async ( { verbose } ) => 
     const yaml = readYaml( dockerCompose );
 
     try {
-        await writeYaml( `${ dockerCompose }.bak`, yaml );
-        console.log( `Created backup of previous configuration ${ envSlug }` );
+        const dockerComposeBak = `${ dockerCompose }.bak`;
+        await writeYaml( dockerComposeBak, yaml );
+        if ( spinner ) {
+            spinner.info( `Backup ${ chalk.cyan( dockerComposeBak ) } is created...` );
+        } else {
+            console.log( `Created backup of previous configuration ${ envSlug }` );
+        }
     } catch ( err ) {
-        console.log( err );
+        if ( spinner ) {
+            throw err;
+        } else {
+            console.log( err );
+        }
     }
 
-    // perform the previous upgrade first
-    await upgradeEnv( env );
-
-    console.log( 'Copying required files...' );
-    await fs.ensureDir( path.join( envPath, '.containers' ) );
-    await fs.copy( path.join( envUtils.srcPath, 'containers' ), path.join( envPath, '.containers' ) );
-
-    // Create a new object for the upgrade yaml.
-    const upgraded = Object.assign( {}, yaml );
-
     // Set docker-compose version.
-    upgraded.version = '2.2';
+    yaml.version = '2.2';
 
     // Upgrade image.
     const phpVersion = yaml.services.phpfpm.image.split( ':' ).pop();
-    if ( phpVersion === '5.5' ) {
-        console.warn( 'Support for PHP v5.5 was removed in the latest version of WP Local Docker.' );
-        console.error( 'This environment cannot be upgraded.  No changes were made.' );
+    if ( phpVersion ) {
+        if ( phpVersion === '5.5' ) {
+            if ( spinner ) {
+                spinner.warn( 'Support for PHP v5.5 was removed in the latest version of WP Local Docker.' );
+                throw new Error( 'This environment cannot be upgraded. No changes were made.' );
+            } else {
+                console.warn( 'Support for PHP v5.5 was removed in the latest version of WP Local Docker.' );
+                console.error( 'This environment cannot be upgraded. No changes were made.' );
+                process.exit( 1 );
+            }
+        }
 
-        process.exit( 1 );
+        const phpImage = images[`php${ phpVersion }`];
+        if ( phpImage ) {
+            yaml.services.phpfpm.image = phpImage;
+        } else {
+            if ( spinner ) {
+                throw new Error( 'This environment cannot be upgraded. No changes were made.' );
+            } else {
+                console.error( 'This environment cannot be upgraded. No changes were made.' );
+                process.exit( 1 );
+            }
+        }
     }
-    upgraded.services.phpfpm.image = images[`php${ phpVersion }`];
+
+    // Update defined services to have all cached volumes
+    [ 'nginx', 'phpfpm', 'elasticsearch' ].forEach( ( service ) => {
+        if ( yaml.services[ service ] && Array.isArray( yaml.services[ service ].volumes ) ) {
+            yaml.services[ service ].volumes.forEach( ( volume, index ) => {
+                const parts = volume.split( ':' );
+                if ( parts.length === 2 ) {
+                    parts.push( 'cached' );
+                    yaml.services[ service ].volumes[ index ] = parts.join( ':' );
+                }
+            } );
+        }
+    } );
 
     // Upgrade volume mounts.
     const deprecatedVolumes = [
@@ -68,8 +98,8 @@ exports.handler = makeCommand( { checkDocker: false }, async ( { verbose } ) => 
         './config/php-fpm/docker-php-ext-xdebug.ini:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini:cached',
         '~/.ssh:/root/.ssh:cached'
     ];
-    const volumes = [ ...upgraded.services.phpfpm.volumes ];
-    upgraded.services.phpfpm.volumes = volumes.reduce( ( acc, curr ) => {
+    const volumes = [ ...yaml.services.phpfpm.volumes ];
+    yaml.services.phpfpm.volumes = volumes.reduce( ( acc, curr ) => {
         if ( deprecatedVolumes.includes( curr ) ) {
             if ( deprecatedVolumes.indexOf( curr ) === 1 ) {
                 acc.push( './config/php-fpm/docker-php-ext-xdebug.ini:/etc/php.d/docker-php-ext-xdebug.ini:cached' );
@@ -82,7 +112,7 @@ exports.handler = makeCommand( { checkDocker: false }, async ( { verbose } ) => 
     }, [] );
 
     // Add new environmental variables.
-    upgraded.services.phpfpm.environment = {
+    yaml.services.phpfpm.environment = {
         'ENABLE_XDEBUG': 'false'
     };
 
@@ -92,26 +122,36 @@ exports.handler = makeCommand( { checkDocker: false }, async ( { verbose } ) => 
     // wrong user. Here we setup the docker-compose.yml file to rebuild the
     // phpfpm container so that it runs as the user who created the project.
     if ( os.platform() == 'linux' ) {
-        upgraded.services.phpfpm.image = `wp-php-fpm-dev-${ phpVersion }-${ process.env.USER }`;
-        upgraded.services.phpfpm.build = {
-            'dockerfile': '.containers/php-fpm',
-            'context': '.',
-            'args': {
-                'PHP_IMAGE': images[`php${ phpVersion }`],
-                'CALLING_USER': process.env.USER,
-                'CALLING_UID': process.getuid()
-            }
+        yaml.services.phpfpm.image = `wp-php-fpm-dev-${ phpVersion }-${ process.env.USER }`;
+        yaml.services.phpfpm.build = {
+            dockerfile: '.containers/php-fpm',
+            context: '.',
+            args: {
+                PHP_IMAGE: images[`php${ phpVersion }`],
+                CALLING_USER: process.env.USER,
+                CALLING_UID: process.getuid(),
+            },
         };
-        upgraded.services.phpfpm.volumes.push( `~/.ssh:/home/${ process.env.USER }/.ssh:cached` );
+        yaml.services.phpfpm.volumes.push( `~/.ssh:/home/${ process.env.USER }/.ssh:cached` );
     }
     else {
         // the official containers for this project will have a www-data user.
-        upgraded.services.phpfpm.volumes.push( '~/.ssh:/home/www-data/.ssh:cached' );
+        yaml.services.phpfpm.volumes.push( '~/.ssh:/home/www-data/.ssh:cached' );
     }
 
+    // Remove legacy memcacheAdmin image
+    delete yaml.services.memcacheadmin;
+    if ( yaml.services.nginx && Array.isArray( yaml.services.nginx['depends_on'] ) ) {
+        yaml.services.nginx['depends_on'] = yaml.services.nginx.depends_on.filter( ( service ) => service !== 'memcacheadmin' );
+    }
+
+    console.log( 'Copying required files...' );
+    await fsExtra.ensureDir( path.join( envPath, '.containers' ) );
+    await fsExtra.copy( path.join( envUtils.srcPath, 'containers' ), path.join( envPath, '.containers' ) );
+
     try {
-        await writeYaml( dockerCompose, upgraded );
-        console.log( `Finished updating ${ envSlug } for WP Local Docker v2.6` );
+        await writeYaml( dockerCompose, yaml );
+        console.log( `Finished updating ${ envSlug } for the latest version of WP Local Docker` );
     } catch ( err ) {
         console.error( err );
     }
