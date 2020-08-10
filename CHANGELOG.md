@@ -20,15 +20,24 @@ All notable changes to this project will be documented in this file, per [the Ke
 - Adds engines information to the package.json to strictly denote that Node v12+ is required.
 - Adds `cert install` command to install a new local CA in the system trust store.
 - Adds `cert generate <domains..>` command to generate self-signed SSL certificates for certain domains.
+- Auto-completion script for `10updocker` and `10updocker-hosts` commands (props [eugene-manuilov](https://github.com/eugene-manuilov) via [#105](https://github.com/10up/wp-local-docker-v2/pull/105))
+- GitHub Action for `@next` releases (props [@eugene-manuilov](https://github.com/eugene-manuilov) via [#104](https://github.com/10up/wp-local-docker-v2/pull/104))
 
 ### Changed
 - Reworks all commands to use `yargs` cli framework.
 - Updates the way how `wp` and `wpsnapshots` commands determine subcommand arguments that needs to be passed into containers. Previously, wp-local-docker passed all arguments to the underlying command even if some arguments weren't intended for it. Now it passes everything that comes after the command keyword only, for example: `10updocker --env=my-site-test wp plugin install hello-dolly --version=1.7.2` runs `wp plugin install hello-dolly --version=1.7.2` command in the container of the `my-site-test` environment and doesn't pass `--env=my-site-test` argument itself.
 - Removes https question and updates `create` command to create sites with HTTPS only.
 - Updates bash completion script to support new commands and aliases.
+- `ini` comments to use semi-colon for compatibility (props [@aaemnnosttv](https://github.com/aaemnnosttv) via [#113](https://github.com/10up/wp-local-docker-v2/pull/113))
+- Documentation updates (props [@jeffpaul](https://github.com/jeffpaul) via [#58](https://github.com/10up/wp-local-docker-v2/pull/58))
 
 ### Fixed
 - Fixes issues with hosts manipulations during environment creations and deletions when node.js executable is not in the root's PATH.
+- Issue with project directory recognition (props [@eugene-manuilov](https://github.com/eugene-manuilov), [@jamesmorrison](https://github.com/jamesmorrison) via [#110](https://github.com/10up/wp-local-docker-v2/pull/110))
+
+### Security
+- Bump `acorn` from 7.1.0 to 7.2.0 (props [@dependabot](https://github.com/apps/dependabot) via [#119](https://github.com/10up/wp-local-docker-v2/pull/119))
+- Bump `lodash` from 4.17.15 to 4.17.19 (props [@dependabot](https://github.com/apps/dependabot) via [#127](https://github.com/10up/wp-local-docker-v2/pull/127))
 
 ## [2.7.0] - 2020-03-12
 ### Added
@@ -114,7 +123,8 @@ opcache configured with optimal settings for development.
 
 ## [2.2.0] - 2019-02-04
 
-[Unreleased]: https://github.com/10up/wp-local-docker-v2/compare/2.7.0...master
+[Unreleased]: https://github.com/10up/wp-local-docker-v2/compare/2.8.0...master
+[2.8.0]: https://github.com/10up/wp-local-docker-v2/compare/2.8.0...2.8.0
 [2.7.0]: https://github.com/10up/wp-local-docker-v2/compare/2.6.2...2.7.0
 [2.6.2]: https://github.com/10up/wp-local-docker-v2/compare/2.6.1...2.6.2
 [2.6.1]: https://github.com/10up/wp-local-docker-v2/compare/2.6.0...2.6.1
