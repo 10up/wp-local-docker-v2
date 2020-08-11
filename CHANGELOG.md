@@ -21,7 +21,6 @@ All notable changes to this project will be documented in this file, per [the Ke
 - Adds `cert install` command to install a new local CA in the system trust store.
 - Adds `cert generate <domains..>` command to generate self-signed SSL certificates for certain domains.
 - Auto-completion script for `10updocker` and `10updocker-hosts` commands (props [eugene-manuilov](https://github.com/eugene-manuilov) via [#105](https://github.com/10up/wp-local-docker-v2/pull/105))
-- GitHub Action for `@next` releases (props [@eugene-manuilov](https://github.com/eugene-manuilov) via [#104](https://github.com/10up/wp-local-docker-v2/pull/104))
 
 ### Changed
 - Reworks all commands to use `yargs` cli framework.
@@ -124,7 +123,7 @@ opcache configured with optimal settings for development.
 ## [2.2.0] - 2019-02-04
 
 [Unreleased]: https://github.com/10up/wp-local-docker-v2/compare/2.8.0...master
-[2.8.0]: https://github.com/10up/wp-local-docker-v2/compare/2.8.0...2.8.0
+[2.8.0]: https://github.com/10up/wp-local-docker-v2/compare/2.7.0...2.8.0
 [2.7.0]: https://github.com/10up/wp-local-docker-v2/compare/2.6.2...2.7.0
 [2.6.2]: https://github.com/10up/wp-local-docker-v2/compare/2.6.1...2.6.2
 [2.6.1]: https://github.com/10up/wp-local-docker-v2/compare/2.6.0...2.6.1
@@ -137,4 +136,3 @@ opcache configured with optimal settings for development.
 [2.4.0]: https://github.com/10up/wp-local-docker-v2/compare/2.3.0...2.4.0
 [2.3.0]: https://github.com/10up/wp-local-docker-v2/compare/2.2.0...2.3.0
 [2.2.0]: https://github.com/10up/wp-local-docker-v2/releases/tag/2.2.0
-
