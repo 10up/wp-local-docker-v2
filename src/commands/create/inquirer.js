@@ -144,7 +144,9 @@ module.exports = function makeInquirer( { prompt } ) {
 				choices: wordpressTypes,
 				default: 'single',
 				when( answers ) {
-					return answers.wordpress === true || ! wordpressTypes.map( ( { value } ) => value ).includes( wordpressType );
+					const installWp = answers.wordpress === true;
+					const wrongType = wordpressType && ! wordpressTypes.map( ( { value } ) => value ).includes( wordpressType );
+					return installWp || wrongType;
 				},
 			},
 			{
@@ -156,7 +158,7 @@ module.exports = function makeInquirer( { prompt } ) {
 				},
 				validate: validateNotEmpty,
 				when( answers ) {
-					return answers.wordpress === true || ! wordpressTitle;
+					return answers.wordpress === true || ( wordpress && ! wordpressTitle );
 				},
 			},
 			{
@@ -166,7 +168,7 @@ module.exports = function makeInquirer( { prompt } ) {
 				default: 'admin',
 				validate: validateNotEmpty,
 				when( answers ) {
-					return answers.wordpress === true || ! wordpressUsername;
+					return answers.wordpress === true || ( wordpress && ! wordpressUsername );
 				},
 			},
 			{
@@ -176,7 +178,7 @@ module.exports = function makeInquirer( { prompt } ) {
 				default: 'password',
 				validate: validateNotEmpty,
 				when( answers ) {
-					return answers.wordpress === true || ! wordpressPassword;
+					return answers.wordpress === true || ( wordpress && ! wordpressPassword );
 				},
 			},
 			{
@@ -186,7 +188,7 @@ module.exports = function makeInquirer( { prompt } ) {
 				default: 'admin@example.com',
 				validate: validateNotEmpty,
 				when( answers ) {
-					return answers.wordpress === true || ! wordpressEmail;
+					return answers.wordpress === true || ( wordpress && ! wordpressEmail );
 				},
 			},
 			{
@@ -195,7 +197,7 @@ module.exports = function makeInquirer( { prompt } ) {
 				message: 'Do you want to remove the default content?',
 				default: false,
 				when( answers ) {
-					return answers.wordpress === true && ! wordpressPurify;
+					return answers.wordpress === true && ( wordpress && ! wordpressPurify );
 				},
 			},
 			{
