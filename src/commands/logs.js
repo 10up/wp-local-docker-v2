@@ -73,8 +73,13 @@ exports.handler = makeCommand( async ( { verbose, container, env, tail } ) => {
 		spinner && spinner.succeed( 'Environment is running...' );
 	}
 
+	let tailCount = tail === 'all' ? tail : parseInt( tail, 10 );
+	if ( Number.isNaN( tailCount ) ) {
+		tailCount = 'all';
+	}
+
 	await compose.logs( services, {
-		commandOptions: [ `--tail=${ tail }` ],
+		commandOptions: [ `--tail=${ tailCount }` ],
 		cwd: envPath,
 		follow: true,
 		log: true,
