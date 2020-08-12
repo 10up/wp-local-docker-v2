@@ -96,7 +96,9 @@ exports.handler = makeCommand( { checkDocker: false }, async ( { verbose, env } 
 	const deprecatedVolumes = [
 		'./config/php-fpm/php.ini:/usr/local/etc/php/php.ini:cached',
 		'./config/php-fpm/docker-php-ext-xdebug.ini:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini:cached',
-		'~/.ssh:/root/.ssh:cached'
+		'~/.ssh:/root/.ssh:cached',
+		'~/.ssh:/home/www-data/.ssh:cached',
+		`~/.ssh:/home/${ process.env.USER }/.ssh:cached` // For Linux compatibility
 	];
 	const volumes = [ ...yaml.services.phpfpm.volumes ];
 	yaml.services.phpfpm.volumes = volumes.reduce( ( acc, curr ) => {
