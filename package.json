@@ -75,6 +75,7 @@
 		"ora": "^5.0.0",
 		"read-yaml": "^1.1.0",
 		"shell-escape": "^0.2.0",
+		"strip-ansi": "^6.0.0",
 		"sudo-prompt": "^9.2.1",
 		"table": "^5.4.6",
 		"terminal-link": "^2.1.1",
