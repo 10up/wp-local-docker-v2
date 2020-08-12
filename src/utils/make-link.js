@@ -1,9 +1,10 @@
 const chalk = require( 'chalk' );
 const terminalLink = require( 'terminal-link' );
+const stripAnsi = require( 'strip-ansi' );
 
 function makeLink( text, link ) {
 	if ( ! terminalLink.isSupported ) {
-		return link !== text ? `${ text } (${ link })` : link;
+		return link !== stripAnsi( text ) ? `${ text } (${ link })` : link;
 	}
 
 	return terminalLink( text, link );
