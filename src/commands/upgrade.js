@@ -98,16 +98,18 @@ exports.handler = makeCommand( { checkDocker: false }, async ( { verbose, env } 
 		'./config/php-fpm/docker-php-ext-xdebug.ini:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini:cached',
 		'~/.ssh:/root/.ssh:cached'
 	];
+
 	const volumes = [ ...yaml.services.phpfpm.volumes ];
 	yaml.services.phpfpm.volumes = volumes.reduce( ( acc, curr ) => {
 		if ( deprecatedVolumes.includes( curr ) ) {
-			if ( deprecatedVolumes.indexOf( curr ) === 1 ) {
+			// Replace xdebug config volume to be mounted to the new location.
+			if ( curr === './config/php-fpm/docker-php-ext-xdebug.ini:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini:cached' ) {
 				acc.push( './config/php-fpm/docker-php-ext-xdebug.ini:/etc/php.d/docker-php-ext-xdebug.ini:cached' );
-				return acc;
 			}
-			return acc;
+		} else {
+			acc.push( curr );
 		}
-		acc.push( curr );
+
 		return acc;
 	}, [] );
 
