@@ -36,36 +36,35 @@ const cacheVolume = 'wplocaldockerCache';
 
 const CONFIG_FILENAME = '.config.json';
 
-const sitesPath = async function() {
+async function sitesPath() {
 	return await config.get( 'sitesPath' );
-};
+}
 
-const envSlug = function( env ) {
+function envSlug( env ) {
 	return slugify( env );
-};
+}
 
 async function envPath( env ) {
 	const envPath = path.join( await sitesPath(), envSlug( env ) );
 	return envPath;
 }
 
-const parseEnvFromCWD = async function() {
-	// Compare both of these as all lowercase to account for any misconfigurations
-	let cwd = process.cwd().toLowerCase();
-	let sitesPathValue = await sitesPath();
-	sitesPathValue = sitesPathValue.toLowerCase();
+async function parseEnvFromCWD() {
+	let cwd = '';
 
-	if ( cwd.indexOf( sitesPathValue ) === -1 ) {
+	try {
+		cwd = process.cwd();
+	} catch ( e ) {
 		return false;
 	}
 
-	if ( cwd === sitesPathValue ) {
+	const sitesPathValue = await sitesPath();
+	if ( cwd.indexOf( sitesPathValue ) === -1 || cwd === sitesPathValue ) {
 		return false;
 	}
 
 	// Strip the base sitepath from the path
 	cwd = cwd.replace( sitesPathValue, '' ).replace( /^\//i, '' );
-
 	// First segment is now the envSlug, get rid of the rest
 	cwd = cwd.split( '/' )[0];
 
@@ -79,7 +78,7 @@ const parseEnvFromCWD = async function() {
 	}
 
 	return cwd;
-};
+}
 
 async function resolveEnvironment( env ) {
 	let envName = ( env || '' ).trim();
@@ -102,7 +101,7 @@ async function resolveEnvironment( env ) {
 	return envName;
 }
 
-const getAllEnvironments = async function() {
+async function getAllEnvironments() {
 	const sitePath = await sitesPath();
 	let dirContent = await fs.readdir( sitePath );
 
@@ -130,7 +129,7 @@ const getAllEnvironments = async function() {
 	} );
 
 	return dirContent;
-};
+}
 
 async function getSnapshotsPath() {
 	// Ensure that the wpsnapshots folder is created and owned by the current user versus letting docker create it so we can enforce proper ownership later
@@ -139,7 +138,7 @@ async function getSnapshotsPath() {
 	return wpsnapshotsDir;
 }
 
-const promptEnv = async function() {
+async function promptEnv() {
 	const environments = await getAllEnvironments();
 
 	const questions = [
@@ -155,9 +154,9 @@ const promptEnv = async function() {
 	const answers = await inquirer.prompt( questions );
 
 	return answers.envSlug;
-};
+}
 
-const parseOrPromptEnv = async function () {
+async function parseOrPromptEnv() {
 	let envSlug = await parseEnvFromCWD();
 
 	if ( envSlug === false ) {
@@ -165,9 +164,9 @@ const parseOrPromptEnv = async function () {
 	}
 
 	return envSlug;
-};
+}
 
-const getEnvHosts = async function( envPath ) {
+async function getEnvHosts( envPath ) {
 	try {
 		const envConfig = await fs.readJson( path.join( envPath, CONFIG_FILENAME ) );
 
@@ -175,7 +174,7 @@ const getEnvHosts = async function( envPath ) {
 	} catch ( ex ) {
 		return [];
 	}
-};
+}
 
 async function getPathOrError( env, spinner ) {
 	if ( env === false || undefined === env || env.trim().length === 0 ) {
@@ -203,10 +202,10 @@ async function getPathOrError( env, spinner ) {
 /**
  * Format the default Proxy URL based on entered hostname
  *
- * @param  string value 	The user entered hostname
- * @return string       	The formatted default proxy URL
+ * @param {string} value The user entered hostname
+ * @return string The formatted default proxy URL
  */
-const createDefaultProxy = function( value ) {
+function createDefaultProxy( value ) {
 	let proxyUrl = `http://${ helper.removeEndSlashes( value ) }`;
 	const proxyUrlTLD = proxyUrl.lastIndexOf( '.' );
 
@@ -217,7 +216,7 @@ const createDefaultProxy = function( value ) {
 	}
 
 	return proxyUrl;
-};
+}
 
 module.exports = {
 	rootPath,
