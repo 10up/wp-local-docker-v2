@@ -17,7 +17,7 @@ function makeCommand( options, command ) {
 		}
 
 		return cmd( ...params ).catch( ( err ) => {
-			displayError( err.message );
+			displayError( err.message || err.err, err.exitCode );
 		} );
 	};
 }

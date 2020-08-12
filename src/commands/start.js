@@ -34,18 +34,7 @@ exports.handler = makeCommand( async ( { verbose, pull, env } ) => {
 		const envName = await envUtils.resolveEnvironment( env || '' );
 		await start( envName, spinner, pull );
 
-		// @ts-ignore
-		const envPath = await envUtils.getPathOrError( envName, {
-			log() {},
-			error( err ) {
-				if ( spinner ) {
-					throw new Error( err );
-				} else {
-					console.error( err );
-				}
-			},
-		} );
-
+		const envPath = await envUtils.getPathOrError( envName, spinner );
 		const envHosts = await envUtils.getEnvHosts( envPath );
 		if ( Array.isArray( envHosts ) && envHosts.length > 0 ) {
 			let info = '';

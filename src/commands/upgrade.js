@@ -65,18 +65,11 @@ exports.handler = makeCommand( { checkDocker: false }, async ( { verbose, env } 
 				process.exit( 1 );
 			}
 		}
+	}
 
-		const phpImage = images[`php${ phpVersion }`];
-		if ( phpImage ) {
-			yaml.services.phpfpm.image = phpImage;
-		} else {
-			if ( spinner ) {
-				throw new Error( 'This environment cannot be upgraded. No changes were made.' );
-			} else {
-				console.error( 'This environment cannot be upgraded. No changes were made.' );
-				process.exit( 1 );
-			}
-		}
+	const phpImage = images[`php${ phpVersion }`];
+	if ( phpImage ) {
+		yaml.services.phpfpm.image = phpImage;
 	}
 
 	// Update defined services to have all cached volumes
@@ -124,19 +117,21 @@ exports.handler = makeCommand( { checkDocker: false }, async ( { verbose, env } 
 	// wrong user. Here we setup the docker-compose.yml file to rebuild the
 	// phpfpm container so that it runs as the user who created the project.
 	if ( os.platform() == 'linux' ) {
-		yaml.services.phpfpm.image = `wp-php-fpm-dev-${ phpVersion }-${ process.env.USER }`;
-		yaml.services.phpfpm.build = {
-			dockerfile: '.containers/php-fpm',
-			context: '.',
-			args: {
-				PHP_IMAGE: images[`php${ phpVersion }`],
-				CALLING_USER: process.env.USER,
-				CALLING_UID: process.getuid(),
-			},
-		};
+		if ( phpVersion && phpImage ) {
+			yaml.services.phpfpm.image = `wp-php-fpm-dev-${ phpVersion }-${ process.env.USER }`;
+			yaml.services.phpfpm.build = {
+				dockerfile: '.containers/php-fpm',
+				context: '.',
+				args: {
+					PHP_IMAGE: images[`php${ phpVersion }`],
+					CALLING_USER: process.env.USER,
+					CALLING_UID: process.getuid(),
+				},
+			};
+		}
+
 		yaml.services.phpfpm.volumes.push( `~/.ssh:/home/${ process.env.USER }/.ssh:cached` );
-	}
-	else {
+	} else {
 		// the official containers for this project will have a www-data user.
 		yaml.services.phpfpm.volumes.push( '~/.ssh:/home/www-data/.ssh:cached' );
 	}
@@ -158,5 +153,5 @@ exports.handler = makeCommand( { checkDocker: false }, async ( { verbose, env } 
 		console.error( err );
 	}
 
-	start( envSlug, spinner );
+	await start( envSlug, spinner );
 } );
