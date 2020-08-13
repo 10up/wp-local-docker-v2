@@ -23,7 +23,7 @@ async function getSslCertsDirectory( create = true ) {
 	const dir = path.join( getGlobalDirectory(), 'ssl-certs' );
 
 	if ( create ) {
-		await fsExtra.ensureDir( dir );
+		await fsExtra.ensureDir( dir, { mode: 0o755 } );
 	}
 
 	return dir;
@@ -36,7 +36,7 @@ async function checkIfConfigured() {
 
 async function write() {
 	// Make sure we have our config directory present
-	await fsExtra.ensureDir( getConfigDirectory() );
+	await fsExtra.ensureDir( getConfigDirectory(), { mode: 0o755 } );
 	await fsExtra.writeJson( getConfigFilePath(), config );
 }
 
@@ -96,7 +96,7 @@ async function configure( configuration ) {
 				'global',
 			);
 
-			await fsExtra.ensureDir( globalServicesPath );
+			await fsExtra.ensureDir( globalServicesPath, { mode: 0o755 } );
 			await fsExtra.copy( localGlobalPath, globalServicesPath );
 		} catch ( ex ) {
 			console.error( ex );
@@ -107,7 +107,7 @@ async function configure( configuration ) {
 
 	// Attempt to create the sites directory
 	try {
-		await fsExtra.ensureDir( sitesPath );
+		await fsExtra.ensureDir( sitesPath, { mode: 0o755 } );
 	} catch ( ex ) {
 		console.error( 'Error: Could not create directory for environments!' );
 		process.exit( 1 );

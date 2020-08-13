@@ -36,13 +36,16 @@ exports.handler = makeCommand( async ( { verbose, pull, env } ) => {
 
 		const envPath = await envUtils.getPathOrError( envName, spinner );
 		const envHosts = await envUtils.getEnvHosts( envPath );
+		const certs = await envUtils.getEnvConfig( envPath, 'certs' );
+
 		if ( Array.isArray( envHosts ) && envHosts.length > 0 ) {
 			let info = '';
 			const links = {};
+			const http = certs ? 'https' : 'http';
 
 			envHosts.forEach( ( host ) => {
-				const home = `https://${ host }/`;
-				const admin = `https://${ host }/wp-admin/`;
+				const home = `${ http }://${ host }/`;
+				const admin = `${ http }://${ host }/wp-admin/`;
 
 				links[ home ] = home;
 				links[ admin ] = admin;

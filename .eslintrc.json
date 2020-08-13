@@ -10,6 +10,16 @@
 			"error",
 			"always"
 		],
+		"camelcase": [
+			"error",
+			{
+				"allow": [
+					"depends_on",
+					"mem_limit",
+					"mem_reservation"
+				]
+			}
+		],
 		"indent": [
 			"error",
 			"tab",

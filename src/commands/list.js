@@ -1,6 +1,5 @@
-/**
- * Internal dependencies.
- */
+const chalk = require( 'chalk' );
+
 const envUtils = require( '../env-utils' );
 const makeCommand = require( '../utils/make-command' );
 const makeDocker = require( '../utils/make-docker' );
@@ -27,7 +26,10 @@ exports.handler = makeCommand( async () => {
 
 		// Get current environment host name, use the starting index.
 		const envHosts = await envUtils.getEnvHosts( envPath );
-		const hostName = `https://${ envHosts[0] }/`;
+		const certs = await envUtils.getEnvConfig( envPath, 'certs' );
+
+		const http = certs ? 'https' : 'http';
+		const hostName = `${ http }://${ envHosts[0] }/`;
 
 		links[ hostName ] = hostName;
 
@@ -37,7 +39,9 @@ exports.handler = makeCommand( async () => {
 			// Check containers availability and push to list with appropriate status.
 			envStatus.push( [
 				envSlug,
-				Array.isArray( containers ) && containers.length ? 'UP' : 'DOWN',
+				Array.isArray( containers ) && containers.length
+					? chalk.bgGreen.whiteBright.bold( '  UP  ' )
+					: chalk.bgRed.whiteBright.bold( ' DOWN ' ),
 				hostName,
 				envPath,
 			] );

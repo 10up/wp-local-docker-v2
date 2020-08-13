@@ -34,28 +34,29 @@ async function createCommand( spinner, defaults = {} ) {
 	const envHosts = Array.isArray( answers.domain ) ? answers.domain : [ answers.domain ];
 	const envSlug = envUtils.envSlug( hostname );
 
-	const paths = await makeFs( chalk, spinner )( hostname );
+	const paths = await makeFs( spinner )( hostname );
 	const saveYaml = makeSaveYamlFile( chalk, spinner, paths['/'] );
-
-	const dockerComposer = await makeDockerCompose( spinner )( envSlug, envHosts, answers );
+	
+	const certs = await makeCert( spinner )( envSlug, envHosts );
+	const dockerComposer = await makeDockerCompose( spinner )( envSlug, envHosts, answers, certs );
 	await saveYaml( 'docker-compose.yml', dockerComposer );
 	await saveYaml( 'wp-cli.yml', { ssh: 'docker-compose:phpfpm' } );
 
 	await makeCopyConfigs( spinner, fsExtra )( paths, answers );
-	await makeCert( spinner )( envSlug, envHosts );
 
 	await startGlobal( spinner );
 	await makeDatabase( spinner )( envSlug );
 	await environment.start( envSlug, spinner );
 
-	await makeInstallWordPress( compose, spinner )( envSlug, hostname, answers.wordpress );
+	await makeInstallWordPress( compose, spinner )( envSlug, hostname, answers );
 
-	await makeSaveJsonFile( chalk, spinner, paths['/'] )( '.config.json', { envHosts } );
+	await makeSaveJsonFile( chalk, spinner, paths['/'] )( '.config.json', { envHosts, certs } );
 	await makeUpdateHosts( which, sudo, spinner )( envHosts );
 
 	return {
 		...answers,
 		paths,
+		certs,
 	};
 }
 
@@ -63,20 +64,21 @@ exports.command = 'create';
 exports.desc = 'Create a new docker environment.';
 exports.aliases = [ 'new' ];
 
-exports.handler = makeCommand( async () => {
-	const spinner = makeSpinner();
+exports.handler = makeCommand( async ( { verbose } ) => {
+	const spinner = ! verbose ? makeSpinner() : undefined;
 	const answers = await createCommand( spinner, {} );
 
-	if ( !! answers.wordpress && answers.wordpress.type === 'subdomain' ) {
+	if ( spinner && !! answers.wordpress && answers.wordpress.type === 'subdomain' ) {
 		spinner.info( 'Note: Subdomain multisites require any additional subdomains to be added manually to your hosts file!' );
 	}
 
 	let info = `Successfully Created Site!${ EOL }${ EOL }`;
 	const links = {};
+	const http = answers.certs ? 'https' : 'http';
 
 	( Array.isArray( answers.domain ) ? answers.domain : [ answers.domain ] ).forEach( ( host ) => {
-		const home = `https://${ host }/`;
-		const admin = `https://${ host }/wp-admin/`;
+		const home = `${ http }://${ host }/`;
+		const admin = `${ http }://${ host }/wp-admin/`;
 
 		links[ home ] = home;
 		links[ admin ] = admin;

@@ -6,10 +6,28 @@ module.exports = function makeCert( spinner ) {
 			console.log( 'Generating certificates:' );
 		}
 
-		await generate( envSlug, hosts );
+		const certs = await generate( envSlug, hosts ).catch( ( err ) => {
+			if ( err && err.message ) {
+				if ( spinner ) {
+					spinner.warn( err.message );
+					spinner.info( 'Failed to create SSL certificates, HTTP version will be created...' );
+				} else {
+					console.error( err.message );
+					console.log( 'Failed to create SSL certificates, HTTP version will be created...' );
+				}
+			}
 
-		if ( spinner ) {
-			spinner.succeed( 'Certificates are generated...' );
+			return false;
+		} );
+
+		if ( certs ) {
+			if ( spinner ) {
+				spinner.succeed( 'Certificates are generated...' );
+			} else {
+				console.log( ' - Done' );
+			}
 		}
+
+		return certs;
 	};
 };

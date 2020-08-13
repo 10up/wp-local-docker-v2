@@ -166,14 +166,27 @@ async function parseOrPromptEnv() {
 	return envSlug;
 }
 
-async function getEnvHosts( envPath ) {
+function saveEnvConfig( envPath, config ) {
+	return fs.writeJSON( path.join( envPath, CONFIG_FILENAME ), config );
+}
+
+async function getEnvConfig( envPath, key = '', defaults = null ) {
 	try {
 		const envConfig = await fs.readJson( path.join( envPath, CONFIG_FILENAME ) );
+		if ( key ) {
+			return typeof envConfig === 'object' ? envConfig[ key ] : defaults;
+		}
 
-		return ( typeof envConfig === 'object' && undefined !== envConfig.envHosts ) ? envConfig.envHosts : [];
-	} catch ( ex ) {
-		return [];
+		return envConfig;
+	} catch ( err ) {
+		// do nothing.
 	}
+
+	return false;
+}
+
+function getEnvHosts( envPath ) {
+	return getEnvConfig( envPath, 'envHosts', [] );
 }
 
 async function getPathOrError( env, spinner ) {
@@ -231,6 +244,8 @@ module.exports = {
 	getAllEnvironments,
 	promptEnv,
 	parseOrPromptEnv,
+	saveEnvConfig,
+	getEnvConfig,
 	getEnvHosts,
 	getPathOrError,
 	createDefaultProxy,

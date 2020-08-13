@@ -2,7 +2,7 @@ const { join } = require( 'path' );
 
 const inquirer = require( 'inquirer' );
 
-const { resolveEnvironment, envSlug, envPath } = require( '../../env-utils' );
+const envUtils = require( '../../env-utils' );
 const { generate } = require( '../../certificates' );
 const { readYaml, writeYaml } = require( '../../utils/yaml' );
 const makeCommand = require( '../../utils/make-command' );
@@ -20,11 +20,15 @@ exports.builder = function( yargs ) {
 
 exports.handler = makeCommand( { checkDocker: false }, async ( { domains, env, verbose } ) => {
 	const spinner = ! verbose ? makeSpinner() : undefined;
-	const envName = await resolveEnvironment( env );
-	const slug = envSlug( envName );
+	const envName = await envUtils.resolveEnvironment( env );
+	const slug = envUtils.envSlug( envName );
 
-	await generateCert( slug, domains, spinner );
-	await checkDockerCompose( slug, spinner );
+	const certs = await generateCert( slug, domains, spinner );
+	if ( certs ) {
+		const envPath = await envUtils.envPath( slug );
+		await updateConfig( envPath, certs );
+		await checkDockerCompose( envPath, slug, spinner );
+	}
 } );
 
 async function generateCert( slug, domains, spinner ) {
@@ -34,18 +38,27 @@ async function generateCert( slug, domains, spinner ) {
 		console.log( 'Generating certificates:' );
 	}
 
-	await generate( slug, domains );
+	const certs = await generate( slug, domains );
 
-	if ( spinner ) {
-		spinner.succeed( 'Certificates are generated...' );
-	} else {
-		console.log( ' - Done' );
+	if ( certs ) {
+		if ( spinner ) {
+			spinner.succeed( 'Certificates are generated...' );
+		} else {
+			console.log( ' - Done' );
+		}
 	}
+
+	return certs;
 }
 
-async function checkDockerCompose( slug, spinner ) {
-	const root = await envPath( slug );
-	const filename = join( root, 'docker-compose.yml' );
+async function updateConfig( envPath, certs ) {
+	const config = await envUtils.getEnvConfig( envPath );
+	config.certs = certs;
+	await envUtils.saveEnvConfig( envPath, config );
+}
+
+async function checkDockerCompose( envPath, slug, spinner ) {
+	const filename = join( envPath, 'docker-compose.yml' );
 	const yaml = readYaml( filename );
 
 	if ( ! yaml || ! yaml.services || ! yaml.services.nginx ) {
