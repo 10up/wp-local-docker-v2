@@ -56,6 +56,8 @@ exports.handler = makeCommand( async ( { url, branch, config } ) => {
 	const configuration = await makePullConfig( spinner )( tempDir, config );
 	// create environment
 	const answers = await createCommand( spinner, configuration || {} );
+
+	// @ts-ignore
 	const { mountPoint, snapshot, paths } = answers;
 
 	// move repository
@@ -69,10 +71,11 @@ exports.handler = makeCommand( async ( { url, branch, config } ) => {
 
 	let info = `Successfully Cloned Site!${ EOL }${ EOL }`;
 	const links = {};
+	const http = answers.certs ? 'https' : 'http';
 
 	( Array.isArray( answers.domain ) ? answers.domain : [ answers.domain ] ).forEach( ( host ) => {
-		const home = `https://${ host }/`;
-		const admin = `https://${ host }/wp-admin/`;
+		const home = `${ http }://${ host }/`;
+		const admin = `${ http }://${ host }/wp-admin/`;
 
 		links[ home ] = home;
 		links[ admin ] = admin;
