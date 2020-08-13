@@ -1,6 +1,5 @@
-/**
- * Internal dependencies.
- */
+const chalk = require( 'chalk' );
+
 const envUtils = require( '../env-utils' );
 const makeCommand = require( '../utils/make-command' );
 const makeDocker = require( '../utils/make-docker' );
@@ -40,7 +39,9 @@ exports.handler = makeCommand( async () => {
 			// Check containers availability and push to list with appropriate status.
 			envStatus.push( [
 				envSlug,
-				Array.isArray( containers ) && containers.length ? 'UP' : 'DOWN',
+				Array.isArray( containers ) && containers.length
+					? chalk.bgGreen.whiteBright.bold( '  UP  ' )
+					: chalk.bgRed.whiteBright.bold( ' DOWN ' ),
 				hostName,
 				envPath,
 			] );
