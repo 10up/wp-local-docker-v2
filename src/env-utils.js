@@ -166,6 +166,10 @@ async function parseOrPromptEnv() {
 	return envSlug;
 }
 
+function saveEnvConfig( envPath, config ) {
+	return fs.writeJSON( path.join( envPath, CONFIG_FILENAME ), config );
+}
+
 async function getEnvConfig( envPath, key = '', defaults = null ) {
 	try {
 		const envConfig = await fs.readJson( path.join( envPath, CONFIG_FILENAME ) );
@@ -240,6 +244,7 @@ module.exports = {
 	getAllEnvironments,
 	promptEnv,
 	parseOrPromptEnv,
+	saveEnvConfig,
 	getEnvConfig,
 	getEnvHosts,
 	getPathOrError,

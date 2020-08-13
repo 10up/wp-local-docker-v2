@@ -20,10 +20,12 @@ module.exports = function makeCert( spinner ) {
 			return false;
 		} );
 
-		if ( spinner ) {
-			spinner.succeed( 'Certificates are generated...' );
-		} else {
-			console.log( ' - Done' );
+		if ( certs ) {
+			if ( spinner ) {
+				spinner.succeed( 'Certificates are generated...' );
+			} else {
+				console.log( ' - Done' );
+			}
 		}
 
 		return certs;
