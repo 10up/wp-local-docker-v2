@@ -4,7 +4,7 @@ const { cacheVolume } = require( '../../env-utils' );
 const { images } = require( '../../docker-images' );
 
 module.exports = function makeDockerCompose( spinner ) {
-	return async ( envSlug, hosts, settings ) => {
+	return async ( envSlug, hosts, settings, certs ) => {
 		spinner.start( 'Creating docker-compose configuration...' );
 
 		const {
@@ -26,18 +26,18 @@ module.exports = function makeDockerCompose( spinner ) {
 				nginx: {
 					image: images['nginx'],
 					expose: [ '80', '443' ],
-					depends_on: [ 'phpfpm' ], // eslint-disable-line camelcase
+					depends_on: [ 'phpfpm' ],
 					networks: [ 'default', 'wplocaldocker' ],
 					volumes: [ './wordpress:/var/www/html:cached' ],
 					environment: {
-						CERT_NAME: envSlug,
+						CERT_NAME: certs ? envSlug : 'localhost',
 						HTTPS_METHOD: 'noredirect',
 						VIRTUAL_HOST: allHosts.join( ',' ),
 					},
 				},
 				phpfpm: {
 					image: images[`php${ phpVersion }`],
-					depends_on: [ 'memcached' ], // eslint-disable-line camelcase
+					depends_on: [ 'memcached' ],
 					networks: [ 'default', 'wplocaldocker' ],
 					dns: [ '10.0.0.2' ],
 					volumes: [
@@ -105,8 +105,8 @@ module.exports = function makeDockerCompose( spinner ) {
 			baseConfig.services.elasticsearch = {
 				image: images['elasticsearch'],
 				expose: [ '9200' ],
-				mem_limit: '1024M', // eslint-disable-line camelcase
-				mem_reservation: '1024M', // eslint-disable-line camelcase
+				mem_limit: '1024M',
+				mem_reservation: '1024M',
 				volumes: [
 					'./config/elasticsearch/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:cached',
 					'./config/elasticsearch/plugins:/usr/share/elasticsearch/plugins:cached',

@@ -40,6 +40,11 @@ async function generate( envName, hosts ) {
 
 	await writeFile( certFile, cert.cert );
 	await writeFile( keyFile, cert.key );
+
+	return {
+		cert: certFile,
+		key: keyFile,
+	};
 }
 
 module.exports = {

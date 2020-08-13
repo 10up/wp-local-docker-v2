@@ -39,7 +39,7 @@ async function configure( envSlug, compose, cwd, log, spinner ) {
 	spinner.succeed( 'WordPress config is created...' );
 }
 
-async function install( hostname, wordpress, compose, cwd, log, spinner ) {
+async function install( hostname, wordpress, certs, compose, cwd, log, spinner ) {
 	const {
 		title,
 		username,
@@ -65,7 +65,9 @@ async function install( hostname, wordpress, compose, cwd, log, spinner ) {
 			throw Error( 'Invalid Installation Type' );
 	}
 
-	command.push( `--url=https://${ hostname }` );
+	const http = certs ? 'https' : 'http';
+
+	command.push( `--url=${ http }://${ hostname }` );
 	command.push( `--title=${ title }` );
 	command.push( `--admin_user=${ username }` );
 	command.push( `--admin_password=${ password }` );
@@ -94,7 +96,8 @@ async function emptyContent( compose, cwd, log, spinner ) {
 }
 
 module.exports = function makeInstallWordPress( compose, spinner ) {
-	return async ( envSlug, hostname, wordpress ) => {
+	return async ( envSlug, hostname, settings ) => {
+		const { wordpress, certs } = settings;
 		if ( ! wordpress ) {
 			return;
 		}
@@ -105,7 +108,7 @@ module.exports = function makeInstallWordPress( compose, spinner ) {
 
 			await downloadWordPress( wordpress.type, compose, cwd, log, spinner );
 			await configure( envSlug, compose, cwd, log, spinner );
-			await install( hostname, wordpress, compose, cwd, log, spinner );
+			await install( hostname, wordpress, certs, compose, cwd, log, spinner );
 			await setRewrites( compose, cwd, log, spinner );
 
 			if ( wordpress.purify ) {
