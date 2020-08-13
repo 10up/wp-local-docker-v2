@@ -13,9 +13,15 @@ module.exports = function makeUpdateHosts( which, sudo, spinner ) {
 				const command = `${ node } ${ hostsScript } add ${ hosts.join( ' ' ) }`;
 				sudo.exec( command, { name: 'WP Local Docker' }, ( err ) => {
 					if ( err ) {
-						spinner.warn( 'Something went wrong adding host file entries. You may need to add the /etc/hosts entries manually.' );
+						if ( spinner ) {
+							spinner.warn( 'Something went wrong adding host file entries. You may need to add the /etc/hosts entries manually.' );
+						} else {
+							console.log( 'Something went wrong adding host file entries. You may need to add the /etc/hosts entries manually.' );
+						}
 					} else {
-						spinner.succeed( 'Added domains to the hosts file...' );
+						if ( spinner ) {
+							spinner.succeed( 'Added domains to the hosts file...' );
+						}
 					}
 
 					resolve();

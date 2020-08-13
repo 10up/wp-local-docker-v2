@@ -64,11 +64,11 @@ exports.command = 'create';
 exports.desc = 'Create a new docker environment.';
 exports.aliases = [ 'new' ];
 
-exports.handler = makeCommand( async () => {
-	const spinner = makeSpinner();
+exports.handler = makeCommand( async ( { verbose } ) => {
+	const spinner = ! verbose ? makeSpinner() : undefined;
 	const answers = await createCommand( spinner, {} );
 
-	if ( !! answers.wordpress && answers.wordpress.type === 'subdomain' ) {
+	if ( spinner && !! answers.wordpress && answers.wordpress.type === 'subdomain' ) {
 		spinner.info( 'Note: Subdomain multisites require any additional subdomains to be added manually to your hosts file!' );
 	}
 

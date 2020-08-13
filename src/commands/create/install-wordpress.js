@@ -1,13 +1,18 @@
 const envUtils = require( '../../env-utils' );
 
-async function downloadWordPress( wordpressType, compose, cwd, log, spinner ) {
-	spinner.start( 'Downloading WordPress...' );
+async function downloadWordPress( wordpressType, compose, cwd, spinner ) {
+	if ( spinner ) {
+		spinner.start( 'Downloading WordPress...' );
+	} else {
+		console.log( 'Downloading WordPress:' );
+	}
+
 	if ( wordpressType === 'dev' ) {
-		await compose.exec( 'phpfpm', 'git clone git://develop.git.wordpress.org/ .', { cwd, log } );
+		await compose.exec( 'phpfpm', 'git clone git://develop.git.wordpress.org/ .', { cwd, log: ! spinner } );
 
 		await compose.run( '10up/wpcorebuild:latest', 'npm install', {
 			cwd,
-			log,
+			log: ! spinner,
 			composeOptions: [
 				'--rm',
 				`-v ${ cwd }/wordpress:/usr/src/app`,
@@ -17,29 +22,48 @@ async function downloadWordPress( wordpressType, compose, cwd, log, spinner ) {
 
 		await compose.run( '10up/wpcorebuild:latest', 'grunt', {
 			cwd,
-			log,
+			log: ! spinner,
 			composeOptions: [
 				'--rm',
 				`-v ${ cwd }/wordpress:/usr/src/app`,
 			],
 		} );
 
-		spinner.succeed( 'Development version of WordPress is downloaded...' );
+		if ( spinner ) {
+			spinner.succeed( 'Development version of WordPress is downloaded...' );
+		} else {
+			console.log( ' - Done' );
+		}
 	} else {
-		await compose.exec( 'phpfpm', 'wp core download --version=latest --force', { cwd, log } );
-		spinner.succeed( 'WordPress is downloaded...' );
+		await compose.exec( 'phpfpm', 'wp core download --version=latest --force', { cwd, log: ! spinner } );
+
+		if ( spinner ) {
+			spinner.succeed( 'WordPress is downloaded...' );
+		} else {
+			console.log( ' - Done' );
+		}
 	}
 }
 
-async function configure( envSlug, compose, cwd, log, spinner ) {
+async function configure( envSlug, compose, cwd, spinner ) {
 	const command = `wp config create --force --dbname=${ envSlug } --dbuser=wordpress --dbpass=password --dbhost=mysql`;
 
-	spinner.start( 'Configuring WordPress...' );
-	await compose.exec( 'phpfpm', command, { cwd, log } );
-	spinner.succeed( 'WordPress config is created...' );
+	if ( spinner ) {
+		spinner.start( 'Configuring WordPress...' );
+	} else {
+		console.log( 'Create WordPress config:' );
+	}
+
+	await compose.exec( 'phpfpm', command, { cwd, log: ! spinner } );
+
+	if ( spinner ) {
+		spinner.succeed( 'WordPress config is created...' );
+	} else {
+		console.log( ' - Done' );
+	}
 }
 
-async function install( hostname, wordpress, certs, compose, cwd, log, spinner ) {
+async function install( hostname, wordpress, certs, compose, cwd, spinner ) {
 	const {
 		title,
 		username,
@@ -73,26 +97,54 @@ async function install( hostname, wordpress, certs, compose, cwd, log, spinner )
 	command.push( `--admin_password=${ password }` );
 	command.push( `--admin_email=${ email }` );
 
-	spinner.start( 'Installing WordPress...' );
-	await compose.exec( 'phpfpm', command, { cwd, log } );
-	spinner.succeed( 'WordPress is installed...' );
+	if ( spinner ) {
+		spinner.start( 'Installing WordPress...' );
+	} else {
+		console.log( 'Install WordPress:' );
+	}
+
+	await compose.exec( 'phpfpm', command, { cwd, log: ! spinner } );
+
+	if ( spinner ) {
+		spinner.succeed( 'WordPress is installed...' );
+	} else {
+		console.log( ' - Done' );
+	}
 }
 
-async function setRewrites( compose, cwd, log, spinner ) {
-	spinner.start( 'Setting rewrite rules structure to /%postname%/...' );
-	await compose.exec( 'phpfpm', 'wp rewrite structure /%postname%/', { cwd, log } );
-	spinner.succeed( 'Rewrite rules structure is updated to /%postname%/...' );
+async function setRewrites( compose, cwd, spinner ) {
+	if ( spinner ) {
+		spinner.start( 'Setting rewrite rules structure to /%postname%/...' );
+	} else {
+		console.log( 'Update rewrite rules:' );
+	}
+
+	await compose.exec( 'phpfpm', 'wp rewrite structure /%postname%/', { cwd, log: ! spinner } );
+
+	if ( spinner ) {
+		spinner.succeed( 'Rewrite rules structure is updated to /%postname%/...' );
+	} else {
+		console.log( ' - Done' );
+	}
 }
 
-async function emptyContent( compose, cwd, log, spinner ) {
-	spinner.start( 'Removing the default WordPress content...' );
+async function emptyContent( compose, cwd, spinner ) {
+	if ( spinner ) {
+		spinner.start( 'Removing the default WordPress content...' );
+	} else {
+		console.log( 'Remove the default WordPress content:' );
+	}
 
-	await compose.exec( 'phpfpm', 'wp site empty --yes', { cwd, log } );
-	await compose.exec( 'phpfpm', 'wp plugin delete hello akismet', { cwd, log } );
-	await compose.exec( 'phpfpm', 'wp theme delete twentyfifteen twentysixteen twentyseventeen twentyeighteen twentynineteen', { cwd, log } );
-	await compose.exec( 'phpfpm', 'wp widget delete search-2 recent-posts-2 recent-comments-2 archives-2 categories-2 meta-2', { cwd, log } );
+	await compose.exec( 'phpfpm', 'wp site empty --yes', { cwd, log: ! spinner } );
+	await compose.exec( 'phpfpm', 'wp plugin delete hello akismet', { cwd, log: ! spinner } );
+	await compose.exec( 'phpfpm', 'wp theme delete twentyfifteen twentysixteen twentyseventeen twentyeighteen twentynineteen', { cwd, log: ! spinner } );
+	await compose.exec( 'phpfpm', 'wp widget delete search-2 recent-posts-2 recent-comments-2 archives-2 categories-2 meta-2', { cwd, log: ! spinner } );
 
-	spinner.succeed( 'The default content is removed...' );
+	if ( spinner ) {
+		spinner.succeed( 'The default content is removed...' );
+	} else {
+		console.log( ' - Done' );
+	}
 }
 
 module.exports = function makeInstallWordPress( compose, spinner ) {
@@ -104,18 +156,20 @@ module.exports = function makeInstallWordPress( compose, spinner ) {
 
 		try {
 			const cwd = await envUtils.envPath( envSlug );
-			const log = false;
 
-			await downloadWordPress( wordpress.type, compose, cwd, log, spinner );
-			await configure( envSlug, compose, cwd, log, spinner );
-			await install( hostname, wordpress, certs, compose, cwd, log, spinner );
-			await setRewrites( compose, cwd, log, spinner );
+			await downloadWordPress( wordpress.type, compose, cwd, spinner );
+			await configure( envSlug, compose, cwd, spinner );
+			await install( hostname, wordpress, certs, compose, cwd, spinner );
+			await setRewrites( compose, cwd, spinner );
 
 			if ( wordpress.purify ) {
-				await emptyContent( compose, cwd, log, spinner );
+				await emptyContent( compose, cwd, spinner );
 			}
 		} catch( error ) {
-			spinner.stop();
+			if ( spinner ) {
+				spinner.stop();
+			}
+
 			if ( error.err ) {
 				throw new Error( error.err );
 			} else {

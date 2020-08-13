@@ -5,7 +5,11 @@ const { images } = require( '../../docker-images' );
 
 module.exports = function makeDockerCompose( spinner ) {
 	return async ( envSlug, hosts, settings, certs ) => {
-		spinner.start( 'Creating docker-compose configuration...' );
+		if ( spinner ) {
+			spinner.start( 'Creating docker-compose configuration...' );
+		} else {
+			console.log( 'Create docker-compose configuration:' );
+		}
 
 		const {
 			php: phpVersion,
@@ -129,7 +133,11 @@ module.exports = function makeDockerCompose( spinner ) {
 			}
 		}
 
-		spinner.succeed( 'Docker-compose configuration is created...' );
+		if ( spinner ) {
+			spinner.succeed( 'Docker-compose configuration is created...' );
+		} else {
+			console.log( ' - Done' );
+		}
 
 		return dockerComposeConfig;
 	};
