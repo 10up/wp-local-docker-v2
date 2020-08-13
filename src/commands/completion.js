@@ -25,10 +25,14 @@ exports.handler = ( { shell } ) => {
 			console.log( `source ${ filename }` );
 			break;
 		}
-		case 'zsh':
-			console.error( chalk.red( 'ZSH is not supported yet.' ) );
-			process.exit( 2 );
+		case 'zsh': {
+			const filename = resolve( __dirname, '../../scripts/10updocker-completion.zsh' );
+			console.log( '###-begin wp-local-docker command completion script for zsh-###' );
+			console.log( `# Installation: ${ chalk.bold.cyan( '10updocker completion zsh >> ~/.zshrc' ) }` );
+			console.log( '###-end wp-local-docker command completion script for zsh-###' );
+			console.log( `source ${ filename }` );
 			break;
+		}
 		default:
 			console.error( `${ chalk.bold.redBright( shell ) } ${ chalk.red( 'shell is not supported.' ) }` );
 			process.exit( 1 );
