@@ -10,12 +10,25 @@ exports.name = {{projectName}};
  * If multiple domains are neeeded, use array of strings where the first
  * domain is considered as primary.
  *
+ * @example
+ * exports.domain = "mysite.test";
+ * 
+ * @example
+ * exports.domain = [
+ *     "mysite.test",
+ *     "store.mysite.test",
+ *     "forum.mysite.test",
+ * ];
+ *
  * @type {string|string[]}
  */
 exports.domain = {{domain}};
 
 /**
  * The media proxy URL. If media proxy isn't needed, set it to FALSE.
+ *
+ * @example
+ * exports.mediaProxy = "https://mysite.com"
  *
  * @type {string|boolean}
  */
@@ -38,7 +51,21 @@ exports.php = {{phpVersion}};
 exports.elasticsearch = {{elasticsearch}};
 
 /**
- * WordPress configuration.
+ * WordPress configuration. Valid types are:
+ *  - single
+ *  - subdirectory
+ *  - subdomain
+ *  - dev
+ *
+ * @example
+ * exports.wordpress = {
+ *     type: 'subdomain',
+ *     title: 'MySite',
+ *     username: 'admin',
+ *     password: 'password',
+ *     email: 'admin@example.com',
+ *     purify: true,
+ * };
  *
  * @type {Object}
  */
@@ -55,12 +82,30 @@ exports.wordpress = {
  * The snapshot id to use for the project. If multiple snaphots are available,
  * use array of strings.
  *
+ * @example
+ * exports.snapshot = "a94a8fe5ccb19ba61c4c0873d391e987982fbbd3";
+ * 
+ * @example
+ * exports.snapshot = [
+ *     "a94a8fe5ccb19ba61c4c0873d391e987982fbbd3",
+ *     "109f4b3c50d7b0df729d299bc6f8e9ef9066971f",
+ * ];
+ *
  * @type {string|string[]}
  */
 exports.snapshot = {{snapshot}};
 
 /**
  * Where to move the project in WordPress directory tree.
+ *
+ * @example
+ * exports.mountPoint = '/wp-content';
+ * 
+ * @example
+ * exports.mountPoint = '/wp-content/plugins/my-plugin';
+ * 
+ * @example
+ * exports.mountPoint = '/wp-content/themes/my-theme';
  *
  * @type {string}
  */
