@@ -38,9 +38,11 @@ class Renderer {
 	}
 
 	getSpacer( token ) {
-		const blockTags = [
-			'p', 'ul', 'ol', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
-		];
+		const blockTags = [ 'p', 'ul', 'ol', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6' ];
+
+		if ( token.level > 0 && ( token.tag === 'ul' || token.tag === 'ol' ) ) {
+			return '';
+		}
 
 		return blockTags.includes( this.prevTag ) && blockTags.includes( token.tag )
 			? EOL
@@ -68,18 +70,12 @@ class Renderer {
 				case 'ordered_list_close':
 					ol.pop();
 					this.shrinkIndent();
-					if ( token.level === 0 ) {
-						result.push( EOL );
-					}
 					break;
 				case 'bullet_list_open':
 					this.expandIndent();
 					break;
 				case 'bullet_list_close':
 					this.shrinkIndent();
-					if ( token.level === 0 ) {
-						result.push( EOL );
-					}
 					break;
 				case 'list_item_open': {
 					blocks.push( token );
