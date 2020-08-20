@@ -127,6 +127,11 @@ exports.mountPoint = {{mountPoint}};
  * 1. Assets:
  *    1. Install npm dependencies using \`npm i\`
  *    1. Build assets with \`npm run build\`
+ * 1. Documentation:
+ *    1. [Project Wiki](https://example.com/project/wiki.html)
+ *    1. [Engineering Workflow](https://example.com/project/engineering-workflow.html)
+ *    1. [Time Tracking](https://example.com/project/time-tracking.html)
+ *    1. [Testing](https://example.com/project/testing.html)
  *
  * @type {string}
  */
