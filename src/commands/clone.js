@@ -88,7 +88,7 @@ exports.handler = makeCommand( async ( { url, branch, config } ) => {
 	info = replaceLinks( makeBoxen()( info ), links );
 	console.log( EOL + info );
 
-	const markdown = instructions.trim();
+	const markdown = ( instructions || '' ).trim();
 	if ( markdown.length > 0 ) {
 		console.log( EOL + makeMarkdown()( markdown ) );
 	}
