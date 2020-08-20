@@ -21,7 +21,7 @@
 const path = require( 'path' );
 
 const slugify = require( '@sindresorhus/slugify' );
-const async = require( 'asyncro' );
+const asyncro = require( 'asyncro' );
 const fs = require( 'fs-extra' );
 const chalk = require( 'chalk' );
 const inquirer = require( 'inquirer' );
@@ -106,25 +106,25 @@ async function getAllEnvironments() {
 	let dirContent = await fs.readdir( sitePath );
 
 	// Make into full path
-	dirContent = await async.map( dirContent, async item => {
+	dirContent = await asyncro.map( dirContent, async item => {
 		return path.join( sitePath, item );
 	} );
 
 	// Filter any that aren't directories
-	dirContent = await async.filter( dirContent, async item => {
+	dirContent = await asyncro.filter( dirContent, async item => {
 		const stat = await fs.stat( item );
 		return stat.isDirectory();
 	} );
 
 	// Filter any that don't have the .config.json file (which indicates its probably not a WP Local Docker Environment)
-	dirContent = await async.filter( dirContent, async item => {
+	dirContent = await asyncro.filter( dirContent, async item => {
 		const configFile = path.join( item, CONFIG_FILENAME );
 
 		return await fs.pathExists( configFile );
 	} );
 
 	// Back to just the basename
-	dirContent = await async.map( dirContent, async item => {
+	dirContent = await asyncro.map( dirContent, async item => {
 		return path.basename( item );
 	} );
 

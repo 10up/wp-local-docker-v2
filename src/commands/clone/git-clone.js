@@ -13,6 +13,12 @@ module.exports = function makeGitClone( spinner, chalk, { Clone, Cred }, { promp
 				checkoutBranch: branch,
 				fetchOpts: {
 					callbacks: {
+						transferProgress( stats ) {
+							const total = stats.totalObjects() * 2;
+							const progress = stats.receivedObjects() + stats.indexedObjects();
+							const info = `${ Math.ceil( 100 * progress / total ) }% (${ progress }/${ total })`;
+							spinner.text = `Cloning the repository: ${ info }...`;
+						},
 						certificateCheck() {
 							// certificate check doesn't work correctly on MacOS,
 							// thus turn off it there

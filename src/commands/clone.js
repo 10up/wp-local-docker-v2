@@ -8,10 +8,11 @@ const fsExtra = require( 'fs-extra' );
 
 const envUtils = require( '../env-utils' );
 const { images } = require( '../docker-images' );
+const { replaceLinks } = require( '../utils/make-link' );
 const makeSpinner = require( '../utils/make-spinner' );
 const makeCommand = require( '../utils/make-command' );
 const makeBoxen = require( '../utils/make-boxen' );
-const { replaceLinks } = require( '../utils/make-link' );
+const makeMarkdown = require( '../utils/make-markdown' );
 
 const makeGitClone = require( './clone/git-clone' );
 const makePullConfig = require( './clone/pull-config' );
@@ -56,9 +57,8 @@ exports.handler = makeCommand( async ( { url, branch, config } ) => {
 	const configuration = await makePullConfig( spinner )( tempDir, config );
 	// create environment
 	const answers = await createCommand( spinner, configuration || {} );
-
 	// @ts-ignore
-	const { mountPoint, snapshot, paths } = answers;
+	const { mountPoint, snapshot, paths, instructions } = answers;
 
 	// move repository
 	await makeMoveRepository( chalk, spinner, fsExtra, paths.wordpress )( tempDir, mountPoint || 'wp-content' );
@@ -86,6 +86,10 @@ exports.handler = makeCommand( async ( { url, branch, config } ) => {
 	} );
 
 	info = replaceLinks( makeBoxen()( info ), links );
+	console.log( EOL + info );
 
-	console.log( info );
+	const markdown = ( instructions || '' ).trim();
+	if ( markdown.length > 0 ) {
+		console.log( EOL + makeMarkdown()( markdown ) );
+	}
 } );
