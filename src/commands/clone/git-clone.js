@@ -6,7 +6,11 @@ module.exports = function makeGitClone( spinner, chalk, { Clone, Cred }, { promp
 	return async ( dir, repository, branch ) => {
 		let cloneAttempted = false;
 
-		spinner.start( 'Cloning the repository...' );
+		if ( spinner ) {
+			spinner.start( 'Cloning the repository...' );
+		} else {
+			console.log( 'Cloning the repository' );
+		}
 
 		try {
 			await Clone.clone( repository, dir, {
@@ -14,10 +18,12 @@ module.exports = function makeGitClone( spinner, chalk, { Clone, Cred }, { promp
 				fetchOpts: {
 					callbacks: {
 						transferProgress( stats ) {
-							const total = stats.totalObjects() * 2;
-							const progress = stats.receivedObjects() + stats.indexedObjects();
-							const info = `${ Math.ceil( 100 * progress / total ) }% (${ progress }/${ total })`;
-							spinner.text = `Cloning the repository: ${ info }...`;
+							if ( spinner ) {
+								const total = stats.totalObjects() * 2;
+								const progress = stats.receivedObjects() + stats.indexedObjects();
+								const info = `${ Math.ceil( 100 * progress / total ) }% (${ progress }/${ total })`;
+								spinner.text = `Cloning the repository: ${ info }...`;
+							}
 						},
 						certificateCheck() {
 							// certificate check doesn't work correctly on MacOS,
@@ -35,9 +41,13 @@ module.exports = function makeGitClone( spinner, chalk, { Clone, Cred }, { promp
 								return Cred.defaultNew();
 							}
 
-							spinner.stop();
-							if ( cloneAttempted ) {
-								spinner.fail( chalk.red( 'Invalid credentials, please, try again.' ) );
+							if ( spinner ) {
+								spinner.stop();
+								if ( cloneAttempted ) {
+									spinner.fail( chalk.red( 'Invalid credentials, please, try again.' ) );
+								}
+							} else if ( cloneAttempted ) {
+								console.log( 'Invalid credentials, please, try again.' );
 							}
 
 							cloneAttempted = true;
@@ -60,18 +70,27 @@ module.exports = function makeGitClone( spinner, chalk, { Clone, Cred }, { promp
 							];
 
 							const answers = await prompt( questions );
-							spinner.start( 'Cloning the repository...' );
+							if ( spinner ) {
+								spinner.start( 'Cloning the repository...' );
+							}
+
 							return Cred.userpassPlaintextNew( answers.username, answers.password );
 						},
 					},
 				},
 			} );
 		} catch ( err ) {
-			spinner.stop();
+			if ( spinner ) {
+				spinner.stop();
+			}
 			process.stderr.write( err.toString() + EOL );
 			throw new Error( 'An error happened during cloning your repository. Please, submit a new issue: https://github.com/10up/wp-local-docker-v2/issues' );
 		}
 
-		spinner.succeed( 'The repository is cloned...' );
+		if ( spinner ) {
+			spinner.succeed( 'The repository is cloned...' );
+		} else {
+			console.log( ' - Done' );
+		}
 	};
 };

@@ -45,11 +45,11 @@ exports.builder = function( yargs ) {
 	} );
 };
 
-exports.handler = makeCommand( async ( { url, branch, config } ) => {
+exports.handler = makeCommand( async ( { url, branch, config, verbose } ) => {
 	const git = require( 'nodegit' ); // nodegit must be required here
 
 	const tempDir = mkdtempSync( join( tmpdir(), 'wpld-' ) );
-	const spinner = makeSpinner();
+	const spinner = ! verbose ? makeSpinner() : undefined;
 
 	// clone repository
 	await makeGitClone( spinner, chalk, git, inquirer )( tempDir, url, branch );

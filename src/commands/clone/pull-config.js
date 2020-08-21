@@ -6,15 +6,22 @@ module.exports = function makePullConfig( spinner ) {
 		try {
 			const filename = join( cwd, config );
 
-			spinner.start( 'Checking configuration file in the repository...' );
 			await stat( filename );
 
 			const configuration = require( filename );
-			spinner.succeed( 'The configuration file is read from the repository...' );
+			if ( spinner ) {
+				spinner.succeed( 'Configuration file is read from the repository...' );
+			} else {
+				console.log( 'Read configuration file' );
+			}
 
 			return configuration;
 		} catch( err ) {
-			spinner.warn( 'Configuration file is not found in the repository...' );
+			if ( spinner ) {
+				spinner.warn( 'Configuration file is not found in the repository...' );
+			} else {
+				console.log( 'Configuration file is not found in the repository' );
+			}
 		}
 
 		return defaults;
