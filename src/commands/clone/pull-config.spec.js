@@ -25,7 +25,6 @@ describe( 'clone :: pull-config', () => {
 		beforeEach( () => {
 			cwd = mkdtempSync( join( tmpdir(), 'wpld-jest-' ) );
 
-			spinner.start = jest.fn();
 			spinner.succeed = jest.fn();
 			spinner.warn = jest.fn();
 		} );
@@ -34,9 +33,8 @@ describe( 'clone :: pull-config', () => {
 			await remove( cwd );
 		} );
 
-		it( 'should call start and warn functions of the spinner when config file does not exist', async () => {
+		it( 'should call spinner.warn function when config file does not exist', async () => {
 			await makePullConfig( spinner )( cwd, config );
-			expect( spinner.start ).toHaveBeenCalled();
 			expect( spinner.succeed ).not.toHaveBeenCalled();
 			expect( spinner.warn ).toHaveBeenCalled();
 		} );
@@ -63,7 +61,7 @@ describe( 'clone :: pull-config', () => {
 			expect( results ).toEqual( data );
 		} );
 
-		it( 'should call start and succeed functions of the spinner when config file exists', async () => {
+		it( 'should call spinner.succeed function when config file exists', async () => {
 			const data = {
 				hostname: 'my-project.test',
 				phpVersion: '7.4',
@@ -72,7 +70,6 @@ describe( 'clone :: pull-config', () => {
 			writeFileSync( join( cwd, config ), JSON.stringify( data ) );
 
 			await makePullConfig( spinner )( cwd, config );
-			expect( spinner.start ).toHaveBeenCalled();
 			expect( spinner.succeed ).toHaveBeenCalled();
 			expect( spinner.warn ).not.toHaveBeenCalled();
 		} );
