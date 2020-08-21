@@ -16,7 +16,8 @@
 				"allow": [
 					"depends_on",
 					"mem_limit",
-					"mem_reservation"
+					"mem_reservation",
+					"cap_add"
 				]
 			}
 		],

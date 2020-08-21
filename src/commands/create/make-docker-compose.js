@@ -49,6 +49,9 @@ module.exports = function makeDockerCompose( spinner ) {
 						'./config/php-fpm/docker-php-ext-xdebug.ini:/etc/php.d/docker-php-ext-xdebug.ini:cached',
 						`${ cacheVolume }:/var/www/.wp-cli/cache:cached`,
 					],
+					cap_add: [
+						'SYS_PTRACE',
+					],
 					environment: {
 						ENABLE_XDEBUG: 'false'
 					},

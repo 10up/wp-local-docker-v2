@@ -113,6 +113,14 @@ exports.handler = makeCommand( { checkDocker: false }, async ( { verbose, env } 
 		'ENABLE_XDEBUG': 'false'
 	};
 
+	// Add appropriate capabilities to php container
+	if ( ! Array.isArray( yaml.services.phpfpm.cap_add ) ) {
+		yaml.services.phpfpm.cap_add = [];
+	}
+	if ( ! yaml.services.phpfpm.cap_add.includes( 'SYS_PTRACE' ) ) {
+		yaml.services.phpfpm.cap_add.push( 'SYS_PTRACE' );
+	}
+
 	// Unlike Mac and Windows, Docker is a first class citizen on Linux
 	// and doesn't have any kind of translation layer between users and the
 	// file system. Because of this the phpfpm container will be running as the
