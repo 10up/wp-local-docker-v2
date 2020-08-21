@@ -55,6 +55,7 @@ async function createCommand( spinner, defaults = {} ) {
 
 	return {
 		...answers,
+		envSlug,
 		paths,
 		certs,
 	};

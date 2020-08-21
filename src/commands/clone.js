@@ -6,13 +6,13 @@ const chalk = require( 'chalk' );
 const inquirer = require( 'inquirer' );
 const fsExtra = require( 'fs-extra' );
 
-const envUtils = require( '../env-utils' );
-const { images } = require( '../docker-images' );
 const { replaceLinks } = require( '../utils/make-link' );
 const makeSpinner = require( '../utils/make-spinner' );
 const makeCommand = require( '../utils/make-command' );
 const makeBoxen = require( '../utils/make-boxen' );
 const makeMarkdown = require( '../utils/make-markdown' );
+const makeDocker = require( '../utils/make-docker' );
+const runSnapshots = require( '../utils/run-snapshots' );
 
 const makeGitClone = require( './clone/git-clone' );
 const makePullConfig = require( './clone/pull-config' );
@@ -58,15 +58,16 @@ exports.handler = makeCommand( async ( { url, branch, config, verbose } ) => {
 	// create environment
 	const answers = await createCommand( spinner, configuration || {} );
 	// @ts-ignore
-	const { mountPoint, snapshot, paths, instructions } = answers;
+	const { mountPoint, snapshot, paths, instructions, envSlug } = answers;
 
 	// move repository
 	await makeMoveRepository( chalk, spinner, fsExtra, paths.wordpress )( tempDir, mountPoint || 'wp-content' );
 
 	// pull snapshot if available
 	if ( snapshot ) {
-		const wpsnapshotsDir = await envUtils.getSnapshotsPath();
-		await makePullSnapshot( wpsnapshotsDir, images, inquirer, paths.wordpress )( snapshot );
+		const docker = makeDocker();
+		const wpsnapshots = runSnapshots( spinner, docker );
+		await makePullSnapshot( wpsnapshots, inquirer, envSlug )( snapshot );
 	}
 
 	let info = `Successfully Cloned Site!${ EOL }${ EOL }`;

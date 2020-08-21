@@ -1,6 +1,4 @@
-const { execSync } = require( 'child_process' );
-
-module.exports = function makePullSnapshot( wpsnapshotsDir, images, inquirer, root ) {
+module.exports = function makePullSnapshot( wpsnapshots, inquirer, env ) {
 	return async ( snapshot ) => {
 		const questions = [
 			{
@@ -35,10 +33,6 @@ module.exports = function makePullSnapshot( wpsnapshotsDir, images, inquirer, ro
 			return;
 		}
 
-		try {
-			execSync( `docker run -it --rm --network wplocaldocker -v "${ root }:/var/www/html" -v "${ wpsnapshotsDir }:/home/wpsnapshots/.wpsnapshots" ${ images.wpsnapshots } --db_user=root pull ${ selectedSnapshot }`, { stdio: 'inherit' } );
-		} catch( e ) {
-			// do nothing
-		}
+		await wpsnapshots( env, [ 'pull', selectedSnapshot ] );
 	};
 };
