@@ -70,7 +70,7 @@ async function checkDockerCompose( envPath, slug, spinner ) {
 		return;
 	}
 
-	if ( ! yaml.services.nginx.environment ) { 
+	if ( ! yaml.services.nginx.environment ) {
 		yaml.services.nginx.environment = {};
 	}
 

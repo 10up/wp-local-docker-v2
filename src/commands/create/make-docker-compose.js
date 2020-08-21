@@ -72,7 +72,7 @@ module.exports = function makeDockerCompose( spinner ) {
 
 		// Unlike Mac and Windows, Docker is a first class citizen on Linux
 		// and doesn't have any kind of translation layer between users and the
-		// file system. Because of this the phpfpm container will be running as the 
+		// file system. Because of this the phpfpm container will be running as the
 		// wrong user. Here we setup the docker-compose.yml file to rebuild the
 		// phpfpm container so that it runs as the user who created the project.
 		if ( platform() == 'linux' ) {
@@ -88,7 +88,7 @@ module.exports = function makeDockerCompose( spinner ) {
 				}
 			};
 		} else {
-			// the official containers for this project will have a www-data user. 
+			// the official containers for this project will have a www-data user.
 			baseConfig.services.phpfpm.volumes.push( '~/.ssh:/home/www-data/.ssh:cached' );
 		}
 

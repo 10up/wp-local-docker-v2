@@ -61,7 +61,7 @@ class Renderer {
 			if ( spacer ) {
 				result.push( spacer );
 			}
-	
+
 			switch ( token.type ) {
 				case 'ordered_list_open':
 					ol.push( 0 );

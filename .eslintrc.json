@@ -40,6 +40,7 @@
 				"allowEmptyCatch": true
 			}
 		],
+		"no-trailing-spaces": "error",
 		"object-curly-spacing": [
 			"error",
 			"always"
@@ -52,13 +53,13 @@
 			}
 		],
 		"require-jsdoc": "off",
-		"yoda": [
-			"error",
-			"never"
-		],
 		"template-curly-spacing": [
 			"error",
 			"always"
+		],
+		"yoda": [
+			"error",
+			"never"
 		]
 	}
 }

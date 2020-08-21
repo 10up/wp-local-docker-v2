@@ -7,16 +7,16 @@ module.exports = function makeTable( data ) {
 		topJoin: '┬',
 		topLeft: '┌',
 		topRight: '┐',
-   
+
 		bottomBody: '─',
 		bottomJoin: '┴',
 		bottomLeft: '└',
 		bottomRight: '┘',
-   
+
 		bodyLeft: '│',
 		bodyRight: '│',
 		bodyJoin: '│',
-   
+
 		joinBody: '─',
 		joinLeft: '├',
 		joinRight: '┤',

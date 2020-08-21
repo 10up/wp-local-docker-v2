@@ -36,7 +36,7 @@ async function createCommand( spinner, defaults = {} ) {
 
 	const paths = await makeFs( spinner )( hostname );
 	const saveYaml = makeSaveYamlFile( chalk, spinner, paths['/'] );
-	
+
 	const certs = await makeCert( spinner )( envSlug, envHosts );
 	const dockerComposer = await makeDockerCompose( spinner )( envSlug, envHosts, answers, certs );
 	await saveYaml( 'docker-compose.yml', dockerComposer );

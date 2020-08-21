@@ -4,14 +4,14 @@ module.exports = function makeMoveRepository( chalk, spinner, { remove, move, re
 	const getDirectories = ( dir ) => {
 		const files = readdirSync( dir, { withFileTypes: true } );
 		const results = [];
-        
+
 		for ( const file of files ) {
 			if ( file.isDirectory() && file.name !== '.git' ) {
 				const fullpath = join( dir, file.name );
 				results.push( fullpath, ...getDirectories( fullpath ) );
 			}
 		}
-    
+
 		return results;
 	};
 
