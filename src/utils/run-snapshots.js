@@ -77,16 +77,20 @@ module.exports = function runSnapshots( spinner, docker ) {
 			}
 		}
 
-		let extraArgs = '';
+		let network = '';
+		const volumes = [ `-v "${ wpsnapshotsDir }:/home/wpsnapshots/.wpsnapshots"` ];
+
 		if ( envPath ) {
 			await gateway.startGlobal( spinner );
-			extraArgs = ` -v "${ envPath }/wordpress:/var/www/html" --network wplocaldocker --db_user=root`;
+			network = ' --network wplocaldocker';
+			volumes.push( `-v "${ envPath }/wordpress:/var/www/html"` );
+			command.push( ' --db_user=root' );
 		}
 
 		await ensureImageExists( spinner, docker );
 
 		try {
-			execSync( `docker run -it --rm -v "${ wpsnapshotsDir }:/home/wpsnapshots/.wpsnapshots" ${ images.wpsnapshots }${ extraArgs } ${ shellEscape( command ) }`, { stdio: 'inherit' } );
+			execSync( `docker run -it --rm${ network } ${ volumes.join( ' ' ) } ${ images.wpsnapshots } ${ shellEscape( command ) }`, { stdio: 'inherit' } );
 		} catch( e ) {
 			// do nothing
 		}

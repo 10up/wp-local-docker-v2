@@ -67,7 +67,8 @@ exports.handler = makeCommand( async ( { url, branch, config, verbose } ) => {
 	if ( snapshot ) {
 		const docker = makeDocker();
 		const wpsnapshots = runSnapshots( spinner, docker );
-		await makePullSnapshot( wpsnapshots, inquirer, envSlug )( snapshot );
+		const mainDomain = Array.isArray( answers.domain ) ? answers.domain[0] : answers.domain;
+		await makePullSnapshot( spinner, wpsnapshots )( envSlug, mainDomain, snapshot );
 	}
 
 	let info = `Successfully Cloned Site!${ EOL }${ EOL }`;
