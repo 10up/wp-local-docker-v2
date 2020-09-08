@@ -21,6 +21,7 @@ All notable changes to this project will be documented in this file, per [the Ke
 - Adds `cert install` command to install a new local CA in the system trust store.
 - Adds `cert generate <domains..>` command to generate self-signed SSL certificates for certain domains.
 - Auto-completion script for `10updocker` and `10updocker-hosts` commands (props [eugene-manuilov](https://github.com/eugene-manuilov) via [#105](https://github.com/10up/wp-local-docker-v2/pull/105))
+- Adds `SYS_PTRACE` capability to the php service to support [`strace`](https://linux.die.net/man/1/strace) command.
 
 ### Changed
 - Reworks all commands to use `yargs` cli framework.
