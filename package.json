@@ -73,12 +73,12 @@
 		"mysql": "^2.17.1",
 		"netcat": "^1.4.0",
 		"nodegit": "^0.27.0",
-		"ora": "^5.0.0",
+		"ora": "^5.1.0",
 		"read-yaml": "^1.1.0",
 		"shell-escape": "^0.2.0",
 		"strip-ansi": "^6.0.0",
 		"sudo-prompt": "^9.2.1",
-		"table": "^5.4.6",
+		"table": "^6.0.3",
 		"terminal-link": "^2.1.1",
 		"update-check": "^1.5.3",
 		"which": "^2.0.2",
@@ -89,9 +89,9 @@
 		"@10up/eslint-config": "^1.0.9",
 		"babel-eslint": "^10.0.3",
 		"eslint": "^6.8.0",
-		"husky": "^4.2.1",
-		"jest": "^26.4.0",
-		"lint-staged": "^10.2.11"
+		"husky": "^4.3.0",
+		"jest": "^26.4.2",
+		"lint-staged": "^10.3.0"
 	},
 	"lint-staged": {
 		"*.js": "eslint"
