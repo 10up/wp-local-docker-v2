@@ -5,7 +5,7 @@ const { srcPath } = require( '../../env-utils' );
 const { createProxyConfig } = require( '../../configure' );
 
 module.exports = function makeCopyConfigs( spinner, { copy } ) {
-	return async ( paths, { mediaProxy, wordpress } ) => {
+	return async ( { paths, mediaProxy, wordpress } ) => {
 		const envPath = paths['/'];
 
 		await copy( join( srcPath, 'config' ), join( envPath, 'config' ) );

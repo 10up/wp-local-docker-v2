@@ -29,35 +29,36 @@ const makeCert = require( './create/make-cert' );
 
 async function createCommand( spinner, defaults = {} ) {
 	const answers = await makeInquirer( inquirer )( defaults );
+	const settings = {
+		...answers,
+		paths: {},
+		certs: {},
+	};
 
-	const hostname = Array.isArray( answers.domain ) ? answers.domain[0] : answers.domain;
-	const envHosts = Array.isArray( answers.domain ) ? answers.domain : [ answers.domain ];
+	const hostname = Array.isArray( settings.domain ) ? settings.domain[0] : settings.domain;
+	const envHosts = Array.isArray( settings.domain ) ? settings.domain : [ settings.domain ];
 	const envSlug = envUtils.envSlug( hostname );
 
-	const paths = await makeFs( spinner )( hostname );
-	const saveYaml = makeSaveYamlFile( chalk, spinner, paths['/'] );
+	settings.paths = await makeFs( spinner )( hostname );
+	const saveYaml = makeSaveYamlFile( chalk, spinner, settings['paths']['/'] );
+	settings.certs = await makeCert( spinner )( envSlug, envHosts );
 
-	const certs = await makeCert( spinner )( envSlug, envHosts );
-	const dockerComposer = await makeDockerCompose( spinner )( envSlug, envHosts, answers, certs );
+	const dockerComposer = await makeDockerCompose( spinner )( envSlug, envHosts, settings );
 	await saveYaml( 'docker-compose.yml', dockerComposer );
 	await saveYaml( 'wp-cli.yml', { ssh: 'docker-compose:phpfpm' } );
 
-	await makeCopyConfigs( spinner, fsExtra )( paths, answers );
+	await makeCopyConfigs( spinner, fsExtra )( settings );
 
 	await startGlobal( spinner );
 	await makeDatabase( spinner )( envSlug );
 	await environment.start( envSlug, spinner );
 
-	await makeInstallWordPress( compose, spinner )( envSlug, hostname, answers );
+	await makeInstallWordPress( compose, spinner )( envSlug, hostname, settings );
 
-	await makeSaveJsonFile( chalk, spinner, paths['/'] )( '.config.json', { envHosts, certs } );
+	await makeSaveJsonFile( chalk, spinner, settings['paths']['/'] )( '.config.json', { envHosts, certs: settings['certs'] } );
 	await makeUpdateHosts( which, sudo, spinner )( envHosts );
 
-	return {
-		...answers,
-		paths,
-		certs,
-	};
+	return settings;
 }
 
 exports.command = 'create';
