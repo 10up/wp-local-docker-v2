@@ -14,9 +14,7 @@ const config = require( './configure' );
 let started = false;
 
 async function ensureNetworkExists( docker, spinner ) {
-	if ( spinner ) {
-		spinner.start( 'Ensuring global network exists...' );
-	} else {
+	if ( ! spinner ) {
 		console.log( 'Ensuring global network exists' );
 	}
 
@@ -25,18 +23,13 @@ async function ensureNetworkExists( docker, spinner ) {
 	const network = docker.getNetwork( networkName );
 	const data = await network.inspect().catch( () => false );
 	if ( data ) {
-		if ( spinner ) {
-			spinner.succeed( 'Global network exists...' );
-		} else {
+		if ( ! spinner ) {
 			console.log( ' - Network exists' );
 		}
 		return;
 	}
 
-	if ( spinner ) {
-		spinner.warn( 'Global network doesn\'t exist...' );
-		spinner.start( 'Creating global network...' );
-	} else {
+	if ( ! spinner ) {
 		console.log( ' - Creating network' );
 	}
 
@@ -54,39 +47,28 @@ async function ensureNetworkExists( docker, spinner ) {
 			],
 		},
 	} );
-
-	if ( spinner ) {
-		spinner.succeed( 'Global network created...' );
-	}
 }
 
 async function removeNetwork( docker, spinner ) {
-	if ( spinner ) {
-		spinner.start( 'Removing Global Network...' );
-	} else {
+	if ( ! spinner ) {
 		console.log( 'Removing Global Network' );
 	}
 
 	const network = docker.getNetwork( 'wplocaldocker' );
 	const data = await network.inspect().catch( () => false );
 	if ( ! data ) {
-		spinner.info( 'Global Network does not exist. Skipping removal...' );
 		return;
 	}
 
 	await network.remove();
 
-	if ( spinner ) {
-		spinner.succeed( 'Global Network is deleted...' );
-	} else {
+	if ( ! spinner ) {
 		console.log( ' - Network Removed' );
 	}
 }
 
 async function ensureCacheExists( docker, spinner ) {
-	if ( spinner ) {
-		spinner.start( 'Ensuring global cache volume exists...' );
-	} else {
+	if ( ! spinner ) {
 		console.log( 'Ensuring global cache volume exists' );
 	}
 
@@ -94,26 +76,17 @@ async function ensureCacheExists( docker, spinner ) {
 	const data = await volume.inspect().catch( () => false );
 
 	if ( data ) {
-		if ( spinner ) {
-			spinner.succeed( 'Global cache volume exists...' );
-		} else {
+		if ( ! spinner ) {
 			console.log( ' - Volume Exists' );
 		}
 	} else {
-		if ( spinner ) {
-			spinner.warn( 'Global cache volume doesn\'t exist...' );
-			spinner.start( 'Creating global cache volume...' );
-		} else {
+		if ( ! spinner ) {
 			console.log( ' - Creating Volume' );
 		}
 
 		await docker.createVolume( {
 			Name: envUtils.cacheVolume,
 		} );
-
-		if ( spinner ) {
-			spinner.succeed( 'Global cache volume created...' );
-		}
 	}
 }
 
@@ -122,17 +95,13 @@ async function removeCacheVolume( docker, spinner ) {
 	const data = await volume.inspect().catch( () => false );
 
 	if ( data ) {
-		if ( spinner ) {
-			spinner.start( 'Removing cache volume...' );
-		} else {
+		if ( ! spinner ) {
 			console.log( 'Removing cache volume' );
 		}
 
 		await volume.remove();
 
-		if ( spinner ) {
-			spinner.succeed( 'Cache volume is removed...' );
-		} else {
+		if ( ! spinner ) {
 			console.log( ' - Volume Removed' );
 		}
 	}
@@ -298,4 +267,5 @@ module.exports = {
 	restartGlobal,
 	removeCacheVolume,
 	ensureCacheExists,
+	ensureNetworkExists,
 };
