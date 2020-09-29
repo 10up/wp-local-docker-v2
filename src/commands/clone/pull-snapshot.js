@@ -1,8 +1,62 @@
 const chalk = require( 'chalk' );
 const inquirer = require( 'inquirer' );
 
+async function getSnapshotChoices( wpsnapshots, env, snapshot ) {
+	const snapshotChoices = [];
+
+	const subprocess = await wpsnapshots( env, [
+		'search',
+		...snapshot,
+		'--format',
+		'json',
+	] );
+
+	try {
+		const data = JSON.parse( subprocess.stdout );
+		if ( Array.isArray( data ) ) {
+			const dateFormat = {
+				month: 'short',
+				day: '2-digit',
+				year: 'numeric',
+			};
+
+			data.forEach( ( { id, description, author, created } ) => {
+				const date = new Date( created * 1000 );
+				snapshotChoices.push( {
+					name: `[${ date.toLocaleDateString( 'en-US', dateFormat ) }] ${ author }: ${ description }`,
+					value: id,
+				} );
+			} );
+		}
+	} catch ( e ) {
+		// do nothing
+	}
+
+	return [
+		...snapshotChoices.sort( ( a, b ) => a.name.localeCompare( b.name ) ),
+		{
+			name: 'Don\'t use snapshot',
+			value: '',
+		},
+	];
+}
+
 module.exports = function makePullSnapshot( spinner, wpsnapshots ) {
 	return async ( env, mainDomain, snapshot ) => {
+		if ( ! snapshot.length ) {
+			return;
+		}
+
+		if ( spinner ) {
+			spinner.start( 'Checking available snapshots...' );
+		}
+
+		const snapshotChoices = await getSnapshotChoices( wpsnapshots, env, snapshot );
+
+		if ( spinner ) {
+			spinner.stop();
+		}
+
 		const questions = [
 			{
 				name: 'snapshotId',
@@ -16,9 +70,9 @@ module.exports = function makePullSnapshot( spinner, wpsnapshots ) {
 				name: 'snapshotId',
 				type: 'list',
 				message: 'What snapshot would you like to use?',
-				choices: snapshot,
+				choices: snapshotChoices,
 				when() {
-					return Array.isArray( snapshot ) && snapshot.length > 1;
+					return snapshotChoices.length > 1;
 				},
 			},
 			{
@@ -64,6 +118,10 @@ module.exports = function makePullSnapshot( spinner, wpsnapshots ) {
 			'pull',
 			selectedSnapshot,
 			`--main_domain=${ mainDomain }`,
+			'--confirm',
+			'--confirm_wp_version_change=no',
+			'--overwrite_local_copy',
+			// '--suppress_instructions',
 		];
 
 		if ( includeFiles ) {
@@ -78,6 +136,6 @@ module.exports = function makePullSnapshot( spinner, wpsnapshots ) {
 			command.push( '--include_db=no' );
 		}
 
-		await wpsnapshots( env, command );
+		await wpsnapshots( env, command, 'inherit' );
 	};
 };

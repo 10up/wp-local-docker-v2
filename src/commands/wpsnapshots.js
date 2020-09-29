@@ -23,5 +23,5 @@ exports.handler = makeCommand( async function( { _, env, verbose } ) {
 
 	const docker = makeDocker();
 	const wpsnapshots = runSnapshots( spinner, docker );
-	await wpsnapshots( env, command );
+	await wpsnapshots( env, command, 'inherit' );
 } );

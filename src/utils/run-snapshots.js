@@ -1,11 +1,12 @@
 const path = require( 'path' );
-const { execSync } = require( 'child_process' );
+const { spawnSync } = require( 'child_process' );
+const { EOL } = require( 'os' );
 
 const fsExtra = require( 'fs-extra' );
-const shellEscape = require( 'shell-escape' );
+const which = require( 'which' );
 
 const { images } = require( '../docker-images' );
-const gateway = require( '../gateway' );
+const { ensureNetworkExists, startGlobal } = require( '../gateway' );
 const envUtils = require( '../env-utils' );
 
 async function ensureImageExists( spinner, docker ) {
@@ -43,7 +44,7 @@ async function ensureImageExists( spinner, docker ) {
 }
 
 module.exports = function runSnapshots( spinner, docker ) {
-	return async ( env, command ) => {
+	return async ( env, command, stdio = 'pipe' ) => {
 		const wpsnapshotsDir = await envUtils.getSnapshotsPath();
 
 		// false catches the case when no subcommand is passed, and we just pass to snapshots to show usage
@@ -77,22 +78,40 @@ module.exports = function runSnapshots( spinner, docker ) {
 			}
 		}
 
-		let network = '';
-		const volumes = [ `-v "${ wpsnapshotsDir }:/home/wpsnapshots/.wpsnapshots"` ];
+		const network = [];
+		const volumes = [ '-v', `${ wpsnapshotsDir }:/home/wpsnapshots/.wpsnapshots` ];
 
 		if ( envPath ) {
-			await gateway.startGlobal( spinner );
-			network = ' --network wplocaldocker';
-			volumes.push( `-v "${ envPath }/wordpress:/var/www/html"` );
-			command.push( ' --db_user=root' );
+			await startGlobal( spinner );
+			network.push( '--network', 'wplocaldocker' );
+			volumes.push( '-v', `${ envPath }/wordpress:/var/www/html` );
+			command.push( '--db_user=root' );
 		}
 
 		await ensureImageExists( spinner, docker );
+		await ensureNetworkExists( docker, spinner );
 
-		try {
-			execSync( `docker run -it --rm${ network } ${ volumes.join( ' ' ) } ${ images.wpsnapshots } ${ shellEscape( command ) }`, { stdio: 'inherit' } );
-		} catch( e ) {
-			// do nothing
+		const subprocess = spawnSync(
+			await which( 'docker' ),
+			[ 'run', '--rm', ...network, ...volumes, images.wpsnapshots, ...command ].filter( item => item.length ),
+			{
+				// @ts-ignore
+				stdio,
+				maxBuffer: 1 << 20, // 1mb
+				encoding: 'utf-8',
+			}
+		);
+
+		if ( stdio === 'pipe' && subprocess.stderr.length ) {
+			const errorMessage = subprocess.stderr
+				.split( EOL )
+				.map( item => item.trim() )
+				.filter( item => item.length )
+				.join( EOL );
+
+			throw new Error( errorMessage );
 		}
+
+		return subprocess;
 	};
 };

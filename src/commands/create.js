@@ -1,7 +1,6 @@
 const { EOL } = require( 'os' );
 
 const inquirer = require( 'inquirer' );
-const chalk = require( 'chalk' );
 const fsExtra = require( 'fs-extra' );
 const sudo = require( 'sudo-prompt' );
 const compose = require( 'docker-compose' );
@@ -35,7 +34,7 @@ async function createCommand( spinner, defaults = {} ) {
 	const envSlug = envUtils.envSlug( hostname );
 
 	const paths = await makeFs( spinner )( hostname );
-	const saveYaml = makeSaveYamlFile( chalk, spinner, paths['/'] );
+	const saveYaml = makeSaveYamlFile( paths['/'] );
 
 	const certs = await makeCert( spinner )( envSlug, envHosts );
 	const dockerComposer = await makeDockerCompose( spinner )( envSlug, envHosts, answers, certs );
@@ -50,7 +49,7 @@ async function createCommand( spinner, defaults = {} ) {
 
 	await makeInstallWordPress( compose, spinner )( envSlug, hostname, answers );
 
-	await makeSaveJsonFile( chalk, spinner, paths['/'] )( '.config.json', { envHosts, certs } );
+	await makeSaveJsonFile( paths['/'] )( '.config.json', { envHosts, certs } );
 	await makeUpdateHosts( which, sudo, spinner )( envHosts );
 
 	return {
