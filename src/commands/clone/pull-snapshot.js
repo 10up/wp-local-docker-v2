@@ -4,15 +4,15 @@ const inquirer = require( 'inquirer' );
 async function getSnapshotChoices( wpsnapshots, env, snapshot ) {
 	const snapshotChoices = [];
 
-	const subprocess = await wpsnapshots( env, [
+	const stdout = await wpsnapshots( env, [
 		'search',
 		...snapshot,
 		'--format',
 		'json',
-	] );
+	], 'pipe' );
 
 	try {
-		const data = JSON.parse( subprocess.stdout );
+		const data = JSON.parse( stdout );
 		if ( Array.isArray( data ) ) {
 			const dateFormat = {
 				month: 'short',
@@ -47,16 +47,7 @@ module.exports = function makePullSnapshot( spinner, wpsnapshots ) {
 			return;
 		}
 
-		if ( spinner ) {
-			spinner.start( 'Checking available snapshots...' );
-		}
-
 		const snapshotChoices = await getSnapshotChoices( wpsnapshots, env, snapshot );
-
-		if ( spinner ) {
-			spinner.stop();
-		}
-
 		const questions = [
 			{
 				name: 'snapshotId',
