@@ -197,7 +197,7 @@ module.exports = function makeInquirer( { prompt } ) {
 				message: 'Do you want to remove the default content?',
 				default: false,
 				when( answers ) {
-					return answers.wordpress === true && ( wordpress && ! wordpressPurify );
+					return answers.wordpress === true || ( wordpress && ! wordpressPurify );
 				},
 			},
 			{
