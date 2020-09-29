@@ -1,7 +1,53 @@
-const { execSync } = require( 'child_process' );
+const chalk = require( 'chalk' );
+const inquirer = require( 'inquirer' );
 
-module.exports = function makePullSnapshot( wpsnapshotsDir, images, inquirer, root ) {
-	return async ( snapshot ) => {
+async function getSnapshotChoices( wpsnapshots, env, snapshot ) {
+	const snapshotChoices = [];
+
+	const stdout = await wpsnapshots( env, [
+		'search',
+		...snapshot,
+		'--format',
+		'json',
+	], 'pipe' );
+
+	try {
+		const data = JSON.parse( stdout );
+		if ( Array.isArray( data ) ) {
+			const dateFormat = {
+				month: 'short',
+				day: '2-digit',
+				year: 'numeric',
+			};
+
+			data.forEach( ( { id, description, author, created } ) => {
+				const date = new Date( created * 1000 );
+				snapshotChoices.push( {
+					name: `[${ date.toLocaleDateString( 'en-US', dateFormat ) }] ${ author }: ${ description }`,
+					value: id,
+				} );
+			} );
+		}
+	} catch ( e ) {
+		// do nothing
+	}
+
+	return [
+		...snapshotChoices.sort( ( a, b ) => a.name.localeCompare( b.name ) ),
+		{
+			name: 'Don\'t use snapshot',
+			value: '',
+		},
+	];
+}
+
+module.exports = function makePullSnapshot( spinner, wpsnapshots ) {
+	return async ( env, mainDomain, snapshot ) => {
+		if ( ! snapshot.length ) {
+			return;
+		}
+
+		const snapshotChoices = await getSnapshotChoices( wpsnapshots, env, snapshot );
 		const questions = [
 			{
 				name: 'snapshotId',
@@ -15,14 +61,32 @@ module.exports = function makePullSnapshot( wpsnapshotsDir, images, inquirer, ro
 				name: 'snapshotId',
 				type: 'list',
 				message: 'What snapshot would you like to use?',
-				choices: snapshot,
+				choices: snapshotChoices,
 				when() {
-					return Array.isArray( snapshot ) && snapshot.length > 1;
+					return snapshotChoices.length > 1;
 				},
+			},
+			{
+				name: 'includeFiles',
+				type: 'confirm',
+				message: 'Do you want to pull files from the snapshot?',
+				default: true,
+				when( { snapshotId } ) {
+					return snapshotId === true || ( typeof snapshotId === 'string' && snapshotId.trim().length > 0 );
+				}
+			},
+			{
+				name: 'includeDb',
+				type: 'confirm',
+				message: 'Do you want to pull the database from the snapshot?',
+				default: true,
+				when( { snapshotId } ) {
+					return snapshotId === true || ( typeof snapshotId === 'string' && snapshotId.trim().length > 0 );
+				}
 			},
 		];
 
-		const { snapshotId } = await inquirer.prompt( questions );
+		const { snapshotId, includeFiles, includeDb } = await inquirer.prompt( questions );
 
 		let selectedSnapshot;
 		if ( snapshotId === true ) {
@@ -35,10 +99,34 @@ module.exports = function makePullSnapshot( wpsnapshotsDir, images, inquirer, ro
 			return;
 		}
 
-		try {
-			execSync( `docker run -it --rm --network wplocaldocker -v "${ root }:/var/www/html" -v "${ wpsnapshotsDir }:/home/wpsnapshots/.wpsnapshots" ${ images.wpsnapshots } --db_user=root pull ${ selectedSnapshot }`, { stdio: 'inherit' } );
-		} catch( e ) {
-			// do nothing
+		if ( spinner ) {
+			spinner.info( `Using ${ chalk.cyan( selectedSnapshot ) } snapshot...` );
+		} else {
+			console.log( `Using ${ selectedSnapshot } snapshot...` );
 		}
+
+		const command = [
+			'pull',
+			selectedSnapshot,
+			`--main_domain=${ mainDomain }`,
+			'--confirm',
+			'--confirm_wp_version_change=no',
+			'--overwrite_local_copy',
+			// '--suppress_instructions',
+		];
+
+		if ( includeFiles ) {
+			command.push( '--include_files' );
+		} else {
+			command.push( '--include_files=no' );
+		}
+
+		if ( includeDb ) {
+			command.push( '--include_db' );
+		} else {
+			command.push( '--include_db=no' );
+		}
+
+		await wpsnapshots( env, command, 'inherit' );
 	};
 };

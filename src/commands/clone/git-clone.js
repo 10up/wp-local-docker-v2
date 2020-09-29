@@ -7,9 +7,9 @@ module.exports = function makeGitClone( spinner, chalk, { Clone, Cred }, { promp
 		let cloneAttempted = false;
 
 		if ( spinner ) {
-			spinner.start( 'Cloning the repository...' );
+			spinner.start( 'Cloning repository...' );
 		} else {
-			console.log( 'Cloning the repository' );
+			console.log( 'Cloning repository' );
 		}
 
 		try {
@@ -22,7 +22,7 @@ module.exports = function makeGitClone( spinner, chalk, { Clone, Cred }, { promp
 								const total = stats.totalObjects() * 2;
 								const progress = stats.receivedObjects() + stats.indexedObjects();
 								const info = `${ Math.ceil( 100 * progress / total ) }% (${ progress }/${ total })`;
-								spinner.text = `Cloning the repository: ${ info }...`;
+								spinner.text = `Cloning repository: ${ info }...`;
 							}
 						},
 						certificateCheck() {
@@ -88,7 +88,7 @@ module.exports = function makeGitClone( spinner, chalk, { Clone, Cred }, { promp
 		}
 
 		if ( spinner ) {
-			spinner.succeed( 'The repository is cloned...' );
+			spinner.succeed( 'Repository is cloned...' );
 		} else {
 			console.log( ' - Done' );
 		}

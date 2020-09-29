@@ -4,7 +4,7 @@ const { cacheVolume } = require( '../../env-utils' );
 const { images } = require( '../../docker-images' );
 
 module.exports = function makeDockerCompose( spinner ) {
-	return async ( envSlug, hosts, settings ) => {
+	return async ( hosts, settings ) => {
 		if ( spinner ) {
 			spinner.start( 'Creating docker-compose configuration...' );
 		} else {
@@ -12,6 +12,7 @@ module.exports = function makeDockerCompose( spinner ) {
 		}
 
 		const {
+			envSlug,
 			php: phpVersion,
 			wordpress,
 			elasticsearch,

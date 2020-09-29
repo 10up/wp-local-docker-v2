@@ -1,7 +1,6 @@
 const { EOL } = require( 'os' );
 
 const inquirer = require( 'inquirer' );
-const chalk = require( 'chalk' );
 const fsExtra = require( 'fs-extra' );
 const sudo = require( 'sudo-prompt' );
 const compose = require( 'docker-compose' );
@@ -31,31 +30,32 @@ async function createCommand( spinner, defaults = {} ) {
 	const answers = await makeInquirer( inquirer )( defaults );
 	const settings = {
 		...answers,
+		envSlug: '',
 		paths: {},
 		certs: {},
 	};
 
 	const hostname = Array.isArray( settings.domain ) ? settings.domain[0] : settings.domain;
 	const envHosts = Array.isArray( settings.domain ) ? settings.domain : [ settings.domain ];
-	const envSlug = envUtils.envSlug( hostname );
 
+	settings.envSlug = envUtils.envSlug( hostname );
 	settings.paths = await makeFs( spinner )( hostname );
-	const saveYaml = makeSaveYamlFile( chalk, spinner, settings['paths']['/'] );
-	settings.certs = await makeCert( spinner )( envSlug, envHosts );
+	const saveYaml = makeSaveYamlFile( settings['paths']['/'] );
+	settings.certs = await makeCert( spinner )( settings.envSlug, envHosts );
 
-	const dockerComposer = await makeDockerCompose( spinner )( envSlug, envHosts, settings );
+	const dockerComposer = await makeDockerCompose( spinner )( envHosts, settings );
 	await saveYaml( 'docker-compose.yml', dockerComposer );
 	await saveYaml( 'wp-cli.yml', { ssh: 'docker-compose:phpfpm' } );
 
 	await makeCopyConfigs( spinner, fsExtra )( settings );
 
 	await startGlobal( spinner );
-	await makeDatabase( spinner )( envSlug );
-	await environment.start( envSlug, spinner );
+	await makeDatabase( spinner )( settings.envSlug );
+	await environment.start( settings.envSlug, spinner );
 
-	await makeInstallWordPress( compose, spinner )( envSlug, hostname, settings );
+	await makeInstallWordPress( compose, spinner )( hostname, settings );
 
-	await makeSaveJsonFile( chalk, spinner, settings['paths']['/'] )( '.config.json', { envHosts, certs: settings['certs'] } );
+	await makeSaveJsonFile( settings['paths']['/'] )( '.config.json', { envHosts, certs: settings['certs'] } );
 	await makeUpdateHosts( which, sudo, spinner )( envHosts );
 
 	return settings;

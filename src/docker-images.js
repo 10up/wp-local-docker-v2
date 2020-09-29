@@ -13,7 +13,7 @@ exports.images = {
 	'php7.1': '10up/wp-php-fpm-dev:7.1',
 	'php7.0': '10up/wp-php-fpm-dev:7.0',
 	'php5.6': '10up/wp-php-fpm-dev:5.6',
-	wpsnapshots: '10up/wpsnapshots:dev',
+	wpsnapshots: '10up/wpsnapshots:develop',
 	memcached: 'memcached:latest',
 	nginx: 'nginx:latest',
 	elasticsearch: 'docker.elastic.co/elasticsearch/elasticsearch:5.6.16',

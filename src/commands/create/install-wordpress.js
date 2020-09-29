@@ -148,8 +148,8 @@ async function emptyContent( compose, cwd, spinner ) {
 }
 
 module.exports = function makeInstallWordPress( compose, spinner ) {
-	return async ( envSlug, hostname, settings ) => {
-		const { wordpress, certs } = settings;
+	return async ( hostname, settings ) => {
+		const { wordpress, certs, envSlug } = settings;
 		if ( ! wordpress ) {
 			return;
 		}

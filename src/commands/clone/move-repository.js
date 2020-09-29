@@ -19,16 +19,16 @@ module.exports = function makeMoveRepository( chalk, spinner, { remove, move, re
 		const dest = join( root, to );
 
 		if ( spinner ) {
-			spinner.start( `Moving cloned repository to ${ chalk.cyan( to ) }...` );
+			spinner.start( `Moving repository to ${ chalk.cyan( to ) }...` );
 		} else {
-			console.log( 'Moving cloned repository' );
+			console.log( 'Moving repository' );
 		}
 
 		await remove( dest );
 		await move( from, dest );
 
 		if ( spinner ) {
-			spinner.succeed( `The cloned respository is moved to ${ chalk.cyan( to ) }...` );
+			spinner.succeed( `Respository is moved to ${ chalk.cyan( to ) }...` );
 		} else {
 			console.log( ' - Done' );
 		}
@@ -37,11 +37,5 @@ module.exports = function makeMoveRepository( chalk, spinner, { remove, move, re
 		getDirectories( dest ).forEach( ( dir ) => {
 			chmodSync( dir, 0o755 );
 		} );
-
-		if ( spinner ) {
-			spinner.succeed( 'Directory permisions have been updated to 0755...' );
-		} else {
-			console.log( 'Updated directory permissions to 0755' );
-		}
 	};
 };
