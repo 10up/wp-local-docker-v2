@@ -10,14 +10,20 @@ const makeCommand = require( '../../utils/make-command' );
 const makeSpinner = require( '../../utils/make-spinner' );
 const makeDocker = require( '../../utils/make-docker' );
 
-exports.command = 'update [--yes]';
+exports.command = 'update [--yes] [--remove-built-images]';
 exports.desc = 'Updates any docker images used by your environment to the latest versions available for the specified tag. All environments must be stopped to update images.';
 
 exports.builder = function( yargs ) {
 	yargs.positional( 'yes', {
 		default: undefined,
 		type: 'boolean',
-		describe: 'Optional. Answer yes on all questions.',
+		describe: 'Optional. Answer "yes" on all questions.',
+	} );
+
+	yargs.positional( 'remove-built-images', {
+		default: false,
+		type: 'boolean',
+		describe: 'Optional. Force removal of custom images built for phpfpm.',
 	} );
 };
 
@@ -78,7 +84,7 @@ async function updateIfUsed( docker, name, spinner ) {
 	}
 }
 
-exports.handler = makeCommand( {}, async function( { yes, verbose } ) {
+exports.handler = makeCommand( {}, async function( { yes, verbose, removeBuiltImages: forceRemoveBuiltImages } ) {
 	if ( ! yes ) {
 		const { confirm } = await inquirer.prompt( {
 			name: 'confirm',
@@ -104,7 +110,7 @@ exports.handler = makeCommand( {}, async function( { yes, verbose } ) {
 	}
 
 	// delete the built containers on linux so it can be rebuilt with the (possibly) updated phpfpm container
-	if ( os.platform() == 'linux' ) {
+	if ( forceRemoveBuiltImages && os.platform() == 'linux' ) {
 		await removeBuiltImages( docker, spinner );
 	}
 
