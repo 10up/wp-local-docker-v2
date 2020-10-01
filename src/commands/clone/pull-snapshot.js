@@ -112,7 +112,7 @@ module.exports = function makePullSnapshot( spinner, wpsnapshots ) {
 			'--confirm',
 			'--confirm_wp_version_change=no',
 			'--overwrite_local_copy',
-			// '--suppress_instructions',
+			'--suppress_instructions',
 		];
 
 		if ( includeFiles ) {
