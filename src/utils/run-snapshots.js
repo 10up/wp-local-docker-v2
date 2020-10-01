@@ -29,7 +29,7 @@ async function ensureImageExists( spinner, docker ) {
 
 				const { id, status, progressDetail } = event;
 				const { current, total } = progressDetail || {};
-				const progress = total ? ` - ${ Math.ceil( current / total ) }%` : '';
+				const progress = total ? ` - ${ Math.ceil( ( current || 0 ) * 100 / total ) }%` : '';
 
 				spinner.text = `Pulling wpsnapshots image: [${ id }] ${ status }${ progress }...`;
 			} );

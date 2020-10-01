@@ -76,7 +76,19 @@ async function updateIfUsed( docker, name, spinner ) {
 			spinner.text = `Pulling ${ chalk.cyan( name ) } image...`;
 		}
 
-		await docker.pull( name );
+		const stream = await docker.pull( name );
+
+		await new Promise( ( resolve ) => {
+			docker.modem.followProgress( stream, resolve, ( event ) => {
+				if ( spinner ) {
+					const { id, status, progressDetail } = event;
+					const { current, total } = progressDetail || {};
+					const progress = total ? ` - ${ Math.ceil( ( current || 0 ) * 100 / total ) }%` : '';
+
+					spinner.text = `Pulling ${ chalk.cyan( name ) } image: [${ id }] ${ status }${ progress }...`;
+				}
+			} );
+		} );
 
 		if ( spinner ) {
 			spinner.succeed( `${ chalk.cyan( name ) } has been updated...` );
