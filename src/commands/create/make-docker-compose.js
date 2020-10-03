@@ -55,7 +55,8 @@ module.exports = function makeDockerCompose( spinner ) {
 						'SYS_PTRACE',
 					],
 					environment: {
-						ENABLE_XDEBUG: 'false'
+						ENABLE_XDEBUG: 'true',
+						PHP_IDE_CONFIG: `serverName=${ envSlug }`,
 					},
 				},
 			},
