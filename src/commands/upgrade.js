@@ -108,11 +108,10 @@ exports.handler = makeCommand( { checkDocker: false }, async ( { verbose, env } 
 		return acc;
 	}, [] );
 
-	// Add new environmental variables.
-	yaml.services.phpfpm.environment = {
-		ENABLE_XDEBUG: 'false',
-		PHP_IDE_CONFIG: `serverName=${ envSlug }`,
-	};
+	// Update environmental variables.
+	yaml.services.phpfpm.environment = yaml.services.phpfpm.environment || {};
+	yaml.services.phpfpm.environment.ENABLE_XDEBUG = yaml.services.phpfpm.environment.ENABLE_XDEBUG || 'true';
+	yaml.services.phpfpm.environment.PHP_IDE_CONFIG = yaml.services.phpfpm.environment.PHP_IDE_CONFIG || `serverName=${ envSlug }`;
 
 	// Add appropriate capabilities to php container
 	if ( ! Array.isArray( yaml.services.phpfpm.cap_add ) ) {
