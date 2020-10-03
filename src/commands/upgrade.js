@@ -37,7 +37,7 @@ exports.handler = makeCommand( { checkDocker: false }, async ( { verbose, env } 
 		const dockerComposeBak = `${ dockerCompose }.bak`;
 		await writeYaml( dockerComposeBak, yaml );
 		if ( spinner ) {
-			spinner.info( `Backup ${ chalk.cyan( dockerComposeBak ) } is created...` );
+			spinner.info( `Backup is created: ${ chalk.cyan( dockerComposeBak ) }` );
 		} else {
 			console.log( `Created backup of previous configuration ${ envSlug }` );
 		}
@@ -153,13 +153,20 @@ exports.handler = makeCommand( { checkDocker: false }, async ( { verbose, env } 
 		yaml.services.nginx['depends_on'] = yaml.services.nginx.depends_on.filter( ( service ) => service !== 'memcacheadmin' );
 	}
 
-	console.log( 'Copying required files...' );
+	if ( ! spinner ) {
+		console.log( 'Copying required files...' );
+	}
+
 	await fsExtra.ensureDir( path.join( envPath, '.containers' ) );
 	await fsExtra.copy( path.join( envUtils.srcPath, 'containers' ), path.join( envPath, '.containers' ) );
 
 	try {
 		await writeYaml( dockerCompose, yaml );
-		console.log( `Finished updating ${ envSlug } for the latest version of WP Local Docker` );
+		if ( spinner ) {
+			spinner.succeed( `${ chalk.cyan( envSlug ) } is upgraded to the latest version of WP Local Docker` );
+		} else {
+			console.log( `${ envSlug } is upgraded to the latest version of WP Local Docker...` );
+		}
 	} catch ( err ) {
 		console.error( err );
 	}
