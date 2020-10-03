@@ -3,9 +3,16 @@ const makeCommand = require( '../utils/make-command' );
 const makeSpinner = require( '../utils/make-spinner' );
 const runSnapshots = require( '../utils/run-snapshots' );
 
-exports.commmand = 'wpsnapshots';
+exports.command = 'wpsnapshots <cmd..>';
 exports.aliases = [ 'snapshots' ];
 exports.desc = 'Runs a wp snapshots command.';
+
+exports.builder = function( yargs ) {
+	yargs.positional( 'cmd', {
+		describe: 'Command to run',
+		type: 'string',
+	} );
+};
 
 exports.handler = makeCommand( async function( { _, env, verbose } ) {
 	const spinner = ! verbose ? makeSpinner() : undefined;
