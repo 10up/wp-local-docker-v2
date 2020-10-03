@@ -111,7 +111,7 @@ exports.handler = makeCommand( { checkDocker: false }, async ( { verbose, env } 
 	// Add new environmental variables.
 	yaml.services.phpfpm.environment = {
 		ENABLE_XDEBUG: 'false',
-		PHP_IDE_CONFIG: envSlug,
+		PHP_IDE_CONFIG: `serverName=${ envSlug }`,
 	};
 
 	// Add appropriate capabilities to php container

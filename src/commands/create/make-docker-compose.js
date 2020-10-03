@@ -56,7 +56,7 @@ module.exports = function makeDockerCompose( spinner ) {
 					],
 					environment: {
 						ENABLE_XDEBUG: 'false',
-						PHP_IDE_CONFIG: envSlug,
+						PHP_IDE_CONFIG: `serverName=${ envSlug }`,
 					},
 				},
 			},
