@@ -32,6 +32,7 @@ All notable changes to this project will be documented in this file, per [the Ke
 - Updates bash completion script to support new commands and aliases.
 - `ini` comments to use semi-colon for compatibility (props [@aaemnnosttv](https://github.com/aaemnnosttv) via [#113](https://github.com/10up/wp-local-docker-v2/pull/113))
 - Documentation updates (props [@jeffpaul](https://github.com/jeffpaul) via [#58](https://github.com/10up/wp-local-docker-v2/pull/58))
+- Updates `ENABLE_XDEBUG` environment variable in the docker-compose config to be `'true'` by default.
 
 ### Fixed
 - Fixes issues with hosts manipulations during environment creations and deletions when node.js executable is not in the root's PATH.
