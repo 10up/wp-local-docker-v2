@@ -1,4 +1,7 @@
+const { join } = require( 'path' );
+
 const envUtils = require( '../../env-utils' );
+const { makeClone } = require( '../../utils/git' );
 
 async function downloadWordPress( wordpressType, compose, cwd, spinner ) {
 	if ( spinner ) {
@@ -8,26 +11,9 @@ async function downloadWordPress( wordpressType, compose, cwd, spinner ) {
 	}
 
 	if ( wordpressType === 'dev' ) {
-		await compose.exec( 'phpfpm', 'git clone git://develop.git.wordpress.org/ .', { cwd, log: ! spinner } );
-
-		await compose.run( '10up/wpcorebuild:latest', 'npm install', {
-			cwd,
-			log: ! spinner,
-			composeOptions: [
-				'--rm',
-				`-v ${ cwd }/wordpress:/usr/src/app`,
-				`-v ${ envUtils.cacheVolume }:/var/www/.npm`,
-			],
-		} );
-
-		await compose.run( '10up/wpcorebuild:latest', 'grunt', {
-			cwd,
-			log: ! spinner,
-			composeOptions: [
-				'--rm',
-				`-v ${ cwd }/wordpress:/usr/src/app`,
-			],
-		} );
+		const root = join( cwd, 'wordpress' );
+		const clone = makeClone( spinner, 'Cloning git://develop.git.wordpress.org/' );
+		await clone( root, 'git://develop.git.wordpress.org/' );
 
 		if ( spinner ) {
 			spinner.succeed( 'Development version of WordPress is downloaded...' );
