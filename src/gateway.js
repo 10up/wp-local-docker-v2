@@ -107,7 +107,7 @@ async function removeCacheVolume( docker, spinner ) {
 }
 
 /**
- * Wait for mysql to come up and finish initializing.
+ * Wait for MySQL to come up and finish initializing.
  *
  * The first the time the MySQL container starts it will initialize the data directory. It will open port 3306
  * but not send data back when connected to, instead closing the connection immediately. netcat is used
@@ -116,9 +116,9 @@ async function removeCacheVolume( docker, spinner ) {
  */
 function waitForDB( spinner ) {
 	if ( spinner ) {
-		spinner.start( 'Waiting for mysql...' );
+		spinner.start( 'Waiting for MySQL...' );
 	} else {
-		console.log( 'Waiting for mysql...' );
+		console.log( 'Waiting for MySQL...' );
 	}
 
 	return new Promise( ( resolve ) => {
@@ -132,7 +132,7 @@ function waitForDB( spinner ) {
 				netcat.close();
 
 				if ( spinner ) {
-					spinner.succeed( 'Mysql has started...' );
+					spinner.succeed( 'MySQL has started...' );
 				}
 
 				clearInterval( interval );
