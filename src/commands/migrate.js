@@ -4,12 +4,12 @@ const { exec } = require( 'child_process' );
 
 const fs = require( 'fs-extra' );
 const chalk = require( 'chalk' );
-const compose = require( 'docker-compose' );
 
 const envUtils = require( '../env-utils' );
 const { start } = require( '../environment' );
 const makeCommand = require( '../utils/make-command' );
 const makeSpinner = require( '../utils/make-spinner' );
+const compose = require( '../utils/docker-compose' );
 
 exports.command = 'migrate <old> [<env>]';
 exports.desc = 'Migrates a V1 WP Local Docker environment to a new V2 environment. Before running this command, create a new environment using the `10updocker create` command.';

@@ -1,7 +1,5 @@
-const { EOL } = require( 'os' );
 const { execSync } = require( 'child_process' );
 
-const compose = require( 'docker-compose' );
 const shellEscape = require( 'shell-escape' );
 
 const envUtils = require( '../env-utils' );
@@ -9,6 +7,7 @@ const gateway = require( '../gateway' );
 const environment = require( '../environment' );
 const makeCommand = require( '../utils/make-command' );
 const makeSpinner = require( '../utils/make-spinner' );
+const compose = require( '../utils/docker-compose' );
 
 exports.command = 'wp <cmd..>';
 exports.desc = 'Runs a wp-cli command in your environment.';
@@ -33,18 +32,12 @@ exports.handler = makeCommand( async ( { verbose, env } ) => {
 	const envPath = await envUtils.envPath( envSlug );
 	const spinner = ! verbose ? makeSpinner() : undefined;
 
-	spinner && spinner.start( 'Checking if the environment running...' );
 	// Check if the container is running, otherwise, start up the stacks
-	const { out } = await compose.ps( {
-		cwd: envPath,
-	} );
-
-	if ( out.split( EOL ).filter( ( line ) => line.trim().length > 0 ).length <= 2 ) {
+	const isRunning = await compose.isRunning( envPath );
+	if ( ! isRunning ) {
 		spinner && spinner.info( 'Environment is not running, starting it...' );
 		await gateway.startGlobal( spinner );
 		await environment.start( envSlug, spinner );
-	} else {
-		spinner && spinner.succeed( 'Environment is running...' );
 	}
 
 	// Compose wp-cli command to run

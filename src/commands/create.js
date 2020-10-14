@@ -3,7 +3,6 @@ const { EOL } = require( 'os' );
 const inquirer = require( 'inquirer' );
 const fsExtra = require( 'fs-extra' );
 const sudo = require( 'sudo-prompt' );
-const compose = require( 'docker-compose' );
 const which = require( 'which' );
 
 const { startGlobal } = require( '../gateway' );
@@ -53,7 +52,7 @@ async function createCommand( spinner, defaults = {} ) {
 	await makeDatabase( spinner )( settings.envSlug );
 	await environment.start( settings.envSlug, spinner );
 
-	await makeInstallWordPress( compose, spinner )( hostname, settings );
+	await makeInstallWordPress( spinner )( hostname, settings );
 
 	await makeSaveJsonFile( settings['paths']['/'] )( '.config.json', { envHosts, certs: settings['certs'] } );
 	await makeUpdateHosts( which, sudo, spinner )( envHosts );

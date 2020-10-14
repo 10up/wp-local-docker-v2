@@ -1,12 +1,11 @@
 const { EOL } = require( 'os' );
 
-const compose = require( 'docker-compose' );
-
 const envUtils = require( '../env-utils' );
 const gateway = require( '../gateway' );
 const environment = require( '../environment' );
 const makeCommand = require( '../utils/make-command' );
 const makeSpinner = require( '../utils/make-spinner' );
+const compose = require( '../utils/docker-compose' );
 
 exports.command = 'logs [<container>] [--tail=<tail>]';
 exports.desc = 'Shows logs from the specified container in your environment (Defaults to all containers).';
@@ -41,7 +40,7 @@ exports.handler = makeCommand( async ( { verbose, container, env, tail } ) => {
 	if ( container ) {
 		spinner && spinner.start( 'Checking available services...' );
 
-		const { out } = await compose.ps( {
+		const out = await compose.ps( {
 			commandOptions: [ '--services' ],
 			cwd: envPath,
 		} );
@@ -59,18 +58,15 @@ exports.handler = makeCommand( async ( { verbose, container, env, tail } ) => {
 		}
 	}
 
-	spinner && spinner.start( 'Checking if the environment running...' );
 	// Check if the container is running, otherwise, start up the stacks
-	const { out } = await compose.ps( {
-		cwd: envPath,
-	} );
-
-	if ( ( services.length > 0 && out.indexOf( services[0] ) === -1 ) || out.split( EOL ).filter( ( line ) => line.trim().length > 0 ).length <= 2 ) {
+	const out = await compose.ps( { cwd: envPath } );
+	if (
+		( services.length > 0 && out.indexOf( services[0] ) === -1 ) ||
+		out.split( EOL ).filter( ( line ) => line.trim().length > 0 ).length <= 2
+	) {
 		spinner && spinner.info( 'Environment is not running, starting it...' );
 		await gateway.startGlobal( spinner );
 		await environment.start( envSlug, spinner );
-	} else {
-		spinner && spinner.succeed( 'Environment is running...' );
 	}
 
 	let tailCount = tail === 'all' ? tail : parseInt( tail, 10 );
