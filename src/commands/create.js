@@ -5,6 +5,7 @@ const fsExtra = require( 'fs-extra' );
 const sudo = require( 'sudo-prompt' );
 const compose = require( 'docker-compose' );
 const which = require( 'which' );
+const chalk = require( 'chalk' );
 
 const { startGlobal } = require( '../gateway' );
 const environment = require( '../environment' );
@@ -88,6 +89,16 @@ exports.handler = makeCommand( async ( { verbose } ) => {
 		info += `WP admin: ${ admin }${ EOL }`;
 		info += EOL;
 	} );
+
+	if ( answers.wordpress.type == 'dev' ) {
+		info += EOL;
+		info += 'You are using the development version of WordPress. To finish setup you need to do the next steps:';
+		info += EOL + EOL;
+		info += `    1. Go to the ${ chalk.cyan( answers.paths.wordpress ) } directory;${ EOL }`;
+		info += `    2. Run ${ chalk.cyan( 'npm i' ) } command to install NPM dependencies;${ EOL }`;
+		info += `    3. Run ${ chalk.cyan( 'npm run build' ) } command to build required assets.${ EOL }`;
+		info += EOL;
+	}
 
 	console.log( replaceLinks( makeBoxen()( info ), links ) );
 } );
