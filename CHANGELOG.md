@@ -36,6 +36,7 @@ All notable changes to this project will be documented in this file, per [the Ke
 
 ### Fixed
 - Fixes issues with hosts manipulations during environment creations and deletions when node.js executable is not in the root's PATH.
+- Fixes issues in the development version caused by memcacheadmin section in the development config for nginx.
 - Issue with project directory recognition (props [@eugene-manuilov](https://github.com/eugene-manuilov), [@jamesmorrison](https://github.com/jamesmorrison) via [#110](https://github.com/10up/wp-local-docker-v2/pull/110))
 
 ### Security
