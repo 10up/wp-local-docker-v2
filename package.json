@@ -67,8 +67,8 @@
 		"hostile": "^1.3.2",
 		"inquirer": "^7.3.3",
 		"log-symbols": "^4.0.0",
-		"markdown-it": "^11.0.0",
-		"mkcert": "^1.3.0",
+		"markdown-it": "^11.0.1",
+		"mkcert": "^1.4.0",
 		"mkcert-prebuilt": "^1.0.0",
 		"mysql": "^2.17.1",
 		"netcat": "^1.4.0",
@@ -83,15 +83,15 @@
 		"update-check": "^1.5.3",
 		"which": "^2.0.2",
 		"write-yaml": "^1.0.0",
-		"yargs": "^15.1.0"
+		"yargs": "^16.0.3"
 	},
 	"devDependencies": {
 		"@10up/eslint-config": "^1.0.9",
 		"babel-eslint": "^10.0.3",
 		"eslint": "^6.8.0",
 		"husky": "^4.3.0",
-		"jest": "^26.4.2",
-		"lint-staged": "^10.3.0"
+		"jest": "^26.5.3",
+		"lint-staged": "^10.4.0"
 	},
 	"lint-staged": {
 		"*.js": "eslint"
