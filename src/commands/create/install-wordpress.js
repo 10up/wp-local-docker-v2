@@ -1,9 +1,10 @@
 const { join } = require( 'path' );
 
 const envUtils = require( '../../env-utils' );
+const compose = require( '../../utils/docker-compose' );
 const { makeClone } = require( '../../utils/git' );
 
-async function downloadWordPress( wordpressType, compose, cwd, spinner ) {
+async function downloadWordPress( wordpressType, cwd, spinner ) {
 	if ( spinner ) {
 		spinner.start( 'Downloading WordPress...' );
 	} else {
@@ -11,9 +12,8 @@ async function downloadWordPress( wordpressType, compose, cwd, spinner ) {
 	}
 
 	if ( wordpressType === 'dev' ) {
-		const root = join( cwd, 'wordpress' );
 		const clone = makeClone( spinner, 'Cloning git://develop.git.wordpress.org/' );
-		await clone( root, 'git://develop.git.wordpress.org/' );
+		await clone( join( cwd, 'wordpress' ), 'git://develop.git.wordpress.org/' );
 
 		if ( spinner ) {
 			spinner.succeed( 'Development version of WordPress is downloaded...' );
@@ -31,7 +31,7 @@ async function downloadWordPress( wordpressType, compose, cwd, spinner ) {
 	}
 }
 
-async function configure( envSlug, compose, cwd, spinner ) {
+async function configure( envSlug, cwd, spinner ) {
 	const command = `wp config create --force --dbname=${ envSlug } --dbuser=wordpress --dbpass=password --dbhost=mysql`;
 
 	if ( spinner ) {
@@ -49,7 +49,7 @@ async function configure( envSlug, compose, cwd, spinner ) {
 	}
 }
 
-async function install( hostname, wordpress, certs, compose, cwd, spinner ) {
+async function install( hostname, wordpress, certs, cwd, spinner ) {
 	const {
 		title,
 		username,
@@ -98,7 +98,7 @@ async function install( hostname, wordpress, certs, compose, cwd, spinner ) {
 	}
 }
 
-async function setRewrites( compose, cwd, spinner ) {
+async function setRewrites( cwd, spinner ) {
 	if ( spinner ) {
 		spinner.start( 'Setting rewrite rules structure to /%postname%/...' );
 	} else {
@@ -114,7 +114,7 @@ async function setRewrites( compose, cwd, spinner ) {
 	}
 }
 
-async function emptyContent( compose, cwd, spinner ) {
+async function emptyContent( cwd, spinner ) {
 	if ( spinner ) {
 		spinner.start( 'Removing the default WordPress content...' );
 	} else {
@@ -133,7 +133,7 @@ async function emptyContent( compose, cwd, spinner ) {
 	}
 }
 
-module.exports = function makeInstallWordPress( compose, spinner ) {
+module.exports = function makeInstallWordPress( spinner ) {
 	return async ( hostname, settings ) => {
 		const { wordpress, certs, envSlug } = settings;
 		if ( ! wordpress ) {
@@ -143,13 +143,13 @@ module.exports = function makeInstallWordPress( compose, spinner ) {
 		try {
 			const cwd = await envUtils.envPath( envSlug );
 
-			await downloadWordPress( wordpress.type, compose, cwd, spinner );
-			await configure( envSlug, compose, cwd, spinner );
-			await install( hostname, wordpress, certs, compose, cwd, spinner );
-			await setRewrites( compose, cwd, spinner );
+			await downloadWordPress( wordpress.type, cwd, spinner );
+			await configure( envSlug, cwd, spinner );
+			await install( hostname, wordpress, certs, cwd, spinner );
+			await setRewrites( cwd, spinner );
 
 			if ( wordpress.purify ) {
-				await emptyContent( compose, cwd, spinner );
+				await emptyContent( cwd, spinner );
 			}
 		} catch( error ) {
 			if ( spinner ) {

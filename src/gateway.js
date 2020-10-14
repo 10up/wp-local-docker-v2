@@ -3,12 +3,11 @@ const path = require( 'path' );
 const { EOL } = require( 'os' );
 
 const nc = require( 'netcat/client' );
-const compose = require( 'docker-compose' );
-
-const makeDocker = require( './utils/make-docker' );
 
 const envUtils = require( './env-utils' );
 const config = require( './configure' );
+const makeDocker = require( './utils/make-docker' );
+const compose = require( './utils/docker-compose' );
 
 // Tracks if we've started global inside of this session
 let started = false;

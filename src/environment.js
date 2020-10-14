@@ -4,7 +4,6 @@ const fsExtra = require( 'fs-extra' );
 const inquirer = require( 'inquirer' );
 const sudo = require( 'sudo-prompt' );
 const chalk = require( 'chalk' );
-const compose = require( 'docker-compose' );
 const which = require( 'which' );
 
 const config = require( './configure' );
@@ -12,6 +11,7 @@ const promptValidators = require( './prompt-validators' );
 const database = require( './database' );
 const envUtils = require( './env-utils' );
 const gateway = require( './gateway' );
+const compose = require( './utils/docker-compose' );
 
 async function start( env, spinner, pull ) {
 	const envPath = await envUtils.getPathOrError( env, spinner );
@@ -92,21 +92,24 @@ async function restart( env, spinner ) {
 		log: !spinner,
 	};
 
-	const { out } = await compose.ps( composeArgs );
-	const services = out.split( '\n' ).filter( ( service ) => !! service );
-
-	// if we have more than just two lines, then we have running services and can restart it
-	// otherwise we need just start it
-	if ( services.length > 2 ) {
+	const isRunning = await compose.isRunning( envPath );
+	if ( isRunning ) {
 		await compose.restartAll( composeArgs );
-	} else {
-		await compose.upAll( composeArgs );
-	}
 
-	if ( spinner ) {
-		spinner.succeed( `${ chalk.cyan( envSlug ) } is restarted...` );
+		if ( spinner ) {
+			spinner.succeed( `${ chalk.cyan( envSlug ) } is restarted...` );
+		}
 	} else {
-		console.log();
+		if ( spinner ) {
+			spinner.info( 'Environment is not running, starting it...' );
+			spinner.start( `Starting docker containers for ${ chalk.cyan( envSlug ) }...` );
+		}
+
+		await compose.upAll( composeArgs );
+
+		if ( spinner ) {
+			spinner.succeed( `${ chalk.cyan( envSlug ) } is started...` );
+		}
 	}
 }
 
