@@ -90,8 +90,17 @@ exports.wordpress = {
  *     "a94a8fe5ccb19ba61c4c0873d391e987982fbbd3",
  *     "109f4b3c50d7b0df729d299bc6f8e9ef9066971f",
  * ];
+ * 
+ * @example
+ * exports.snapshot = {
+ *     repository: "myrepo",
+ *     snapshot: [
+ *         "a94a8fe5ccb19ba61c4c0873d391e987982fbbd3",
+ *         "109f4b3c50d7b0df729d299bc6f8e9ef9066971f",
+ *     ],
+ * };
  *
- * @type {string|string[]}
+ * @type {string|string[]|Object}
  */
 exports.snapshot = {{snapshot}};
 

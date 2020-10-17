@@ -42,8 +42,30 @@ async function getSnapshotChoices( wpsnapshots, env, snapshot ) {
 }
 
 module.exports = function makePullSnapshot( spinner, wpsnapshots ) {
-	return async ( env, mainDomain, snapshot ) => {
-		if ( ! snapshot.length ) {
+	return async ( env, mainDomain, config ) => {
+		const info = {
+			repository: undefined,
+			snapshot: [],
+		};
+
+		if ( typeof config === 'string' ) {
+			info.snapshot = [ config ];
+		} else if ( Array.isArray( config ) ) {
+			info.snapshot = config;
+		} else if ( typeof config === 'object' ) {
+			if ( config.snapshot ) {
+				if ( typeof config.snapshot === 'string' ) {
+					info.snapshot = [ config.snapshot ];
+				} else if ( Array.isArray( config.snapshot ) ) {
+					info.snapshot = config.snapshot;
+				}
+			}
+
+			info.repository = config.repository || undefined;
+		}
+
+		const { snapshot, repository } = info;
+		if ( ! Array.isArray( snapshot ) || ! snapshot.length ) {
 			return;
 		}
 
@@ -114,6 +136,10 @@ module.exports = function makePullSnapshot( spinner, wpsnapshots ) {
 			'--overwrite_local_copy',
 			'--suppress_instructions',
 		];
+
+		if ( repository ) {
+			command.push( `--repository=${ repository }` );
+		}
 
 		if ( includeFiles ) {
 			command.push( '--include_files' );

@@ -68,7 +68,7 @@ exports.handler = makeCommand( async ( { url, branch, config, verbose } ) => {
 		await pullSnapshot(
 			envSlug,
 			Array.isArray( answers.domain ) ? answers.domain[0] : answers.domain,
-			Array.isArray( snapshot ) ? snapshot : [ snapshot ],
+			snapshot,
 		);
 	}
 
