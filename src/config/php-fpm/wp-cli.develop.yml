@@ -2,7 +2,7 @@ config create:
   dbhost: mysql
   dbuser: wordpress
   dbpass: password
-  path: /var/www/html/build
+  path: /var/www/html/src
   extra-php: |
     define( 'DISALLOW_FILE_EDIT', true );
     define( 'WP_DEBUG', true );
