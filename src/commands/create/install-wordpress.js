@@ -4,7 +4,7 @@ const envUtils = require( '../../env-utils' );
 const compose = require( '../../utils/docker-compose' );
 const { makeClone } = require( '../../utils/git' );
 
-async function downloadWordPress( wordpressType, cwd, spinner ) {
+async function downloadWordPress( wordpressType, cwd, spinner, chalk ) {
 	if ( spinner ) {
 		spinner.start( 'Downloading WordPress...' );
 	} else {
@@ -12,7 +12,7 @@ async function downloadWordPress( wordpressType, cwd, spinner ) {
 	}
 
 	if ( wordpressType === 'dev' ) {
-		const clone = makeClone( spinner, 'Cloning git://develop.git.wordpress.org/' );
+		const clone = makeClone( spinner, `Cloning ${ chalk.cyan( 'git://develop.git.wordpress.org/' ) }` );
 		await clone( join( cwd, 'wordpress' ), 'git://develop.git.wordpress.org/' );
 
 		if ( spinner ) {
@@ -133,7 +133,7 @@ async function emptyContent( cwd, spinner ) {
 	}
 }
 
-module.exports = function makeInstallWordPress( spinner ) {
+module.exports = function makeInstallWordPress( spinner, chalk ) {
 	return async ( hostname, settings ) => {
 		const { wordpress, certs, envSlug } = settings;
 		if ( ! wordpress ) {
@@ -143,7 +143,7 @@ module.exports = function makeInstallWordPress( spinner ) {
 		try {
 			const cwd = await envUtils.envPath( envSlug );
 
-			await downloadWordPress( wordpress.type, cwd, spinner );
+			await downloadWordPress( wordpress.type, cwd, spinner, chalk );
 			await configure( envSlug, cwd, spinner );
 			await install( hostname, wordpress, certs, cwd, spinner );
 			await setRewrites( cwd, spinner );

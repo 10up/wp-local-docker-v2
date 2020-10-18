@@ -4,6 +4,7 @@ const inquirer = require( 'inquirer' );
 const fsExtra = require( 'fs-extra' );
 const sudo = require( 'sudo-prompt' );
 const which = require( 'which' );
+const chalk = require( 'chalk' );
 
 const { startGlobal } = require( '../gateway' );
 const environment = require( '../environment' );
@@ -52,7 +53,7 @@ async function createCommand( spinner, defaults = {} ) {
 	await makeDatabase( spinner )( settings.envSlug );
 	await environment.start( settings.envSlug, spinner );
 
-	await makeInstallWordPress( spinner )( hostname, settings );
+	await makeInstallWordPress( spinner, chalk )( hostname, settings );
 
 	await makeSaveJsonFile( settings['paths']['/'] )( '.config.json', { envHosts, certs: settings['certs'] } );
 	await makeUpdateHosts( which, sudo, spinner )( envHosts );

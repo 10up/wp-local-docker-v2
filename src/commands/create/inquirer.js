@@ -1,11 +1,27 @@
 const { validateNotEmpty, parseHostname, parseProxyUrl } = require( '../../prompt-validators' );
 const { createDefaultProxy } = require( '../../env-utils' );
 
+const phpVersions = [
+	'7.4',
+	'7.3',
+	'7.2',
+	'7.1',
+	'7.0',
+	'5.6',
+];
+
+const wordpressTypes = [
+	{ name: 'Single Site', value: 'single' },
+	{ name: 'Subdirectory Multisite', value: 'subdirectory' },
+	{ name: 'Subdomain Multisite', value: 'subdomain' },
+	{ name: 'Core Development Version', value: 'dev' },
+];
+
 function defaultIsUndefined( val ) {
 	return () => typeof val === 'undefined';
 }
 
-function marshalDomains( original, { hostname, extraHosts } ) {
+function marshalDomains( original, { hostname, extraHosts, wordpressType } ) {
 	const collection = new Set();
 
 	if ( Array.isArray( original ) ) {
@@ -16,6 +32,9 @@ function marshalDomains( original, { hostname, extraHosts } ) {
 
 	if ( hostname ) {
 		collection.add( hostname );
+		if ( wordpressType === 'dev' ) {
+			collection.add( `build.${ hostname }` );
+		}
 	}
 
 	if ( Array.isArray( extraHosts ) ) {
@@ -69,22 +88,6 @@ module.exports = function makeInquirer( { prompt } ) {
 			email: wordpressEmail,
 			purify: wordpressPurify,
 		} = wordpress || {};
-
-		const phpVersions = [
-			'7.4',
-			'7.3',
-			'7.2',
-			'7.1',
-			'7.0',
-			'5.6',
-		];
-
-		const wordpressTypes = [
-			{ name: 'Single Site', value: 'single' },
-			{ name: 'Subdirectory Multisite', value: 'subdirectory' },
-			{ name: 'Subdomain Multisite', value: 'subdomain' },
-			{ name: 'Core Development Version', value: 'dev' },
-		];
 
 		const answers = await prompt( [
 			{

@@ -34,7 +34,10 @@ module.exports = function makeDockerCompose( spinner ) {
 					expose: [ '80', '443' ],
 					depends_on: [ 'phpfpm' ],
 					networks: [ 'default', 'wplocaldocker' ],
-					volumes: [ './wordpress:/var/www/html:cached' ],
+					volumes: [
+						'./wordpress:/var/www/html:cached',
+						'./config/nginx/server.conf:/etc/nginx/conf.d/common/_server.conf:cached',
+					],
 					environment: {
 						CERT_NAME: certs ? envSlug : 'localhost',
 						HTTPS_METHOD: 'noredirect',

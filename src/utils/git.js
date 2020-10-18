@@ -13,7 +13,7 @@ exports.makeClone = function( spinner, statusPrefix ) {
 					if ( spinner ) {
 						const total = stats.totalObjects() * 2;
 						const progress = stats.receivedObjects() + stats.indexedObjects();
-						const info = `${ Math.ceil( 100 * progress / total ) }% (${ progress }/${ total })`;
+						const info = `${ Math.ceil( 100 * progress / total ) }% (${ progress.toLocaleString() }/${ total.toLocaleString() })`;
 						spinner.text = `${ statusPrefix }: ${ info }...`;
 					}
 				},
