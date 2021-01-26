@@ -1,4 +1,4 @@
-version: "2.8.0"
+version: "2.4"
 services:
   # Run a local dnsmasq server for the containers that will resolve DNS queries and
   # route any *.test domains to the gateway container
