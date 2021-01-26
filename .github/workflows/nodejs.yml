@@ -1,22 +1,21 @@
 name: Node CI
 
-on: [push]
+on:
+  push:
 
 jobs:
-  lint:
+  checks:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [12.x]
     steps:
-      - uses: actions/checkout@v1
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v1
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
         with:
-          node-version: ${{ matrix.node-version }}
-      - name: npm install and lint
-        run: |
-          npm ci
-          npm run lint --silent
+          node-version: '12'
+      - name: install dependencies
+        run: npm ci
         env:
           CI: true
+      - name: run linter
+        run: npm run lint --silent
+      - name: run tests
+        run: npm test

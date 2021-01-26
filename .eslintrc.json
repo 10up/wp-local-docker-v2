@@ -1,0 +1,66 @@
+{
+	"extends": "@10up/eslint-config",
+	"env": {
+		"es6": true,
+		"node": true,
+		"jest": true
+	},
+	"rules": {
+		"array-bracket-spacing": [
+			"error",
+			"always"
+		],
+		"camelcase": [
+			"error",
+			{
+				"allow": [
+					"depends_on",
+					"mem_limit",
+					"mem_reservation",
+					"cap_add"
+				]
+			}
+		],
+		"indent": [
+			"error",
+			"tab",
+			{
+				"SwitchCase": 1
+			}
+		],
+		"no-constant-condition": [
+			"error",
+			{
+				"checkLoops": false
+			}
+		],
+		"no-console": "off",
+		"no-empty": [
+			"error",
+			{
+				"allowEmptyCatch": true
+			}
+		],
+		"no-trailing-spaces": "error",
+		"object-curly-spacing": [
+			"error",
+			"always"
+		],
+		"prefer-destructuring": [
+			"error",
+			{
+				"array": false,
+				"object": true
+			}
+		],
+		"require-jsdoc": "off",
+		"template-curly-spacing": [
+			"error",
+			"always"
+		],
+		"yoda": [
+			"error",
+			"never"
+		]
+	}
+}
