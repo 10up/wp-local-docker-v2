@@ -2,9 +2,11 @@
 
 All notable changes to this project will be documented in this file, per [the Keep a Changelog standard](http://keepachangelog.com/).
 
-## [Unreleased]
+## [Unreleased] - TBD
 
-## [2.8.0] - TBD
+- 
+
+## [2.8.0] - 2021-01-26
 ### Added
 - Adds `clone` command to clone git repositories and create new environments for it.
 - Adds `completion <shell>` command to display instructions how to activate autocomplete for a specific shell. Supported shells : `bash` and `zsh`.
