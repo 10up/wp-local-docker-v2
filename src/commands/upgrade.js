@@ -130,8 +130,8 @@ exports.handler = makeCommand( { checkDocker: false }, async ( { verbose, env } 
 		if ( phpVersion && phpImage ) {
 			yaml.services.phpfpm.image = `wp-php-fpm-dev-${ phpVersion }-${ process.env.USER }`;
 			yaml.services.phpfpm.build = {
-				dockerfile: '.containers/php-fpm',
-				context: '.',
+				dockerfile: 'php-fpm',
+				context: '.containers',
 				args: {
 					PHP_IMAGE: images[`php${ phpVersion }`],
 					CALLING_USER: process.env.USER,
