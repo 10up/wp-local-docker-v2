@@ -88,8 +88,8 @@ module.exports = function makeDockerCompose( spinner ) {
 			baseConfig.services.phpfpm.image = `wp-php-fpm-dev-${ phpVersion }-${ process.env.USER }`;
 			baseConfig.services.phpfpm.volumes.push( `~/.ssh:/home/${ process.env.USER }/.ssh:cached` );
 			baseConfig.services.phpfpm.build = {
-				dockerfile: '.containers/php-fpm',
-				context: '.',
+				dockerfile: 'php-fpm',
+				context: '.containers',
 				args: {
 					PHP_IMAGE: images[`php${ phpVersion }`],
 					CALLING_USER: process.env.USER,
