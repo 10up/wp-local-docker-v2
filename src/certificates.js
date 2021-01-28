@@ -9,14 +9,7 @@ const envUtil = require( './env-utils' );
 const { getSslCertsDirectory } = require( './configure' );
 
 function getCARoot() {
-	let caRoot;
-
-	try {
-		caRoot = execSync( `${ mkcertPrebuilt } -CAROOT`, { encoding: 'utf-8' } ).trim();
-	} catch {
-	}
-
-	return caRoot;
+	return execSync( `${ mkcertPrebuilt } -CAROOT`, { encoding: 'utf-8' } ).trim();
 }
 
 function installCA( verbose = false ) {
