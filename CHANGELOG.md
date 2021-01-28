@@ -7,6 +7,9 @@ All notable changes to this project will be documented in this file, per [the Ke
 ### Changed
 - Compose files have been updated to build PHP images in the `.containers` context.
 
+### Fixed
+- Fixed wrong uid and gid issue that caused problems in the sub commands.
+
 ## [2.8.0] - 2021-01-26
 ### Added
 - Adds `clone` command to clone git repositories and create new environments for it.
