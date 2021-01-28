@@ -4,7 +4,8 @@ All notable changes to this project will be documented in this file, per [the Ke
 
 ## [Unreleased] - TBD
 
-- 
+### Changed
+- Compose files have been updated to build PHP images in the `.containers` context.
 
 ## [2.8.0] - 2021-01-26
 ### Added
