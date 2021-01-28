@@ -28,7 +28,19 @@ exports.handler = makeCommand( async function( { _, env, verbose } ) {
 		}
 	}
 
-	const docker = makeDocker();
-	const wpsnapshots = runSnapshots( spinner, docker );
-	await wpsnapshots( env, command, 'inherit' );
+	try {
+		const docker = makeDocker();
+		const wpsnapshots = runSnapshots( spinner, docker );
+		await wpsnapshots( env, command, 'inherit' );
+	} catch ( err ) {
+		if ( spinner ) {
+			if ( spinner.isSpinning ) {
+				spinner.stop();
+			}
+
+			spinner.fail( err );
+		} else {
+			console.error( err );
+		}
+	}
 } );

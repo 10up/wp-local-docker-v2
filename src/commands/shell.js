@@ -45,8 +45,11 @@ exports.handler = makeCommand( async ( { container, cmd, env, verbose } ) => {
 		await environment.start( envSlug, spinner );
 	}
 
-	execSync( `docker-compose exec ${ container } ${ cmd }`, {
-		stdio: 'inherit',
-		cwd: envPath,
-	} );
+	try {
+		execSync( `docker-compose exec ${ container } ${ cmd }`, {
+			stdio: 'inherit',
+			cwd: envPath,
+		} );
+	} catch {
+	}
 } );

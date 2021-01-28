@@ -11,7 +11,7 @@ exports.checkIfDockerRunning = function() {
 
 	try {
 		output = execSync( 'docker system info' );
-	} catch ( er ) {
+	} catch {
 		return false;
 	}
 
