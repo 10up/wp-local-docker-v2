@@ -38,17 +38,26 @@ async function generateCert( slug, domains, spinner ) {
 		console.log( 'Generating certificates:' );
 	}
 
-	const certs = await generate( slug, domains );
+	try {
+		const certs = await generate( slug, domains );
+		if ( certs ) {
+			if ( spinner ) {
+				spinner.succeed( 'Certificates are generated...' );
+			} else {
+				console.log( ' - Done' );
+			}
+		}
 
-	if ( certs ) {
+		return certs;
+	} catch ( err ) {
 		if ( spinner ) {
-			spinner.succeed( 'Certificates are generated...' );
+			spinner.fail( `Certificates generation failed... ${ err.toString() }` );
 		} else {
-			console.log( ' - Done' );
+			console.log( ` - Failed: ${ err.toString() }` );
 		}
 	}
 
-	return certs;
+	return null;
 }
 
 async function updateConfig( envPath, certs ) {

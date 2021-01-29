@@ -13,9 +13,19 @@ function getCARoot() {
 }
 
 function installCA( verbose = false ) {
-	execSync( `${ mkcertPrebuilt } -install`, {
-		stdio: verbose ? 'inherit' : 'ignore',
-	} );
+	try {
+		execSync( `${ mkcertPrebuilt } -install`, {
+			stdio: verbose ? 'inherit' : 'ignore',
+		} );
+	} catch ( err ) {
+		if ( verbose ) {
+			console.error( err );
+		}
+
+		return false;
+	}
+
+	return true;
 }
 
 async function generate( envName, hosts ) {

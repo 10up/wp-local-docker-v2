@@ -6,6 +6,14 @@ All notable changes to this project will be documented in this file, per [the Ke
 
 - 
 
+## [2.8.1] - 2021-01-29
+
+### Changed
+- Compose files have been updated to build PHP images in the `.containers` context.
+
+### Fixed
+- Fixed unexpected behaviour caused by errors thrown from the `execSync` command when a subcommand exited with non-zero exit code.
+
 ## [2.8.0] - 2021-01-26
 ### Added
 - Adds `clone` command to clone git repositories and create new environments for it.
@@ -131,6 +139,7 @@ opcache configured with optimal settings for development.
 ## [2.2.0] - 2019-02-04
 
 [Unreleased]: https://github.com/10up/wp-local-docker-v2/compare/master...develop
+[2.8.1]: https://github.com/10up/wp-local-docker-v2/compare/2.8.0...2.8.1
 [2.8.0]: https://github.com/10up/wp-local-docker-v2/compare/2.7.0...2.8.0
 [2.7.0]: https://github.com/10up/wp-local-docker-v2/compare/2.6.2...2.7.0
 [2.6.2]: https://github.com/10up/wp-local-docker-v2/compare/2.6.1...2.6.2

@@ -62,7 +62,7 @@ exports.handler = makeCommand( async ( { verbose, env } ) => {
 			stdio: 'inherit',
 			cwd: envPath
 		} );
-	} catch ( e ) {
+	} catch {
 		// do nothing
 	}
 } );
