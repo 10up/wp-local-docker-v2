@@ -29,7 +29,7 @@ The `develop` branch is the development branch which means it contains the next 
 ## Release instructions
 
 1. Branch: Starting from `develop`, cut a release branch named `release/X.Y.Z` for your changes.
-2. Version bump: Bump the version number in `package.json`, `package-lock.json`, `global/docker-compose.yml`, and any other relevant files if it does not already reflect the version being released.
+2. Version bump: Bump the version number in `package.json` (`npm version <new-version>`), and any other relevant files if it does not already reflect the version being released.
 3. Changelog: Add/update the changelog in `CHANGELOG.md`.
 4. Props: update `CREDITS.md` file with any new contributors, confirm maintainers are accurate.
 5. Readme updates: Make any other readme changes to `README.md` as necessary.
