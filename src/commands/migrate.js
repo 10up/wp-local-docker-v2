@@ -56,7 +56,8 @@ async function exportOldDatabase( oldEnv, exportDir ) {
 	try {
 		execSync( `docker stop ${ base }`, { stdio: 'ignore' } );
 		execSync( `docker rm ${ base }`, { stdio: 'ignore' } );
-	} catch( ex ) {}
+	} catch {
+	}
 
 	try {
 		execSync( `docker run -d --rm --name ${ base } -v ${ dataDir }:/var/lib/mysql -v ${ exportDir }:/tmp/export mysql:5`, { stdio: 'inherit' } );
@@ -64,7 +65,8 @@ async function exportOldDatabase( oldEnv, exportDir ) {
 		console.log( 'Exporting old database' );
 		execSync( `docker exec ${ base } sh -c "/usr/bin/mysqldump -u root -ppassword wordpress > /tmp/export/database.sql"`, { stdio: 'inherit' } );
 		execSync( `docker stop ${ base }` );
-	} catch ( ex ) {}
+	} catch {
+	}
 }
 
 async function importNewDatabase( env, spinner ) {
@@ -74,7 +76,8 @@ async function importNewDatabase( env, spinner ) {
 	try {
 		console.log( 'Importing DB to new Environment' );
 		execSync( 'docker-compose exec --user www-data phpfpm wp db import /var/www/html/import/database.sql', { stdio: 'inherit', cwd: envPath } );
-	} catch ( ex ) {}
+	} catch {
+	}
 }
 
 async function copySiteFiles( oldEnv, newEnv ) {

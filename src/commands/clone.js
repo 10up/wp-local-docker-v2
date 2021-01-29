@@ -61,15 +61,27 @@ exports.handler = makeCommand( async ( { url, branch, config, verbose } ) => {
 
 	// pull snapshot if available
 	if ( snapshot ) {
-		const docker = makeDocker();
-		const wpsnapshots = runSnapshots( spinner, docker );
-		const pullSnapshot = makePullSnapshot( spinner, wpsnapshots );
+		try {
+			const docker = makeDocker();
+			const wpsnapshots = runSnapshots( spinner, docker );
+			const pullSnapshot = makePullSnapshot( spinner, wpsnapshots );
 
-		await pullSnapshot(
-			envSlug,
-			Array.isArray( answers.domain ) ? answers.domain[0] : answers.domain,
-			snapshot,
-		);
+			await pullSnapshot(
+				envSlug,
+				Array.isArray( answers.domain ) ? answers.domain[0] : answers.domain,
+				snapshot,
+			);
+		} catch ( err ) {
+			if ( spinner ) {
+				if ( spinner.isSpinning ) {
+					spinner.stop();
+				}
+
+				spinner.fail( err );
+			} else {
+				console.error( err );
+			}
+		}
 	}
 
 	let info = `Successfully Cloned Site!${ EOL }${ EOL }`;
