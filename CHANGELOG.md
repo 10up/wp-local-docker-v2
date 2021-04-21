@@ -12,6 +12,7 @@ All notable changes to this project will be documented in this file, per [the Ke
 
 ### Fixed
 - Fixes broken configuration file issue when answering `no` to the install WordPress question in the `10updocker init` command.
+- Fixes wrong hostname detection in the configuration file during `10updocker clone` command run.
 
 ## [2.8.1] - 2021-01-29
 ### Changed
