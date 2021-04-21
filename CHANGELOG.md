@@ -10,6 +10,9 @@ All notable changes to this project will be documented in this file, per [the Ke
 ### Changed
 - Updates dependencies to their latest versions.
 
+### Fixed
+- Fixes broken configuration file issue when answering `no` to the install WordPress question in the `10updocker init` command.
+
 ## [2.8.1] - 2021-01-29
 ### Changed
 - Compose files have been updated to build PHP images in the `.containers` context.
