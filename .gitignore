@@ -1,6 +1,3 @@
-# Version Control
-.svn
-
 # OS
 .DS_Store
 Thumbs.db
@@ -14,17 +11,9 @@ Thumbs.db
 nbproject/
 /tags
 .netbeans.xml
-
-# Compass/SASS/SCSS
-.sass-cache
+.vscode/
 
 # Other
 node_modules
-
-/vendor/
-/release/
-sassdoc
-scss-lint-report.xml
-config.codekit
-
 notes.md
+wp-local-docker-*

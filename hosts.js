@@ -1,43 +1,47 @@
 #!/usr/bin/env node
 
+const yargs = require( 'yargs' );
 const hostile = require( 'hostile' );
-const commandUtils = require( './src/command-utils' );
 
-const add = function( hosts ) {
-    hostile.set( '127.0.0.1', hosts.join(' '), function( err ) {
-        if (err) {
-            console.error(err)
-        } else {
-            console.log('Added to hosts file successfully!')
-        }
-    });
-};
+function options( yargs ) {
+	yargs.positional( 'hosts', {
+		describe: 'A host domain name.',
+		type: 'string',
+	} );
+}
 
-const remove = function( hosts ) {
-    hostile.remove( '127.0.0.1', hosts.join(' '), function( err ) {
-        if (err) {
-            console.error(err)
-        } else {
-            console.log('Removed from hosts file successfully!')
-        }
-    });
-};
+function add( { hosts } ) {
+	hostile.set( '127.0.0.1', hosts.join( ' ' ), function( err ) {
+		if ( err ) {
+			console.error( err.message );
+			process.exit( err.errno );
+		} else {
+			console.log( 'Added to hosts file successfully!' );
+		}
+	} );
+}
 
-const command = function() {
-    let mode = commandUtils.command();
-    let args = commandUtils.commandArgs( false );
+function remove( { hosts } ) {
+	hostile.remove( '127.0.0.1', hosts.join( ' ' ), function( err ) {
+		if ( err ) {
+			console.error( err.message );
+			process.exit( err.errno );
+		} else {
+			console.log( 'Removed from hosts file successfully!' );
+		}
+	} );
+}
 
-    switch( mode ) {
-        case 'add':
-            add( args );
-            break;
-        case 'remove':
-            remove( args );
-            break;
-        default:
-            console.error( "Invalid hosts command" );
-            process.exit(1);
-            break;
-    }
-};
-command();
+// usage and help flag
+yargs.scriptName( '10updocker-hosts' );
+yargs.usage( 'Usage: 10updocker-hosts <command>' );
+yargs.help( 'h' );
+yargs.alias( 'h', 'help' );
+
+// commands
+yargs.command( 'add <hosts..>', 'Add new hosts to the hosts file.', options, add );
+yargs.command( 'remove <hosts..>', 'Remove hosts from the hosts file.', options, remove );
+
+// parse and process CLI args
+yargs.demandCommand();
+yargs.parse();

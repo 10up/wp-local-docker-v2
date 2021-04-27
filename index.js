@@ -1,108 +1,46 @@
 #!/usr/bin/env node
 
-const chalk = require( 'chalk' );
-const commandUtils = require( './src/command-utils' );
-const config = require( './src/configure' );
-const snapshots = require( './src/wpsnapshots' );
+const yargs = require( 'yargs' );
 
-const help = function() {
-    let help = `
-Usage: 10updocker COMMAND
+const { checkIfConfigured, configureDefaults } = require( './src/configure' );
+const { checkForUpdates } = require( './src/command-utils' );
 
-Commands:
-  cache         Manages the build cache
-  configure     Set up a configuration for WP Local Docker
-  create        Create a new docker environment
-  delete        Deletes a specific docker environment
-  image         Manages docker images used by this environment
-  logs          Shows logs from the specified container in your current environment (Defaults to all containers)
-  migrate       Migrates a V1 WP Local Docker environment to a new V2 environment.
-  restart       Restarts a specific docker environment
-  shell         Opens a shell for a specified container in your current environment (Defaults to the phpfpm container)
-  start         Starts a specific docker environment
-  stop          Stops a specific docker environment
-  wp            Runs a wp-cli command in your current environment
-  wpsnapshots   Runs a wp snapshots command
+async function bootstrap() {
+	// check configuration
+	const configured = await checkIfConfigured();
+	if ( configured === false ) {
+		await configureDefaults();
+	}
 
-Run '10updocker COMMAND help' for more information on a command.
-`;
-    console.log( help );
-};
+	// check if a new version of the package exists
+	await checkForUpdates();
 
-const version = function() {
-    var pjson = require('./package.json');
-    console.log( 'WP Local Docker' );
-    console.log( `Version ${pjson.version}` );
-};
+	// usage and help flag
+	yargs.scriptName( '10updocker' );
+	yargs.usage( 'Usage: 10updocker <command>' );
+	yargs.wrap( Math.min( 150, yargs.terminalWidth() ) );
+	yargs.help( 'h' );
+	yargs.alias( 'h', 'help' );
+	yargs.alias( 'v', 'version' );
 
-const init = async function() {
-    let command = commandUtils.command();
-    let configured = await config.checkIfConfigured();
-    let bypassCommands = [ undefined, 'configure', 'help', '--version', '-v' ];
-    let isBypass = bypassCommands.indexOf( command ) !== -1;
+	// global options
+	yargs.option( 'verbose', {
+		description: 'Display extended output',
+		default: false,
+		type: 'boolean',
+	} );
 
-    // Configure using defaults if not configured already
-    if ( configured === false && isBypass === false ) {
-        await config.configureDefaults();
-    }
+	yargs.option( 'env', {
+		description: 'Environment name',
+		default: false,
+		type: 'string',
+	} );
 
-    // Don't even run the command to check if docker is running if we have one of the commands that don't need it
-    if ( isBypass === false ) {
-        let isRunning = commandUtils.checkIfDockerRunning();
+	// define commands, parse and process CLI args
+	yargs.commandDir( 'src/commands' );
+	yargs.demandCommand();
+	yargs.parse();
+}
 
-        // Show warning if docker isn't running
-        if ( isRunning === false ) {
-            console.error( chalk.red( "Error: Docker doesn't appear to be running. Please start Docker and try again" ) );
-            process.exit();
-        }
-    }
-
-    await commandUtils.checkForUpdates();
-
-    switch ( command ) {
-        case 'configure':
-            config.command();
-            break;
-        case 'create':
-            await require('./src/create').command();
-            break;
-        case 'start':
-        case 'stop':
-        case 'restart':
-        case 'delete':
-        case 'remove':
-        case 'upgrade':
-            await require('./src/environment').command();
-            break;
-        case 'snapshots':
-        case 'wpsnapshots':
-            await require('./src/wpsnapshots').command();
-            break;
-        case 'cache':
-            await require('./src/cache').command();
-            break;
-        case 'image':
-            await require('./src/image').command();
-            break;
-        case 'shell':
-            await require( './src/shell' ).command();
-            break;
-        case 'wp':
-            await require( './src/wp' ).command();
-            break;
-        case 'logs':
-            await require( './src/logs' ).command();
-            break;
-        case 'migrate':
-            await require( './src/migrate' ).command();
-            break;
-        case '--version':
-        case '-v':
-            version();
-            break;
-        default:
-            help();
-            break;
-    }
-};
-init();
+// start
+bootstrap();

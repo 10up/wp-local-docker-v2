@@ -6,14 +6,11 @@ end_of_line = lf
 insert_final_newline = true
 trim_trailing_whitespace = true
 indent_style = tab
+indent_size = 4
 
-[{*.json,*.yml,.babelrc,.bowerrc,.browserslistrc,.postcssrc}]
+[*.yml]
 indent_style = space
 indent_size = 2
 
-[*.txt,wp-config-sample.php]
+[*.txt]
 end_of_line = crlf
-
-[*.conf]
-indent_style = space
-indent_size = 4
