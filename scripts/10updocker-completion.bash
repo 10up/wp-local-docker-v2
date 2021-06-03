@@ -42,7 +42,7 @@ _10updocker_completion() {
     )
 
     if [ ${COMP_CWORD} -eq 1 ]; then
-        _compreply cache configure create delete remove image logs migrate restart shell start stop wp wpspanshots spanshots upgrade
+        _compreply cache clone configure create new delete remove rm image logs list ls cert init migrate restart shell start stop wp wpspanshots spanshots upgrade
     elif [ ${COMP_CWORD} -eq 2 ]; then
         case ${COMP_WORDS[1]} in
             cache)
@@ -56,6 +56,9 @@ _10updocker_completion() {
                 ;;
             wp)
                 _compreply "${wp_commands[@]}"
+                ;;
+            cert)
+                _compreply install generate
                 ;;
         esac
     elif [ ${COMP_CWORD} -eq 3 ]; then

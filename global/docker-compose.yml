@@ -1,4 +1,4 @@
-version: '2.4'
+version: "2.4"
 services:
   # Run a local dnsmasq server for the containers that will resolve DNS queries and
   # route any *.test domains to the gateway container
@@ -6,30 +6,31 @@ services:
     image: andyshinn/dnsmasq
     cap_add:
       - NET_ADMIN
-    command: "-A /test/10.0.0.3 --log-facility=-"
+    command: -A /test/10.0.0.3 --log-facility=-
     ports:
-        - "127.0.0.1:53:53/udp"
-        - "127.0.0.1:53:53"
+        - 127.0.0.1:53:53/udp
+        - 127.0.0.1:53:53
     networks:
       wplocaldocker:
         ipv4_address: 10.0.0.2
   gateway:
     image: 10up/nginx-proxy
     ports:
-      - "127.0.0.1:80:80"
-      - "127.0.0.1:443:443"
+      - 127.0.0.1:80:80
+      - 127.0.0.1:443:443
     volumes:
-      - "/var/run/docker.sock:/tmp/docker.sock:ro"
+      - ./ssl-certs:/etc/nginx/certs:ro
+      - /var/run/docker.sock:/tmp/docker.sock:ro
     networks:
       wplocaldocker:
         ipv4_address: 10.0.0.3
   mysql:
     image: mysql:5
     volumes:
-      - "./config/mysql/config.cnf:/etc/mysql/mysql.conf.d/wp-local-docker.cnf:ro"
-      - "mysqlData:/var/lib/mysql"
+      - ./config/mysql/config.cnf:/etc/mysql/mysql.conf.d/wp-local-docker.cnf:ro
+      - mysqlData:/var/lib/mysql
     ports:
-      - "127.0.0.1:3306:3306"
+      - 127.0.0.1:3306:3306
     environment:
       MYSQL_ROOT_PASSWORD: password
       MYSQL_USER: wordpress
@@ -41,8 +42,8 @@ services:
   mailcatcher:
     image: schickling/mailcatcher
     ports:
-      - "127.0.0.1:1025:1025"
-      - "127.0.0.1:1080:1080"
+      - 127.0.0.1:1025:1025
+      - 127.0.0.1:1080:1080
     environment:
       MAILCATCHER_PORT: 1025
     networks:
@@ -50,7 +51,7 @@ services:
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
     ports:
-      - "127.0.0.1:8092:80"
+      - 127.0.0.1:8092:80
     depends_on:
       - mysql
     environment:
@@ -60,7 +61,7 @@ services:
 networks:
   wplocaldocker:
     external:
-      name: "wplocaldocker"
+      name: wplocaldocker
 volumes:
   mysqlData:
   elasticsearchData:

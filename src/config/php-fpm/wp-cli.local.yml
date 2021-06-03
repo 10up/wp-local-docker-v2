@@ -1,9 +1,9 @@
 config create:
-	dbhost: mysql
-	dbuser: wordpress
-	dbpass: password
-	extra-php: |
-		define( 'DISALLOW_FILE_EDIT', true );
-		define( 'WP_DEBUG', true );
-		define( 'SAVEQUERIES', true );
-		define( 'EP_HOST', 'http://elasticsearch:9200' );
+  dbhost: mysql
+  dbuser: wordpress
+  dbpass: password
+  extra-php: |
+    define( 'DISALLOW_FILE_EDIT', true );
+    define( 'WP_DEBUG', true );
+    define( 'SAVEQUERIES', true );
+    define( 'EP_HOST', 'http://elasticsearch:9200' );

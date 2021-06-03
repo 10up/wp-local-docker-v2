@@ -18,168 +18,236 @@
  *  envPath     Path within `sitesPath` for the given environment
  */
 
-const slugify = require( '@sindresorhus/slugify' );
 const path = require( 'path' );
+
+const slugify = require( '@sindresorhus/slugify' );
+const asyncro = require( 'asyncro' );
+const fs = require( 'fs-extra' );
+const chalk = require( 'chalk' );
+const inquirer = require( 'inquirer' );
+
 const config = require( './configure' );
+const helper = require( './helpers' );
+
 const rootPath = path.dirname( __dirname );
 const srcPath = path.join( rootPath, 'src' );
-const cacheVolume = 'wplocaldockerCache';
 const globalPath = path.join( rootPath, 'global' );
-const async = require( 'asyncro' );
-const fs = require( 'fs-extra' );
-const inquirer = require( 'inquirer' );
-const chalk = require( 'chalk' );
-const helper = require( './helpers' );
+const cacheVolume = 'wplocaldockerCache';
 
 const CONFIG_FILENAME = '.config.json';
 
-const sitesPath = async function() {
-    return await config.get( 'sitesPath' );
-};
+async function sitesPath() {
+	return await config.get( 'sitesPath' );
+}
 
-const envSlug = function( env ) {
-    return slugify( env );
-};
+function envSlug( env ) {
+	return slugify( env );
+}
 
-const envPath = async function( env ) {
-    const envPath = path.join( await sitesPath(), envSlug( env ) );
+async function envPath( env ) {
+	const envPath = path.join( await sitesPath(), envSlug( env ) );
+	return envPath;
+}
 
-    return envPath;
-};
+async function parseEnvFromCWD() {
+	let cwd = '';
 
-const parseEnvFromCWD = async function() {
-    // Compare both of these as all lowercase to account for any misconfigurations
-    let cwd = process.cwd().toLowerCase();
-    let sitesPathValue = await sitesPath();
-    sitesPathValue = sitesPathValue.toLowerCase();
+	try {
+		cwd = process.cwd();
+	} catch ( e ) {
+		return false;
+	}
 
-    if ( cwd.indexOf( sitesPathValue ) === -1 ) {
-        return false;
-    }
+	const sitesPathValue = await sitesPath();
+	if ( cwd.indexOf( sitesPathValue ) === -1 || cwd === sitesPathValue ) {
+		return false;
+	}
 
-    if ( cwd === sitesPathValue ) {
-        return false;
-    }
+	// Strip the base sitepath from the path
+	cwd = cwd.replace( sitesPathValue, '' ).replace( /^\//i, '' );
+	// First segment is now the envSlug, get rid of the rest
+	cwd = cwd.split( '/' )[0];
 
-    // Strip the base sitepath from the path
-    cwd = cwd.replace( sitesPathValue, '' ).replace( /^\//i, '' );
+	// Make sure that a .config.json file exists here
+	const configFile = path.isAbsolute( cwd )
+		? path.join( cwd, CONFIG_FILENAME )
+		: path.join( sitesPathValue, cwd, CONFIG_FILENAME );
 
-    // First segment is now the envSlug, get rid of the rest
-    cwd = cwd.split( '/' )[0];
+	if ( ! fs.existsSync( configFile ) ) {
+		return false;
+	}
 
-    // Make sure that a .config.json file exists here
-    const configFile = path.isAbsolute( cwd )
-        ? path.join( cwd, CONFIG_FILENAME )
-        : path.join( sitesPathValue, cwd, CONFIG_FILENAME );
+	return cwd;
+}
 
-    if ( ! fs.existsSync( configFile ) ) {
-        return false;
-    }
+async function resolveEnvironment( env ) {
+	let envName = ( env || '' ).trim();
+	if ( ! envName ) {
+		envName = await parseEnvFromCWD();
+	}
 
-    return cwd;
-};
+	if ( envName ) {
+		const root = await envPath( envName );
+		const dockerComposeExists = await fs.pathExists( path.join( root, 'docker-compose.yml' ) );
+		if ( ! dockerComposeExists ) {
+			envName = false;
+		}
+	}
 
-const getAllEnvironments = async function() {
-    const sitePath = await sitesPath();
-    let dirContent = await fs.readdir( sitePath );
+	if ( ! envName ) {
+		envName = await promptEnv();
+	}
 
-    // Make into full path
-    dirContent = await async.map( dirContent, async item => {
-        return path.join( sitePath, item );
-    } );
+	return envName;
+}
 
-    // Filter any that aren't directories
-    dirContent = await async.filter( dirContent, async item => {
-        const stat = await fs.stat( item );
-        return stat.isDirectory();
-    } );
+async function getAllEnvironments() {
+	const sitePath = await sitesPath();
+	let dirContent = await fs.readdir( sitePath );
 
-    // Filter any that don't have the .config.json file (which indicates its probably not a WP Local Docker Environment)
-    dirContent = await async.filter( dirContent, async item => {
-        const configFile = path.join( item, CONFIG_FILENAME );
+	// Make into full path
+	dirContent = await asyncro.map( dirContent, async item => {
+		return path.join( sitePath, item );
+	} );
 
-        return await fs.exists( configFile );
-    } );
+	// Filter any that aren't directories
+	dirContent = await asyncro.filter( dirContent, async item => {
+		const stat = await fs.stat( item );
+		return stat.isDirectory();
+	} );
 
-    // Back to just the basename
-    dirContent = await async.map( dirContent, async item => {
-        return path.basename( item );
-    } );
+	// Filter any that don't have the .config.json file (which indicates its probably not a WP Local Docker Environment)
+	dirContent = await asyncro.filter( dirContent, async item => {
+		const configFile = path.join( item, CONFIG_FILENAME );
 
-    return dirContent;
-};
+		return await fs.pathExists( configFile );
+	} );
 
-const promptEnv = async function() {
-    const environments = await getAllEnvironments();
+	// Back to just the basename
+	dirContent = await asyncro.map( dirContent, async item => {
+		return path.basename( item );
+	} );
 
-    const questions = [
-        {
-            name: 'envSlug',
-            type: 'list',
-            message: 'What environment would you like to use?',
-            choices: environments,
-        }
-    ];
+	return dirContent;
+}
 
-    console.log( chalk.bold.white( 'Unable to determine environment from current directory' ) );
-    const answers = await inquirer.prompt( questions );
+async function getSnapshotsPath() {
+	// Ensure that the wpsnapshots folder is created and owned by the current user versus letting docker create it so we can enforce proper ownership later
+	const wpsnapshotsDir = await config.get( 'snapshotsPath' );
+	await fs.ensureDir( wpsnapshotsDir );
+	return wpsnapshotsDir;
+}
 
-    return answers.envSlug;
-};
+async function promptEnv() {
+	const environments = await getAllEnvironments();
 
-const parseOrPromptEnv = async function () {
-    let envSlug = await parseEnvFromCWD();
+	const questions = [
+		{
+			name: 'envSlug',
+			type: 'list',
+			message: 'What environment would you like to use?',
+			choices: environments,
+		}
+	];
 
-    if ( envSlug === false ) {
-        envSlug = await promptEnv();
-    }
+	console.log( chalk.bold.white( 'Unable to determine environment from current directory' ) );
+	const answers = await inquirer.prompt( questions );
 
-    return envSlug;
-};
+	return answers.envSlug;
+}
 
-const getEnvHosts = async function( envPath ) {
-    try {
-        const envConfig = await fs.readJson( path.join( envPath, CONFIG_FILENAME ) );
+async function parseOrPromptEnv() {
+	let envSlug = await parseEnvFromCWD();
 
-        return ( typeof envConfig === 'object' && undefined !== envConfig.envHosts ) ? envConfig.envHosts : [];
-    } catch ( ex ) {
-        return [];
-    }
-};
+	if ( envSlug === false ) {
+		envSlug = await promptEnv();
+	}
 
-const getPathOrError = async function( env ) {
-    if ( env === false || undefined === env || env.trim().length === 0 ) {
-        env = await promptEnv();
-    }
+	return envSlug;
+}
 
-    console.log( `Locating project files for ${env}` );
+function saveEnvConfig( envPath, config ) {
+	return fs.writeJSON( path.join( envPath, CONFIG_FILENAME ), config );
+}
 
-    const _envPath = await envPath( env );
-    if ( ! await fs.pathExists( _envPath ) ) {
-        console.error( `ERROR: Cannot find ${env} environment!` );
-        process.exit( 1 );
-    }
+async function getEnvConfig( envPath, key = '', defaults = null ) {
+	try {
+		const envConfig = await fs.readJson( path.join( envPath, CONFIG_FILENAME ) );
+		if ( key ) {
+			return typeof envConfig === 'object' ? envConfig[ key ] : defaults;
+		}
 
-    return _envPath;
-};
+		return envConfig;
+	} catch ( err ) {
+		// do nothing.
+	}
+
+	return false;
+}
+
+function getEnvHosts( envPath ) {
+	return getEnvConfig( envPath, 'envHosts', [] );
+}
+
+async function getPathOrError( env, spinner ) {
+	if ( env === false || undefined === env || env.trim().length === 0 ) {
+		env = await promptEnv();
+	}
+
+	if ( ! spinner ) {
+		console.log( `Locating project files for ${ env }` );
+	}
+
+	const _envPath = await envPath( env );
+	const exists = await fs.pathExists( _envPath );
+	if ( ! exists ) {
+		if ( spinner ) {
+			throw new Error( `Cannot find ${ env } environment!` );
+		} else {
+			console.error( `Cannot find ${ env } environment!` );
+			process.exit( 1 );
+		}
+	}
+
+	return _envPath;
+}
 
 /**
  * Format the default Proxy URL based on entered hostname
  *
- * @param  string value 	The user entered hostname
- * @return string       	The formatted default proxy URL
+ * @param {string} value The user entered hostname
+ * @return string The formatted default proxy URL
  */
-const createDefaultProxy = function( value ) {
-    let proxyUrl = `http://${ helper.removeEndSlashes( value ) }`;
-    const proxyUrlTLD = proxyUrl.lastIndexOf( '.' );
+function createDefaultProxy( value ) {
+	let proxyUrl = `http://${ helper.removeEndSlashes( value ) }`;
+	const proxyUrlTLD = proxyUrl.lastIndexOf( '.' );
 
-    if ( proxyUrlTLD === -1 ) {
-        proxyUrl = `${ proxyUrl }.com`;
-    } else {
-        proxyUrl = `${ proxyUrl.substring( 0, proxyUrlTLD + 1 ) }com`;
-    }
+	if ( proxyUrlTLD === -1 ) {
+		proxyUrl = `${ proxyUrl }.com`;
+	} else {
+		proxyUrl = `${ proxyUrl.substring( 0, proxyUrlTLD + 1 ) }com`;
+	}
 
-    return proxyUrl;
+	return proxyUrl;
+}
+
+module.exports = {
+	rootPath,
+	srcPath,
+	sitesPath,
+	cacheVolume,
+	globalPath,
+	envSlug,
+	envPath,
+	parseEnvFromCWD,
+	resolveEnvironment,
+	getAllEnvironments,
+	promptEnv,
+	parseOrPromptEnv,
+	saveEnvConfig,
+	getEnvConfig,
+	getEnvHosts,
+	getPathOrError,
+	createDefaultProxy,
+	getSnapshotsPath,
 };
-
-module.exports = { rootPath, srcPath, sitesPath, cacheVolume, globalPath, envSlug, envPath, parseEnvFromCWD, getAllEnvironments, promptEnv, parseOrPromptEnv, getEnvHosts, getPathOrError, createDefaultProxy };
