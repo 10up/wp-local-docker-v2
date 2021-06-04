@@ -1,5 +1,3 @@
-const { EOL } = require( 'os' );
-
 const compose = require( 'docker-compose' );
 
 function interpretComposerResults( { out, err, exitCode } ) {
@@ -27,8 +25,11 @@ exports.run = makeProxyFunction( 'run' );
 exports.upAll = makeProxyFunction( 'upAll' );
 
 exports.isRunning = async function( cwd ) {
-	const results = await compose.ps( { cwd } );
-	const out = interpretComposerResults( results );
+	try {
+		await compose.port( 'nginx', 80, { cwd } );
+		return true;
+	} catch {
+	}
 
-	return out.split( EOL ).filter( ( line ) => line.trim().length > 0 ).length > 2;
+	return false;
 };
