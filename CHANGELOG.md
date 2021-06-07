@@ -4,7 +4,8 @@ All notable changes to this project will be documented in this file, per [the Ke
 
 ## [Unreleased] - TBD
 
-- 
+### Added
+- Adds support for PHP 8.0.
 
 ## [2.8.1] - 2021-01-29
 
