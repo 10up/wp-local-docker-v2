@@ -7,25 +7,24 @@ services:
     cap_add:
       - NET_ADMIN
     command: -A /test/10.0.0.3 --log-facility=-
-    ports:
-        - 127.0.0.1:53:53/udp
-        - 127.0.0.1:53:53
     networks:
       wplocaldocker:
         ipv4_address: 10.0.0.2
   gateway:
-    image: 10up/nginx-proxy
+    image: jwilder/nginx-proxy
     ports:
       - 127.0.0.1:80:80
       - 127.0.0.1:443:443
     volumes:
       - ./ssl-certs:/etc/nginx/certs:ro
+      - ./config/nginx/503.html:/usr/share/nginx/html/503.html:ro
+      - ./config/nginx/nginx.tmpl:/app/nginx.tmpl:ro
       - /var/run/docker.sock:/tmp/docker.sock:ro
     networks:
       wplocaldocker:
         ipv4_address: 10.0.0.3
   mysql:
-    image: mysql:5
+    image: mariadb:10.3
     volumes:
       - ./config/mysql/config.cnf:/etc/mysql/mysql.conf.d/wp-local-docker.cnf:ro
       - mysqlData:/var/lib/mysql
