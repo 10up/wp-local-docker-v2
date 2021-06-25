@@ -9,7 +9,7 @@
 ### Introduction
 
 WP Local Docker is an easy to use Docker based local development environment for WordPress development that works on Mac,
-Windows, and Linux. Any number of environments can be created and may run at the same time[^1], and requests will be routed
+Windows, and Linux. Any number of environments can be created and may run at the same time<sup>[1](#F.A.Q)</sup>, and requests will be routed
 appropriately to the correct environment based on the hostname specified during environment creation.
 
 Each environment within WP Local Docker is powered by nginx, phpfpm, memcached, and if desired, elasticsearch. PHP versions
@@ -20,7 +20,6 @@ MySQL databases with a familiar UI, and mailcatcher to catch any mail sent from 
 In addition to the services required to run WordPress, WP Local Docker will also download and install WordPress as a
 single site installation, a Multisite with Subdirectories, a Multisite with Subdomains, or the core development version.
 
-[^1]: Concurrent environments are limited by the available resources of your host machine
 ---
 ### Prerequisites
 
@@ -255,6 +254,12 @@ compared against project names and authors. Searching for "*" will return all sn
 WP Snapshots, so any command that WP Snapshots accepts will work in this form. Any command that requires a WordPress
 environment (pull, create, etc) needs to be run from somewhere within an environment directory (by default, this is
 somewhere within `~/wp-local-docker-sites/<environment>/`).
+
+---
+
+## F.A.Q
+#### Can I run as many concurrent enviroments as I want?
+Concurrent environments are limited by the available resources of your host machine
 
 ---
 ## Support Level
