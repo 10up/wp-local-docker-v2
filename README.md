@@ -9,7 +9,7 @@
 ### Introduction
 
 WP Local Docker is an easy to use Docker based local development environment for WordPress development that works on Mac,
-Windows, and Linux. Any number of environments can be created and may run at the same time<sup>1</sup>, and requests will be routed
+Windows, and Linux. Any number of environments can be created and may run at the same time[^1], and requests will be routed
 appropriately to the correct environment based on the hostname specified during environment creation.
 
 Each environment within WP Local Docker is powered by nginx, phpfpm, memcached, and if desired, elasticsearch. PHP versions
@@ -20,13 +20,12 @@ MySQL databases with a familiar UI, and mailcatcher to catch any mail sent from 
 In addition to the services required to run WordPress, WP Local Docker will also download and install WordPress as a
 single site installation, a Multisite with Subdirectories, a Multisite with Subdomains, or the core development version.
 
-----
-<sub>1. Concurrent environments are limited by the available resources of your host machine</sub>
-
+[^1]: Concurrent environments are limited by the available resources of your host machine
+---
 ### Prerequisites
 
 WP Local Docker requires [docker](https://www.docker.com/), [docker-compose](https://docs.docker.com/compose/), [Node](https://nodejs.org/en/), and npm. It is recommended that you use the latest versions of
-docker and docker-compose. Node 12 is the minimum version of node that is currently supported. While WP Local Docker _may_ work with other versions of Node, compatibility is not guaranteed.
+docker and docker-compose. Node 12 is the minimum version of node that is currently supported. While WP Local Docker _may_ work with other versions of Node, compatibility is not guaranteed. We recommend using [NVM](https://github.com/nvm-sh/nvm) to manage Node versions.
 
 #### MacOS
 [Docker Desktop](https://docs.docker.com/docker-for-mac/install/) is available for download from the [Docker website](https://docs.docker.com/docker-for-mac/install/) and will
@@ -58,12 +57,13 @@ Docker has platform specific installation instructions available for linux on th
 Once docker is installed, you will need to [manually install docker compose](https://docs.docker.com/compose/install/).
 NodeJS can be installed via a package manager for many linux platforms [following these instructions](https://nodejs.org/en/download/package-manager/).
 
+---
 ## Installation
 
 Once all installation prerequisites have been met, WP Local Docker is installed as a global npm package by running
 `npm install -g wp-local-docker`. You can confirm it has been installed by running `10updocker --version`.
 
-## Configuration
+### Configuration
 
 The first time you run a WP Local Docker command, default configuration settings will be used if you have not manually
 configured WP Local Docker beforehand. By default, WP Local Docker will store all environments within the
@@ -71,11 +71,12 @@ configured WP Local Docker beforehand. By default, WP Local Docker will store al
 would like to customize the environment path or opt to not have WP Local Docker update your hosts file, run
 `10updocker configure` and follow the prompts.
 
-## Updating
+### Updating
 
 To update WP Local Docker, run `npm update -g wp-local-docker`
 
-
+---
+## Using WP Local Docker
 ### Create an Environment
 
 `10updocker create` will present you with a series of prompts to configure your environment to suit your needs.
@@ -187,9 +188,7 @@ system and update them to the latest version available.
 WP Local Docker relies on a set of global services to function properly. To turn off global services, run
 `10updocker stop all`. This will stop all environments and then the global services.
 
-## Support Level
-**Active:** 10up is actively working on this, and we expect to continue work for the foreseeable future including keeping tested up to the most recent version of WordPress.  Bug reports, feature requests, questions, and pull requests are welcome.
-
+---
 ### Tools
 
 #### phpMyAdmin
@@ -256,6 +255,9 @@ compared against project names and authors. Searching for "*" will return all sn
 WP Snapshots, so any command that WP Snapshots accepts will work in this form. Any command that requires a WordPress
 environment (pull, create, etc) needs to be run from somewhere within an environment directory (by default, this is
 somewhere within `~/wp-local-docker-sites/<environment>/`).
-##### Like what you see?
 
+---
+## Support Level
+**Active:** 10up is actively working on this, and we expect to continue work for the foreseeable future including keeping tested up to the most recent version of WordPress.  Bug reports, feature requests, questions, and pull requests are welcome.
+#### Like what you see?
 <a href="https://10up.com/contact/"><img src="https://10up.com/uploads/2016/10/10up-Github-Banner.png" width="850"></a>
