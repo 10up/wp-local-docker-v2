@@ -9,7 +9,7 @@
 ### Introduction
 
 WP Local Docker is an easy to use Docker based local development environment for WordPress development that works on Mac,
-Windows, and Linux. Any number of environments can be created and may run at the same time<sup>[1](#F.A.Q)</sup>, and requests will be routed
+Windows, and Linux. Any number of environments can be created and may run at the same time<sup>[1](#faq)</sup>, and requests will be routed
 appropriately to the correct environment based on the hostname specified during environment creation.
 
 Each environment within WP Local Docker is powered by nginx, phpfpm, memcached, and if desired, elasticsearch. PHP versions
