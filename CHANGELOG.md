@@ -6,8 +6,16 @@ All notable changes to this project will be documented in this file, per [the Ke
 
 - 
 
-## [2.8.1] - 2021-01-29
+## [2.8.2] - TBD
+### Changed
+- Updates dependencies to their latest versions.
 
+### Fixed
+- Fixes broken configuration file issue when answering `no` to the install WordPress question in the `10updocker init` command.
+- Fixes wrong hostname detection in the configuration file during `10updocker clone` command run.
+- Fixes issues with some docker-compose commands caused by `docker-compose` library.
+
+## [2.8.1] - 2021-01-29
 ### Changed
 - Compose files have been updated to build PHP images in the `.containers` context.
 
@@ -139,6 +147,7 @@ opcache configured with optimal settings for development.
 ## [2.2.0] - 2019-02-04
 
 [Unreleased]: https://github.com/10up/wp-local-docker-v2/compare/master...develop
+[2.8.2]: https://github.com/10up/wp-local-docker-v2/compare/2.8.1...2.8.2
 [2.8.1]: https://github.com/10up/wp-local-docker-v2/compare/2.8.0...2.8.1
 [2.8.0]: https://github.com/10up/wp-local-docker-v2/compare/2.7.0...2.8.0
 [2.7.0]: https://github.com/10up/wp-local-docker-v2/compare/2.6.2...2.7.0

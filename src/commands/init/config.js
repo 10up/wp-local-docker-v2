@@ -69,14 +69,7 @@ exports.elasticsearch = {{elasticsearch}};
  *
  * @type {Object}
  */
-exports.wordpress = {
-    type: {{wordpressType}},
-    title: {{title}},
-    username: {{username}},
-    password: {{password}},
-    email: {{email}},
-    purify: {{emptyContent}},
-};
+exports.wordpress = {{wordpress}};
 
 /**
  * The snapshot id to use for the project. If multiple snaphots are available,
@@ -162,8 +155,22 @@ module.exports = function makeConfig() {
 	return ( answers ) => {
 		let config = template;
 
-		Object.keys( answers ).forEach( ( key ) => {
-			config = config.split( `{{${ key }}}` ).join( JSON.stringify( answers[ key ] ) );
+		const data = { ...answers };
+		if ( data.wordpress ) {
+			data.wordpress = {
+				type: data.wordpressType,
+				title: data.title,
+				username: data.username,
+				password: data.password,
+				email: data.email,
+				purify: data.emptyContent,
+			};
+		}
+
+		Object.keys( data ).forEach( ( key ) => {
+			config = config
+				.split( `{{${ key }}}` )
+				.join( JSON.stringify( data[ key ], undefined, '    ' ) );
 		} );
 
 		return config;
