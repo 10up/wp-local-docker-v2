@@ -2,6 +2,7 @@ const { validateNotEmpty, parseHostname, parseProxyUrl } = require( '../../promp
 const { createDefaultProxy } = require( '../../env-utils' );
 
 const phpVersions = [
+	'8.0',
 	'7.4',
 	'7.3',
 	'7.2',
