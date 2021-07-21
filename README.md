@@ -13,7 +13,7 @@ Windows, and Linux. Any number of environments can be created and may run at the
 appropriately to the correct environment based on the hostname specified during environment creation.
 
 Each environment within WP Local Docker is powered by nginx, phpfpm, memcached, and if desired, elasticsearch. PHP versions
-5.5, 5.6, 7.0, 7.1, 7.2 or 7.3 are all supported. Supporting all environments within WP Local Docker is a MySQL container to run
+5.6, 7.0, 7.1, 7.2 or 7.3 are all supported. Supporting all environments within WP Local Docker is a MySQL container to run
 all MySQL databases, WP Snapshots to easily push and pull snapshots of a WordPress installation, PHPMyAdmin to manage
 MySQL databases with a familiar UI, and mailcatcher to catch any mail sent from all environments.
 
@@ -140,7 +140,7 @@ Elasticsearch server by prefixing the url path with `/__elasticsearch/`. For exa
 
 ### WP Snapshots
 
-See the section on [using WP Snapshots](../wp-snapshots)
+See the section on [using WP Snapshots](#user-content-wpsnapshots)
 
 ### Running WP CLI Commands
 
