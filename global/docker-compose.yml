@@ -16,7 +16,7 @@ services:
       - 127.0.0.1:80:80
       - 127.0.0.1:443:443
     volumes:
-      - ./ssl-certs:/etc/nginx/certs:ro
+      - ./config/nginx/certs:/etc/nginx/certs:ro
       - ./config/nginx/503.html:/usr/share/nginx/html/503.html:ro
       - ./config/nginx/nginx.tmpl:/app/nginx.tmpl:ro
       - /var/run/docker.sock:/tmp/docker.sock:ro
