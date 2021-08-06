@@ -51,7 +51,7 @@ module.exports = function makeDockerCompose( spinner ) {
 					dns: [ '10.0.0.2' ],
 					volumes: [
 						'./wordpress:/var/www/html:cached',
-						'./config/php-fpm/docker-php-ext-xdebug.ini:/etc/php.d/docker-php-ext-xdebug.ini:cached',
+						`./config/php-fpm/docker-php-ext-xdebug.ini:/etc/php.d/${ phpVersion }/fpm/docker-php-ext-xdebug.ini:cached`,
 						`${ cacheVolume }:/var/www/.wp-cli/cache:cached`,
 					],
 					cap_add: [
@@ -91,7 +91,7 @@ module.exports = function makeDockerCompose( spinner ) {
 				dockerfile: 'php-fpm',
 				context: '.containers',
 				args: {
-					PHP_IMAGE: images[`php${ phpVersion }`],
+					PHP_IMAGE: images[`php${ phpVersion }-ubuntu`],
 					CALLING_USER: process.env.USER,
 					CALLING_UID: process.getuid()
 				}
