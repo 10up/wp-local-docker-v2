@@ -130,7 +130,7 @@ module.exports = function makeInquirer( { prompt } ) {
 				type: 'list',
 				message: 'What version of PHP would you like to use?',
 				choices: phpVersions,
-				default: '7.3',
+				default: '7.4',
 				when() {
 					return ! phpVersions.includes( php );
 				},
