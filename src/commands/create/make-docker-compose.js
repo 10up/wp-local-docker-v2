@@ -1,5 +1,7 @@
 const { platform } = require( 'os' );
 
+const slugify = require( '@sindresorhus/slugify' );
+
 const { cacheVolume } = require( '../../env-utils' );
 const { images } = require( '../../docker-images' );
 
@@ -85,7 +87,7 @@ module.exports = function makeDockerCompose( spinner ) {
 		// wrong user. Here we setup the docker-compose.yml file to rebuild the
 		// phpfpm container so that it runs as the user who created the project.
 		if ( platform() == 'linux' ) {
-			baseConfig.services.phpfpm.image = `wp-php-fpm-dev-${ phpVersion }-${ process.env.USER }`;
+			baseConfig.services.phpfpm.image = `wp-php-fpm-dev-${ phpVersion }-${ slugify( process.env.USER ) }`;
 			baseConfig.services.phpfpm.volumes.push( `~/.ssh:/home/${ process.env.USER }/.ssh:cached` );
 			baseConfig.services.phpfpm.build = {
 				dockerfile: 'php-fpm',
