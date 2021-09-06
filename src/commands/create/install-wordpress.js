@@ -121,10 +121,10 @@ async function emptyContent( cwd, spinner ) {
 		console.log( 'Remove the default WordPress content:' );
 	}
 
-	await compose.exec( 'phpfpm', 'wp site empty --yes', { cwd, log: ! spinner } );
-	await compose.exec( 'phpfpm', 'wp plugin delete hello akismet', { cwd, log: ! spinner } );
-	await compose.exec( 'phpfpm', 'wp theme delete twentyfifteen twentysixteen twentyseventeen twentyeighteen twentynineteen', { cwd, log: ! spinner } );
-	await compose.exec( 'phpfpm', 'wp widget delete search-2 recent-posts-2 recent-comments-2 archives-2 categories-2 meta-2', { cwd, log: ! spinner } );
+	await compose.exec( 'phpfpm', 'wp site empty --yes', { cwd, log: ! spinner } ).catch( () => {} );
+	await compose.exec( 'phpfpm', 'wp plugin delete hello akismet', { cwd, log: ! spinner } ).catch( () => {} );
+	await compose.exec( 'phpfpm', 'wp theme delete twentyfifteen twentysixteen twentyseventeen twentyeighteen twentynineteen', { cwd, log: ! spinner } ).catch( () => {} );
+	await compose.exec( 'phpfpm', 'wp widget delete search-2 recent-posts-2 recent-comments-2 archives-2 categories-2 meta-2', { cwd, log: ! spinner } ).catch( () => {} );
 
 	if ( spinner ) {
 		spinner.succeed( 'The default content is removed...' );
