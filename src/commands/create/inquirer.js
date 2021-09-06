@@ -98,7 +98,7 @@ module.exports = function makeInquirer( { prompt } ) {
 				validate: validateNotEmpty,
 				filter: parseHostname,
 				when() {
-					return ! Array.isArray( domain ) || ! domain.length;
+					return ! domain || ( Array.isArray( domain ) && ! domain.length );
 				},
 			},
 			{
@@ -107,7 +107,7 @@ module.exports = function makeInquirer( { prompt } ) {
 				message: 'Are there additional domains the site should respond to?',
 				default: false,
 				when() {
-					return ! Array.isArray( domain ) || ! domain.length;
+					return ! domain || ( Array.isArray( domain ) && ! domain.length );
 				},
 			},
 			{
@@ -130,7 +130,7 @@ module.exports = function makeInquirer( { prompt } ) {
 				type: 'list',
 				message: 'What version of PHP would you like to use?',
 				choices: phpVersions,
-				default: '7.3',
+				default: '7.4',
 				when() {
 					return ! phpVersions.includes( php );
 				},
