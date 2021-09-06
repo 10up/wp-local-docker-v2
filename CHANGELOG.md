@@ -3,11 +3,9 @@
 All notable changes to this project will be documented in this file, per [the Keep a Changelog standard](http://keepachangelog.com/).
 
 ## [Unreleased] - TBD
-
 ### Added
 - Adds support for PHP 8.0.
 
-## [2.8.2] - TBD
 ### Changed
 - Updates dependencies to their latest versions.
 
@@ -148,7 +146,6 @@ opcache configured with optimal settings for development.
 ## [2.2.0] - 2019-02-04
 
 [Unreleased]: https://github.com/10up/wp-local-docker-v2/compare/master...develop
-[2.8.2]: https://github.com/10up/wp-local-docker-v2/compare/2.8.1...2.8.2
 [2.8.1]: https://github.com/10up/wp-local-docker-v2/compare/2.8.0...2.8.1
 [2.8.0]: https://github.com/10up/wp-local-docker-v2/compare/2.7.0...2.8.0
 [2.7.0]: https://github.com/10up/wp-local-docker-v2/compare/2.6.2...2.7.0
