@@ -8,6 +8,7 @@ All notable changes to this project will be documented in this file, per [the Ke
 
 ### Changed
 - Updates dependencies to their latest versions.
+- Suppresses WP-CLI errors during removing the default content.
 
 ### Fixed
 - Fixes broken configuration file issue when answering `no` to the install WordPress question in the `10updocker init` command.
