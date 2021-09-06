@@ -3,12 +3,18 @@
 All notable changes to this project will be documented in this file, per [the Keep a Changelog standard](http://keepachangelog.com/).
 
 ## [Unreleased] - TBD
-
 ### Added
 - Adds support for PHP 8.0.
 
-## [2.8.1] - 2021-01-29
+### Changed
+- Updates dependencies to their latest versions.
 
+### Fixed
+- Fixes broken configuration file issue when answering `no` to the install WordPress question in the `10updocker init` command.
+- Fixes wrong hostname detection in the configuration file during `10updocker clone` command run.
+- Fixes issues with some docker-compose commands caused by `docker-compose` library.
+
+## [2.8.1] - 2021-01-29
 ### Changed
 - Compose files have been updated to build PHP images in the `.containers` context.
 
