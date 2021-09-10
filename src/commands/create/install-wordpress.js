@@ -4,7 +4,7 @@ const envUtils = require( '../../env-utils' );
 const compose = require( '../../utils/docker-compose' );
 const { makeClone } = require( '../../utils/git' );
 
-async function downloadWordPress( wordpressType, cwd, spinner, chalk ) {
+async function downloadWordPress( wordpressType, cwd, spinner, chalk, version = 'latest' ) {
 	if ( spinner ) {
 		spinner.start( 'Downloading WordPress...' );
 	} else {
@@ -21,7 +21,7 @@ async function downloadWordPress( wordpressType, cwd, spinner, chalk ) {
 			console.log( ' - Done' );
 		}
 	} else {
-		await compose.exec( 'phpfpm', 'wp core download --version=latest --force', { cwd, log: ! spinner } );
+		await compose.exec( 'phpfpm', `wp core download --version=${ version } --force`, { cwd, log: ! spinner } );
 
 		if ( spinner ) {
 			spinner.succeed( 'WordPress is downloaded...' );
@@ -143,7 +143,7 @@ module.exports = function makeInstallWordPress( spinner, chalk ) {
 		try {
 			const cwd = await envUtils.envPath( envSlug );
 
-			await downloadWordPress( wordpress.type, cwd, spinner, chalk );
+			await downloadWordPress( wordpress.type, cwd, spinner, chalk, wordpress.version );
 			await configure( envSlug, cwd, spinner );
 			await install( hostname, wordpress, certs, cwd, spinner );
 			await setRewrites( cwd, spinner );
