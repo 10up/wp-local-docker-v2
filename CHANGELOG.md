@@ -14,6 +14,7 @@ All notable changes to this project will be documented in this file, per [the Ke
 - Fixes broken configuration file issue when answering `no` to the install WordPress question in the `10updocker init` command.
 - Fixes wrong hostname detection in the configuration file during `10updocker clone` command run.
 - Fixes issues with some docker-compose commands caused by `docker-compose` library.
+- Fixes phpfpm image name issue that occurs on Linux if the user has a non-standard name.
 
 ## [2.8.1] - 2021-01-29
 ### Changed
