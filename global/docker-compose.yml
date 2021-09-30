@@ -47,6 +47,16 @@ services:
       MAILCATCHER_PORT: 1025
     networks:
       - wplocaldocker
+  phpmyadmin:
+    image: phpmyadmin
+    ports:
+      - 127.0.0.1:8092:80
+    depends_on:
+      - mysql
+    environment:
+      PMA_HOST: mysql
+    networks:
+      - wplocaldocker
 networks:
   wplocaldocker:
     external:

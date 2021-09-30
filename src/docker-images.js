@@ -3,6 +3,7 @@ exports.globalImages = {
 	'nginx-proxy': 'jwilder/nginx-proxy:alpine',
 	mysql: 'mariadb:10.3',
 	mailcatcher: 'schickling/mailcatcher',
+	phpmyadmin: 'phpmyadmin',
 };
 
 exports.images = {
