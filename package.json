@@ -35,7 +35,6 @@
 		"postinstall": "npm run 10updocker postinstall --silent",
 		"10updocker": "./index.js",
 		"10updocker-hosts": "./hosts.js",
-		"test": "jest",
 		"lint": "eslint . --ext .js --ignore-pattern node_modules",
 		"format": "npm run lint --silent -- --fix"
 	},
@@ -89,7 +88,6 @@
 		"babel-eslint": "^10.0.3",
 		"eslint": "^7.32.0",
 		"husky": "^4.3.8",
-		"jest": "^26.6.3",
 		"lint-staged": "^10.5.4"
 	},
 	"lint-staged": {
