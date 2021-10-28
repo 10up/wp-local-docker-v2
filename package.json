@@ -73,6 +73,7 @@
 		"netcat": "^1.4.0",
 		"ora": "^5.4.1",
 		"read-yaml": "^1.1.0",
+		"request": "^2.88.2",
 		"shell-escape": "^0.2.0",
 		"strip-ansi": "^6.0.0",
 		"sudo-prompt": "^9.2.1",
