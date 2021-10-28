@@ -152,9 +152,9 @@ function createProxyConfig( proxy, curConfig ) {
 
 	// the number of spaces in the proxy markpu is intended
 	proxyMarkup.push( 'location @production {' );
-	proxyMarkup.push( '        resolver 8.8.8.8;' );
-	proxyMarkup.push( `        proxy_pass ${ proxy }/$uri;` );
-	proxyMarkup.push( '    }' );
+	proxyMarkup.push( '    resolver 8.8.8.8;' );
+	proxyMarkup.push( `    proxy_pass ${ proxy }/$uri;` );
+	proxyMarkup.push( '}' );
 
 	const proxyMapObj = {
 		'#{TRY_PROXY}': 'try_files $uri @production;',

@@ -15,14 +15,13 @@ const wordpressTypes = [
 	{ name: 'Single Site', value: 'single' },
 	{ name: 'Subdirectory Multisite', value: 'subdirectory' },
 	{ name: 'Subdomain Multisite', value: 'subdomain' },
-	{ name: 'Core Development Version', value: 'dev' },
 ];
 
 function defaultIsUndefined( val ) {
 	return () => typeof val === 'undefined';
 }
 
-function marshalDomains( original, { hostname, extraHosts, wordpressType } ) {
+function marshalDomains( original, { hostname, extraHosts } ) {
 	const collection = new Set();
 
 	if ( Array.isArray( original ) ) {
@@ -33,9 +32,6 @@ function marshalDomains( original, { hostname, extraHosts, wordpressType } ) {
 
 	if ( hostname ) {
 		collection.add( hostname );
-		if ( wordpressType === 'dev' ) {
-			collection.add( `build.${ hostname }` );
-		}
 	}
 
 	if ( Array.isArray( extraHosts ) ) {

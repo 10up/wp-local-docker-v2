@@ -72,7 +72,7 @@ would like to customize the environment path or opt to not have WP Local Docker 
 
 ### Updating
 
-To update WP Local Docker, run `npm update -g wp-local-docker`
+To update WP Local Docker, run `npm install -g wp-local-docker` again and NPM will install the latest version over your current one.
 
 ---
 ## Using WP Local Docker
