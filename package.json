@@ -1,6 +1,6 @@
 {
 	"name": "wp-local-docker",
-	"version": "2.8.1",
+	"version": "3.0.0",
 	"description": "WP Local Docker",
 	"license": "MIT",
 	"homepage": "https://10up.github.io/wp-local-docker-docs/",
@@ -35,7 +35,6 @@
 		"postinstall": "npm run 10updocker postinstall --silent",
 		"10updocker": "./index.js",
 		"10updocker-hosts": "./hosts.js",
-		"test": "jest",
 		"lint": "eslint . --ext .js --ignore-pattern node_modules",
 		"format": "npm run lint --silent -- --fix"
 	},
@@ -57,28 +56,28 @@
 		}
 	],
 	"dependencies": {
-		"@sindresorhus/slugify": "^1.1.0",
+		"@sindresorhus/slugify": "^1.1.2",
 		"asyncro": "^3.0.0",
-		"boxen": "^5.0.0",
-		"chalk": "^4.1.0",
-		"docker-compose": "^0.23.6",
-		"dockerode": "^3.2.1",
+		"boxen": "^5.0.1",
+		"chalk": "^4.1.2",
+		"docker-compose": "^0.23.13",
+		"dockerode": "^3.3.0",
 		"fs-extra": "^9.1.0",
 		"hostile": "^1.3.3",
-		"inquirer": "^7.3.3",
-		"log-symbols": "^4.0.0",
-		"markdown-it": "^12.0.4",
+		"inquirer": "^8.1.2",
+		"log-symbols": "^4.1.0",
+		"markdown-it": "^12.2.0",
 		"mkcert": "^1.4.0",
 		"mkcert-prebuilt": "^1.0.0",
 		"mysql": "^2.17.1",
 		"netcat": "^1.4.0",
-		"nodegit": "^0.27.0",
-		"ora": "^5.3.0",
+		"ora": "^5.4.1",
 		"read-yaml": "^1.1.0",
+		"request": "^2.88.2",
 		"shell-escape": "^0.2.0",
 		"strip-ansi": "^6.0.0",
 		"sudo-prompt": "^9.2.1",
-		"table": "^6.0.7",
+		"table": "^6.7.1",
 		"terminal-link": "^2.1.1",
 		"update-check": "^1.5.3",
 		"which": "^2.0.2",
@@ -88,10 +87,9 @@
 	"devDependencies": {
 		"@10up/eslint-config": "^1.0.9",
 		"babel-eslint": "^10.0.3",
-		"eslint": "^7.18.0",
+		"eslint": "^7.32.0",
 		"husky": "^4.3.8",
-		"jest": "^26.6.3",
-		"lint-staged": "^10.5.3"
+		"lint-staged": "^10.5.4"
 	},
 	"lint-staged": {
 		"*.js": "eslint"

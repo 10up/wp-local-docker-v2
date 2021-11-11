@@ -1,5 +1,7 @@
 const { platform } = require( 'os' );
 
+const slugify = require( '@sindresorhus/slugify' );
+
 const { cacheVolume } = require( '../../env-utils' );
 const { images } = require( '../../docker-images' );
 
@@ -51,7 +53,7 @@ module.exports = function makeDockerCompose( spinner ) {
 					dns: [ '10.0.0.2' ],
 					volumes: [
 						'./wordpress:/var/www/html:cached',
-						'./config/php-fpm/docker-php-ext-xdebug.ini:/etc/php.d/docker-php-ext-xdebug.ini:cached',
+						`./config/php-fpm/docker-php-ext-xdebug.ini:/etc/php.d/${ phpVersion }/fpm/docker-php-ext-xdebug.ini:cached`,
 						`${ cacheVolume }:/var/www/.wp-cli/cache:cached`,
 					],
 					cap_add: [
@@ -85,13 +87,13 @@ module.exports = function makeDockerCompose( spinner ) {
 		// wrong user. Here we setup the docker-compose.yml file to rebuild the
 		// phpfpm container so that it runs as the user who created the project.
 		if ( platform() == 'linux' ) {
-			baseConfig.services.phpfpm.image = `wp-php-fpm-dev-${ phpVersion }-${ process.env.USER }`;
+			baseConfig.services.phpfpm.image = `wp-php-fpm-dev-${ phpVersion }-${ slugify( process.env.USER ) }`;
 			baseConfig.services.phpfpm.volumes.push( `~/.ssh:/home/${ process.env.USER }/.ssh:cached` );
 			baseConfig.services.phpfpm.build = {
 				dockerfile: 'php-fpm',
 				context: '.containers',
 				args: {
-					PHP_IMAGE: images[`php${ phpVersion }`],
+					PHP_IMAGE: images[`php${ phpVersion }-ubuntu`],
 					CALLING_USER: process.env.USER,
 					CALLING_UID: process.getuid()
 				}

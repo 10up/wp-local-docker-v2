@@ -1,4 +1,4 @@
-ARG PHP_IMAGE=10up/wp-php-fpm-dev:7.3
+ARG PHP_IMAGE=10up/wp-php-fpm-dev:7.4
 FROM ${PHP_IMAGE}
 
 ARG CALLING_USER=www-data

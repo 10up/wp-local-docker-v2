@@ -107,18 +107,18 @@ async function removeCacheVolume( docker, spinner ) {
 }
 
 /**
- * Wait for MySQL to come up and finish initializing.
+ * Wait for MariaDB to come up and finish initializing.
  *
- * The first the time the MySQL container starts it will initialize the data directory. It will open port 3306
+ * The first the time the MariaDB container starts it will initialize the data directory. It will open port 3306
  * but not send data back when connected to, instead closing the connection immediately. netcat is used
- * here to connect the the MySQL port and will resolve the promise once MySQL sends data back indicating
- * MySQL is ready for work.
+ * here to connect the the MariaDB port and will resolve the promise once MariaDB sends data back indicating
+ * MariaDB is ready for work.
  */
 function waitForDB( spinner ) {
 	if ( spinner ) {
-		spinner.start( 'Waiting for MySQL...' );
+		spinner.start( 'Waiting for MariaDB...' );
 	} else {
-		console.log( 'Waiting for MySQL...' );
+		console.log( 'Waiting for MariaDB...' );
 	}
 
 	return new Promise( ( resolve ) => {
@@ -132,7 +132,7 @@ function waitForDB( spinner ) {
 				netcat.close();
 
 				if ( spinner ) {
-					spinner.succeed( 'MySQL has started...' );
+					spinner.succeed( 'MariaDB has started...' );
 				}
 
 				clearInterval( interval );
