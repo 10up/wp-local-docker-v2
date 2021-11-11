@@ -18,6 +18,8 @@ All notable changes to this project will be documented in this file, per [the Ke
 ### Fixed
 - Fixes issues with some docker-compose commands caused by `docker-compose` library.
 - Fixes phpfpm image name issue that occurs on Linux if the user has a non-standard name.
+- Fixes empty content issues on create. 
+- Fixes issue with missing npm request package.
 
 ### Removes
 - Removes `10updocker init` and `10updocker clone` commands
