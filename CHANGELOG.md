@@ -6,7 +6,7 @@ All notable changes to this project will be documented in this file, per [the Ke
 
 -
 
-## [3.0.0] - TBD
+## [3.0.0] - 2021-11-11
 ### Added
 - Adds support for PHP 8.0.
 - Adds support for ARM images.
