@@ -97,6 +97,13 @@ environment. Before running this command, create a new environment using the `10
 Example:
 * `10updocker migrate ~/sites/mysite`
 
+### Migrate a WP Local Docker V2 Environment to v3
+
+`10updocker configure` to update to the latest `.wplocaldocker/global/docker-compose.yml` and answer `yes` to ` Do you want to reset your global services configuration? This will reset any customizations you have made.`
+
+### M1 Architecture consideration
+To utilize the new M1 architecture optimised docker images on existing sites, edit the `docker-compose.yml` file to match a newly created on. Alternatively you can just create new sites and they will be optimised for M1 archtecture.
+
 ### Delete an Environment
 
 `10updocker delete <hostname>` will delete an environment with the given hostname. Any local files, docker volumes, and
