@@ -265,9 +265,9 @@ somewhere within `~/wp-local-docker-sites/<environment>/`).
 ---
 
 ## F.A.Q
-#### Can I run as many concurrent enviroments as I want?
+### Can I run as many concurrent enviroments as I want?
 Concurrent environments are limited by the available resources of your host machine
-#### How do I upgrade an environment to a new version of PHP?
+### How do I upgrade an environment to a new version of PHP?
 To upgrade to a newer version of PHP, please edit the `docker-compose.yml` in the environment you are updating.
 From:
 ```
@@ -288,6 +288,7 @@ To:
       - './config/php-fpm/docker-php-ext-xdebug.ini:/etc/php.d/7.4/fpm/docker-php-ext-xdebug.ini:cached'
 ```
 Once you update this run `docker-compose down` and `docker-compose up` to rebuild the containers.
+
 ---
 ## Support Level
 **Active:** 10up is actively working on this, and we expect to continue work for the foreseeable future including keeping tested up to the most recent version of WordPress.  Bug reports, feature requests, questions, and pull requests are welcome.
