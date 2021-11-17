@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file, per [the Ke
 
 ## [Unreleased] - TBD
 
--
+- Fixes the correct image name for phpfpm in Linux platforms
 
 ## [3.0.0] - 2021-11-11
 ### Added

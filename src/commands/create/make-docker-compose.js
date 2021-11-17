@@ -93,7 +93,7 @@ module.exports = function makeDockerCompose( spinner ) {
 				dockerfile: 'php-fpm',
 				context: '.containers',
 				args: {
-					PHP_IMAGE: images[`php${ phpVersion }-ubuntu`],
+					PHP_IMAGE: images[`php${ phpVersion }`],
 					CALLING_USER: process.env.USER,
 					CALLING_UID: process.getuid()
 				}
