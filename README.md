@@ -266,10 +266,10 @@ somewhere within `~/wp-local-docker-sites/<environment>/`).
 
 ## F.A.Q
 
-#### Can I run as many concurrent enviroments as I want?
+### Can I run as many concurrent enviroments as I want?
 Concurrent environments are limited by the available resources of your host machine.
 
-#### How to ignore `node_modules/` in your container?
+### How to ignore `node_modules/` in your container?
 One of the primary performance bottlenecks with Docker for Mac is file syncing between the host machine and the Docker containers. The less files that are mounted into the Docker container volumes, the less work Docker needs to do ensuring those files are synced. NPM and the /node_modules/ directories are the worst offenders by far. Since assets are transpiled/compiled from source prior to being used on the frontend, the dependencies in `node_modules/` are not actually required to run the site locally, only the compiled dist files.
 
 In order to mitigate the additional pressure `node_modules/` puts on Docker filesystem syncing, we can instruct Docker to ignore directories when mounting volumes. Technically, we are instructing Docker to mount nothing to a specific path on the volume, but the effect is the same. See below for a practical example of how one might edit the `docker-compose.yml` file in the site root:
