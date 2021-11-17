@@ -265,6 +265,7 @@ somewhere within `~/wp-local-docker-sites/<environment>/`).
 ---
 
 ## F.A.Q
+
 #### Can I run as many concurrent enviroments as I want?
 Concurrent environments are limited by the available resources of your host machine.
 
@@ -291,6 +292,33 @@ phpfpm:
 Note: This action cannot be performed automatically as the specific paths to `node_modules/` cannot be determined. You will need to manually determine the path where `node_modules/` will be mounted onto the volume.
 
 Once you have made the appropriate changes in your `docker-compose.yml` file, you must stop and start for the changes to take effect and confirm things have worked.
+
+### How do I upgrade an environment to a new version of PHP?
+To upgrade to a newer version of PHP, please edit the `docker-compose.yml` file in the environment you are updating.
+From:
+
+```
+  phpfpm:
+    image: '10up/wp-php-fpm-dev:5.6-ubuntu'
+    ...
+    volumes:
+      - './wordpress:/var/www/html:cached'
+      - './config/php-fpm/docker-php-ext-xdebug.ini:/etc/php.d/5.6/fpm/docker-php-ext-xdebug.ini:cached'
+```
+
+To:
+
+```
+  phpfpm:
+    image: '10up/wp-php-fpm-dev:7.4-ubuntu'
+    ...
+    volumes:
+      - './wordpress:/var/www/html:cached'
+      - './config/php-fpm/docker-php-ext-xdebug.ini:/etc/php.d/7.4/fpm/docker-php-ext-xdebug.ini:cached'
+```
+
+Once you update this run `docker-compose down` and `docker-compose up` to rebuild the containers.
+
 
 ---
 ## Support Level
