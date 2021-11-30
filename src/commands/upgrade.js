@@ -71,6 +71,10 @@ exports.handler = makeCommand( { checkDocker: false }, async ( { verbose, env } 
 	if ( phpImage ) {
 		yaml.services.phpfpm.image = phpImage;
 	}
+	const elasticImage = images['elasticsearch'];
+	if ( undefined !== yaml.services.elasticsearch ) {
+		yaml.services.elasticsearch.image = elasticImage;
+	}
 
 	// Update defined services to have all cached volumes
 	[ 'nginx', 'phpfpm', 'elasticsearch' ].forEach( ( service ) => {
