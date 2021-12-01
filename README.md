@@ -278,7 +278,7 @@ In order to mitigate the additional pressure `node_modules/` puts on Docker file
 nginx:
     ...
     volumes:
-        - './wordpress:/var/www/html:cahced'
+        - './wordpress:/var/www/html:cached'
         - '/var/www/html/wp-content/themes/{my-theme}/node_modules'
         - '/var/www/html/wp-content/plugins/{my-plugin}/node_modules'
 phpfpm:
