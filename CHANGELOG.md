@@ -3,18 +3,26 @@
 All notable changes to this project will be documented in this file, per [the Keep a Changelog standard](http://keepachangelog.com/).
 
 ## [Unreleased] - TBD
+
+- Fixes the correct image name for phpfpm in Linux platforms
+
+## [3.0.0] - 2021-11-11
 ### Added
 - Adds support for PHP 8.0.
+- Adds support for ARM images.
 
 ### Changed
 - Updates dependencies to their latest versions.
 - Suppresses WP-CLI errors during removing the default content.
 
 ### Fixed
-- Fixes broken configuration file issue when answering `no` to the install WordPress question in the `10updocker init` command.
-- Fixes wrong hostname detection in the configuration file during `10updocker clone` command run.
 - Fixes issues with some docker-compose commands caused by `docker-compose` library.
 - Fixes phpfpm image name issue that occurs on Linux if the user has a non-standard name.
+- Fixes empty content issues on create. 
+- Fixes issue with missing npm request package.
+
+### Removes
+- Removes `10updocker init` and `10updocker clone` commands
 
 ## [2.8.1] - 2021-01-29
 ### Changed
@@ -148,6 +156,7 @@ opcache configured with optimal settings for development.
 ## [2.2.0] - 2019-02-04
 
 [Unreleased]: https://github.com/10up/wp-local-docker-v2/compare/master...develop
+[3.0.0]: https://github.com/10up/wp-local-docker-v2/compare/2.8.1...3.0.0
 [2.8.1]: https://github.com/10up/wp-local-docker-v2/compare/2.8.0...2.8.1
 [2.8.0]: https://github.com/10up/wp-local-docker-v2/compare/2.7.0...2.8.0
 [2.7.0]: https://github.com/10up/wp-local-docker-v2/compare/2.6.2...2.7.0
