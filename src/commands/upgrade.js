@@ -1,11 +1,13 @@
 const path = require( 'path' );
 const os = require( 'os' );
+const inquirer = require( 'inquirer' );
 
 const fsExtra = require( 'fs-extra' );
 const chalk = require( 'chalk' );
 
 const makeCommand = require( '../utils/make-command' );
 const makeSpinner = require( '../utils/make-spinner' );
+const makeDocker = require( '../utils/make-docker' );
 const { readYaml, writeYaml } = require( '../utils/yaml' );
 const envUtils = require( '../env-utils' );
 const { images } = require( '../docker-images' );
@@ -71,9 +73,26 @@ exports.handler = makeCommand( { checkDocker: false }, async ( { verbose, env } 
 	if ( phpImage ) {
 		yaml.services.phpfpm.image = phpImage;
 	}
-	const elasticImage = images['elasticsearch'];
+
 	if ( undefined !== yaml.services.elasticsearch ) {
-		yaml.services.elasticsearch.image = elasticImage;
+		const elasticVersion = yaml.services.elasticsearch.image.split( ':' ).pop();
+		if ( elasticVersion === '7.9.3' ) {
+			spinner.succeed( 'elasticsearch image is on the lastest supported verison.' );
+		} else {
+			const { upgradeElastic } = await inquirer.prompt( {
+				name: 'upgradeElastic',
+				type: 'confirm',
+				message: 'Do you want to upgrade elasticsearch image? This will delete all data on that volume. You will need to reindex.',
+				default: false
+			} );
+			if ( upgradeElastic === true ) {
+				const docker = makeDocker();
+				const volume = await docker.getVolume( `${ envSlug }_elasticsearchData` );
+				await volume.remove();
+				const elasticImage = images['elasticsearch'];
+				yaml.services.elasticsearch.image = elasticImage;
+			}
+		}
 	}
 
 	// Update defined services to have all cached volumes
