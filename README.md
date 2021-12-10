@@ -135,10 +135,12 @@ A special hostname `all` is available that will restart all environments as well
 
 `10updocker upgrade <hostname>` will upgrade all services associated with a preexisting environment.
 
-This command will assist you with keeping your environments up to date with the most recent upstream changes. If you
-are running an environment that was created before `v2.6.0`, we recommend upgrading your environment for a noticeable
+This command will assist you with keeping your environments up to date with the most recent upstream changes.
+
+If the environment was created before `v2.6.0`, we recommend upgrading your environment for a noticeable
 performance increase.
 
+If the environment was created before `v3.0.1`, this will update the elasticsearch image. When updating the elasticsearch image, we need to delete the docker volume so you will need to reindex after running this command.
 ### Elasticsearch
 
 If you have enabled Elasticsearch for a particular environment, you can send requests from the host machine to the
