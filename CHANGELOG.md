@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file, per [the Ke
 
 ### Fixed
 - Fixes the correct image name for phpfpm in Linux platforms
+- Fixes issue with php ini file being in the wrong location and add upgrade command to resolve this for exisitng projects.
 
 ### Changed
 - Update elasticsearch image to 7.9.3
