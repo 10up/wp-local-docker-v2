@@ -74,7 +74,7 @@ exports.handler = makeCommand( { checkDocker: false }, async ( { verbose, env } 
 		yaml.services.phpfpm.image = phpImage;
 	}
 
-	if ( undefined !== yaml.services.elasticsearch ) {
+	if ( yaml.services.elasticsearch !== undefined ) {
 		const elasticVersion = yaml.services.elasticsearch.image.split( ':' ).pop();
 		if ( elasticVersion === '7.9.3' ) {
 			spinner.succeed( 'elasticsearch image is on the lastest supported verison.' );
