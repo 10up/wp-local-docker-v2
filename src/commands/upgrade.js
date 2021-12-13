@@ -107,11 +107,12 @@ exports.handler = makeCommand( { checkDocker: false }, async ( { verbose, env } 
 			} );
 		}
 	} );
-
+	const phpVersionNumber = phpVersion.split( '-' ).shift();
 	// Upgrade volume mounts.
 	const deprecatedVolumes = [
 		'./config/php-fpm/php.ini:/usr/local/etc/php/php.ini:cached',
 		'./config/php-fpm/docker-php-ext-xdebug.ini:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini:cached',
+		`./config/php-fpm/docker-php-ext-xdebug.ini:/etc/php.d/${ phpVersionNumber }/fpm/docker-php-ext-xdebug.ini:cached`,
 		'~/.ssh:/root/.ssh:cached',
 		'~/.ssh:/home/www-data/.ssh:cached',
 		`~/.ssh:/home/${ process.env.USER }/.ssh:cached` // For Linux compatibility
@@ -123,6 +124,9 @@ exports.handler = makeCommand( { checkDocker: false }, async ( { verbose, env } 
 			// Replace xdebug config volume to be mounted to the new location.
 			if ( curr === './config/php-fpm/docker-php-ext-xdebug.ini:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini:cached' ) {
 				acc.push( './config/php-fpm/docker-php-ext-xdebug.ini:/etc/php.d/docker-php-ext-xdebug.ini:cached' );
+			}
+			if ( curr == `./config/php-fpm/docker-php-ext-xdebug.ini:/etc/php.d/${ phpVersionNumber }/fpm/docker-php-ext-xdebug.ini:cached` ) {
+				acc.push( `./config/php-fpm/docker-php-ext-xdebug.ini:/etc/php/${ phpVersionNumber }/fpm/conf.d/docker-php-ext-xdebug.ini:cached` );
 			}
 		} else {
 			acc.push( curr );
