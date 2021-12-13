@@ -4,7 +4,12 @@ All notable changes to this project will be documented in this file, per [the Ke
 
 ## [Unreleased] - TBD
 
+### Fixed
 - Fixes the correct image name for phpfpm in Linux platforms
+
+### Changed
+- Update elasticsearch image to 7.9.3
+- Add Elasticsearch image update to the `upgrade` command. This will also delete the docker volume since it can cause issues. (Prompts user before deleting data.)
 
 ## [3.0.0] - 2021-11-11
 ### Added
