@@ -67,16 +67,14 @@ module.exports = function makeDockerCompose( spinner ) {
 			},
 			networks: {
 				wplocaldocker: {
-					external: {
-						name: 'wplocaldocker',
-					},
+					name: 'wplocaldocker',
+					external: true,
 				},
 			},
 			volumes: {
 				[ cacheVolume ]: {
-					external: {
-						name: cacheVolume,
-					},
+					name: cacheVolume,
+					external: true,
 				},
 			},
 		};

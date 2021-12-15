@@ -59,8 +59,8 @@ services:
       - wplocaldocker
 networks:
   wplocaldocker:
-    external:
       name: wplocaldocker
+      external: true
 volumes:
   mysqlData:
   elasticsearchData:
