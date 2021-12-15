@@ -44,7 +44,6 @@ async function createCommand( spinner, defaults = {} ) {
 
 	const dockerComposer = await makeDockerCompose( spinner )( envHosts, settings );
 	await saveYaml( 'docker-compose.yml', dockerComposer );
-	await saveYaml( 'wp-cli.yml', { ssh: 'docker-compose:phpfpm' } );
 
 	await makeCopyConfigs( spinner, fsExtra )( settings );
 
