@@ -15,14 +15,13 @@ const wordpressTypes = [
 	{ name: 'Single Site', value: 'single' },
 	{ name: 'Subdirectory Multisite', value: 'subdirectory' },
 	{ name: 'Subdomain Multisite', value: 'subdomain' },
-	{ name: 'Core Development Version', value: 'dev' },
 ];
 
 function defaultIsUndefined( val ) {
 	return () => typeof val === 'undefined';
 }
 
-function marshalDomains( original, { hostname, extraHosts, wordpressType } ) {
+function marshalDomains( original, { hostname, extraHosts } ) {
 	const collection = new Set();
 
 	if ( Array.isArray( original ) ) {
@@ -33,9 +32,6 @@ function marshalDomains( original, { hostname, extraHosts, wordpressType } ) {
 
 	if ( hostname ) {
 		collection.add( hostname );
-		if ( wordpressType === 'dev' ) {
-			collection.add( `build.${ hostname }` );
-		}
 	}
 
 	if ( Array.isArray( extraHosts ) ) {
@@ -98,7 +94,7 @@ module.exports = function makeInquirer( { prompt } ) {
 				validate: validateNotEmpty,
 				filter: parseHostname,
 				when() {
-					return ! Array.isArray( domain ) || ! domain.length;
+					return ! domain || ( Array.isArray( domain ) && ! domain.length );
 				},
 			},
 			{
@@ -107,7 +103,7 @@ module.exports = function makeInquirer( { prompt } ) {
 				message: 'Are there additional domains the site should respond to?',
 				default: false,
 				when() {
-					return ! Array.isArray( domain ) || ! domain.length;
+					return ! domain || ( Array.isArray( domain ) && ! domain.length );
 				},
 			},
 			{
@@ -130,7 +126,7 @@ module.exports = function makeInquirer( { prompt } ) {
 				type: 'list',
 				message: 'What version of PHP would you like to use?',
 				choices: phpVersions,
-				default: '7.3',
+				default: '7.4',
 				when() {
 					return ! phpVersions.includes( php );
 				},
