@@ -1,4 +1,5 @@
 const { EOL } = require( 'os' );
+const chalk = require( 'chalk' );
 
 const inquirer = require( 'inquirer' );
 const fsExtra = require( 'fs-extra' );
@@ -13,6 +14,7 @@ const makeSpinner = require( '../utils/make-spinner' );
 const makeCommand = require( '../utils/make-command' );
 const makeBoxen = require( '../utils/make-boxen' );
 const { replaceLinks } = require( '../utils/make-link' );
+const endOfLifePhpVersions = require( '../utils/eol-php-versions' );
 
 const makeInquirer = require( './create/inquirer' );
 const makeDockerCompose = require( './create/make-docker-compose' );
@@ -27,8 +29,8 @@ const makeCert = require( './create/make-cert' );
 
 async function createCommand( spinner, defaults = {} ) {
 	const answers = await makeInquirer( inquirer )( defaults );
-	if ( [ '5.6', '7.0', '7.1', '7.2' ].includes( answers.php ) ) {
-		console.log( 'Warning: This environment is using an outdated version of php. Please update as soon as possible.' );
+	if ( endOfLifePhpVersions.includes( answers.php ) ) {
+		console.error( `${ chalk.bold.yellow( 'Warning:' ) } This environment is using an outdated version of PHP. Please update as soon as possible.` );
 	}
 
 	const settings = {
