@@ -233,6 +233,12 @@ function createDefaultProxy( value ) {
 	return proxyUrl;
 }
 
+/**
+ * Gets the PHP version of an env from the docker-compose.yml.
+ *
+ * @param {string} envPath path to the environemt
+ * @return string php version
+ */
 async function getEnvPhpVersion( envPath ) {
 	const dockerCompose = path.join( envPath, 'docker-compose.yml' );
 	const yaml = readYaml( dockerCompose );
@@ -240,6 +246,11 @@ async function getEnvPhpVersion( envPath ) {
 	return phpVersion.split( '-' ).shift();
 }
 
+/**
+ * Compares PHP version and desplays warning if the version is EOL.
+ *
+ * @param {string} phpVersion the php version to compare
+ */
 async function checkForEOLPHP( phpVersion ) {
 	if ( endOfLifePhpVersions.includes( phpVersion ) ) {
 		console.error( `${ chalk.bold.yellow( 'Warning:' ) } This environment is using an outdated version of PHP. Please update as soon as possible.` );
