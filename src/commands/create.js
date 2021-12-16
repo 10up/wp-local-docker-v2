@@ -27,7 +27,7 @@ const makeCert = require( './create/make-cert' );
 
 async function createCommand( spinner, defaults = {} ) {
 	const answers = await makeInquirer( inquirer )( defaults );
-	if ( ['5.6', '7.0', '7.1', '7.2'].includes(answers.php) ) {
+	if ( [ '5.6', '7.0', '7.1', '7.2' ].includes( answers.php ) ) {
 		console.log( 'Warning: This environment is using an outdated version of php. Please update as soon as possible.' );
 	}
 
