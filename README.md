@@ -213,7 +213,84 @@ Access phpMyAdmin by navigating to [http://localhost:8092](http://localhost:8092
 
 Access MailCatcher by navigating to [http://localhost:1080](http://localhost:1080).
 
-#### Xdebug
+#### Xdebug version 3
+
+Make sure you are running the expected version by running:
+
+```bash
+php -v | grep Xdebug
+```
+
+The command needs to be executed on the docker image of PHP in order to get the right version of docker running
+on that container.
+
+The command above would return an ouput like:
+
+```
+    with Xdebug v3.1.1, Copyright (c) 2002-2021, by Derick Rethans
+```
+
+
+Update the configuration file on your site usually located at `config/php-fpm/docker-php-ext-xdebug.ini` in order to
+be updated to the new settings for `Xdebug 3`.
+
+```
+xdebug.client_host = host.docker.internal;
+xdebug.mode = develop,debug
+xdebug.start_with_request = yes
+xdebug.output_dir = /var/www/html/wp-content
+xdebug.log=/var/www/html/wp-content
+
+```
+
+#### PHPStorm
+
+Go to `Settings > PHP > Debug`.
+
+- Set the port to `9003`
+- Check (Ignore external connections through unregistered server configurations) to avoid wait on non wanted files.
+- Check (Resolve breakpoint if it's not available on the current line)
+- Uncheck (Force break at first line when no path mapping specified)
+- Uncheck (Force break at frist line when a script is outside the project)
+
+Go to `Settings > PHP > Servers`.
+
+- Add a new server with the following settings:
+  - `name: yourdomain.com`
+  - `host: localhost`
+  - `port: 80`
+  - `debugger: Xdebug`
+  - Enable `Use path mappings (select if the server is remote or symlinks are used)`
+  - Within the map directory select the path you want to debug (usually `wp-content`) and map it to `/var/www/html/wp-content`
+
+- Save your settings
+- Start to listen for connections on the top bar of your IDE (red phone icon)
+
+
+#### Visual Studio Code
+
+1. Ensure Xdebug is enabled for the environment using the `ENABLE_XDEBUG` environment variable.
+2. Install the [PHP Debug](https://marketplace.visualstudio.com/items?itemName=felixfbecker.php-debug) extension.
+3. In your project, go to the Debug view, click "Add Configuration..." and choose PHP environment. A new launch configuration will be created for you.
+4. Set the `pathMappings` parameter to your local `wordpress` directory. Example:
+
+```json
+"configurations": [
+        {
+            "name": "Listen for XDebug",
+            "type": "php",
+            "request": "launch",
+            "port": 9003,
+            "pathMappings": {
+                "/var/www/html": "${workspaceFolder}/wordpress",
+            }
+        }
+]
+
+```
+
+#### Xdebug version 2
+
 
 Xdebug is included in the php images but must be manually enabled if you use wp-local-docker 2.7.0 or earlier. To enable Xdebug, set the environment variable `ENABLE_XDEBUG` to `'true'` in the `docker-compose.yml` file in the root of the project. If you use wp-local-docker 2.8.0 or higher, then new environments will have Xdebug enabled by default.
 
@@ -225,6 +302,7 @@ Make sure your IDE is listening for PHP debug connections and set up a path mapp
 2. Install the [PHP Debug](https://marketplace.visualstudio.com/items?itemName=felixfbecker.php-debug) extension.
 3. In your project, go to the Debug view, click "Add Configuration..." and choose PHP environment. A new launch configuration will be created for you.
 4. Set the `pathMappings` parameter to your local `wordpress` directory. Example:
+
 ```json
 "configurations": [
         {
@@ -238,6 +316,7 @@ Make sure your IDE is listening for PHP debug connections and set up a path mapp
         }
 ]
 ```
+
 #### WPsnapshots
 ##### Configuration
 
