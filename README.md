@@ -238,6 +238,9 @@ Make sure your IDE is listening for PHP debug connections and set up a path mapp
         }
 ]
 ```
+
+* Note: If you have Xdebug 3 installed (you can verify using `phpinfo()`), update the above configuration to use port 9003. Alternatively, you can set the port to 9000 in `config/php-fpm/docker-php-ext-xdebug.ini`.
+
 #### WPsnapshots
 ##### Configuration
 
