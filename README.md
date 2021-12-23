@@ -243,6 +243,24 @@ xdebug.log=/var/www/html/wp-content
 
 ```
 
+Make sure to restart your docker image after this changes or stop / start. To verify your changes were applied you can create a file 
+called `info.php` and add `<?php phpinfo(); ?>` at the root of your project and then visit `yourdomain.com/info.php` and look for
+the values described above to verify your settings were actually applied, if that's not the case verify the path for your 
+`xdebug.ini` file is actually placed into the right location.
+
+Open the file `docker-compose.yml` and update the line:
+
+```
+'./config/php-fpm/docker-php-ext-xdebug.ini:/etc/php.d/docker-php-ext-xdebug.ini:cached'
+```
+
+with:  (For PHP7.4) specifically it might vary depdending on your PHP version.
+
+```
+'./config/php-fpm/docker-php-ext-xdebug.ini:/etc/php/7.4/fpm/conf.d/99-ext-xdebug.ini:cached'
+```
+
+
 #### PHPStorm
 
 Go to `Settings > PHP > Debug`.
