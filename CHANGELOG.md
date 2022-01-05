@@ -2,15 +2,17 @@
 
 All notable changes to this project will be documented in this file, per [the Keep a Changelog standard](http://keepachangelog.com/).
 
-## [Unreleased] - TBD
+## [3.0.1] - 2022-01-05
 
 ### Fixed
 - Fixes the correct image name for phpfpm in Linux platforms
 - Fixes issue with php ini file being in the wrong location and add upgrade command to resolve this for exisitng projects.
+- Fixes xdebug values for xdebug3 since the port and settings changed moving from v2 to v3.
 
 ### Changed
 - Update elasticsearch image to 7.9.3
 - Add Elasticsearch image update to the `upgrade` command. This will also delete the docker volume since it can cause issues. (Prompts user before deleting data.)
+- More readme updates for upgrading to the latest images.
 
 ## [3.0.0] - 2021-11-11
 ### Added
