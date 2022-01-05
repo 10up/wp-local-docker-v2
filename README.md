@@ -97,6 +97,13 @@ environment. Before running this command, create a new environment using the `10
 Example:
 * `10updocker migrate ~/sites/mysite`
 
+### Migrate a WP Local Docker V2 Environment to v3
+
+`10updocker configure` to update to the latest `.wplocaldocker/global/docker-compose.yml` and answer `yes` to ` Do you want to reset your global services configuration? This will reset any customizations you have made.`
+
+### M1 Architecture consideration
+To utilize the new M1 architecture optimised docker images on existing sites, edit the `docker-compose.yml` file to match a newly created on. Alternatively you can just create new sites and they will be optimised for M1 archtecture.
+
 ### Delete an Environment
 
 `10updocker delete <hostname>` will delete an environment with the given hostname. Any local files, docker volumes, and
@@ -128,10 +135,12 @@ A special hostname `all` is available that will restart all environments as well
 
 `10updocker upgrade <hostname>` will upgrade all services associated with a preexisting environment.
 
-This command will assist you with keeping your environments up to date with the most recent upstream changes. If you
-are running an environment that was created before `v2.6.0`, we recommend upgrading your environment for a noticeable
+This command will assist you with keeping your environments up to date with the most recent upstream changes.
+
+If the environment was created before `v2.6.0`, we recommend upgrading your environment for a noticeable
 performance increase.
 
+If the environment was created before `v3.0.1`, this will update the elasticsearch image. When updating the elasticsearch image, we need to delete the docker volume so you will need to reindex after running this command.
 ### Elasticsearch
 
 If you have enabled Elasticsearch for a particular environment, you can send requests from the host machine to the
@@ -222,7 +231,7 @@ Make sure your IDE is listening for PHP debug connections and set up a path mapp
             "name": "Listen for XDebug",
             "type": "php",
             "request": "launch",
-            "port": 9000,
+            "port": 9003,
             "pathMappings": {
                 "/var/www/html": "${workspaceFolder}/wordpress",
             }
@@ -258,8 +267,63 @@ somewhere within `~/wp-local-docker-sites/<environment>/`).
 ---
 
 ## F.A.Q
-#### Can I run as many concurrent enviroments as I want?
-Concurrent environments are limited by the available resources of your host machine
+
+### Can I run as many concurrent enviroments as I want?
+Concurrent environments are limited by the available resources of your host machine.
+
+### I am having issues with wp-local-docker, what are the best troubleshooting techniques?
+First make sure that Docker and Node are up to date. Then ensure that wp-local-docker is up to date as well by running `npm i -g wp-local-docker`. Once we are sure everything is up to date, it's generally a good idea to restart docker. Now we will want to make sure we are using the latest of the docker images by running `10updocker image update`. Then run `10updocker configure` and answer `Yes` to `Do you want to reset your global services configuration? This will reset any customizations you have made.`
+
+### How to ignore `node_modules/` in your container?
+One of the primary performance bottlenecks with Docker for Mac is file syncing between the host machine and the Docker containers. The less files that are mounted into the Docker container volumes, the less work Docker needs to do ensuring those files are synced. NPM and the /node_modules/ directories are the worst offenders by far. Since assets are transpiled/compiled from source prior to being used on the frontend, the dependencies in `node_modules/` are not actually required to run the site locally, only the compiled dist files.
+
+In order to mitigate the additional pressure `node_modules/` puts on Docker filesystem syncing, we can instruct Docker to ignore directories when mounting volumes. Technically, we are instructing Docker to mount nothing to a specific path on the volume, but the effect is the same. See below for a practical example of how one might edit the `docker-compose.yml` file in the site root:
+
+```
+nginx:
+    ...
+    volumes:
+        - './wordpress:/var/www/html:cached'
+        - '/var/www/html/wp-content/themes/{my-theme}/node_modules'
+        - '/var/www/html/wp-content/plugins/{my-plugin}/node_modules'
+phpfpm:
+    ...
+    volumes:
+        - './wordpres:/var/www/html:cached'
+        - '/var/www/html/wp-content/themes/{my-theme}/node_modules'
+        - '/var/www/html/wp-content/plugins/{my-plugin}/node_modules'
+```
+
+Note: This action cannot be performed automatically as the specific paths to `node_modules/` cannot be determined. You will need to manually determine the path where `node_modules/` will be mounted onto the volume.
+
+Once you have made the appropriate changes in your `docker-compose.yml` file, you must stop and start for the changes to take effect and confirm things have worked.
+
+### How do I upgrade an environment to a new version of PHP?
+To upgrade to a newer version of PHP, please edit the `docker-compose.yml` file in the environment you are updating.
+From:
+
+```
+  phpfpm:
+    image: '10up/wp-php-fpm-dev:5.6-ubuntu'
+    ...
+    volumes:
+      - './wordpress:/var/www/html:cached'
+      - './config/php-fpm/docker-php-ext-xdebug.ini:/etc/php.d/5.6/fpm/docker-php-ext-xdebug.ini:cached'
+```
+
+To:
+
+```
+  phpfpm:
+    image: '10up/wp-php-fpm-dev:7.4-ubuntu'
+    ...
+    volumes:
+      - './wordpress:/var/www/html:cached'
+      - './config/php-fpm/docker-php-ext-xdebug.ini:/etc/php.d/7.4/fpm/docker-php-ext-xdebug.ini:cached'
+```
+
+Once you update this run `docker-compose down` and `docker-compose up` to rebuild the containers.
+
 
 ---
 ## Support Level
