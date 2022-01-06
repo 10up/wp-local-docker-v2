@@ -327,7 +327,7 @@ Make sure your IDE is listening for PHP debug connections and set up a path mapp
             "name": "Listen for XDebug",
             "type": "php",
             "request": "launch",
-            "port": 9003,
+            "port": 9000,
             "pathMappings": {
                 "/var/www/html": "${workspaceFolder}/wordpress",
             }
