@@ -370,6 +370,7 @@ Concurrent environments are limited by the available resources of your host mach
 
 ### I am having issues with wp-local-docker, what are the best troubleshooting techniques?
 First make sure that Docker and Node are up to date. Then ensure that wp-local-docker is up to date as well by running `npm i -g wp-local-docker`. Once we are sure everything is up to date, it's generally a good idea to restart docker. Now we will want to make sure we are using the latest of the docker images by running `10updocker image update`. Then run `10updocker configure` and answer `Yes` to `Do you want to reset your global services configuration? This will reset any customizations you have made.`
+Once you have reset the global configuration then you will want to reset the speicific instance that is having the issue. You can do this by running `10updocker upgrade`. This will replace the `docker-compose.yml` file for that particular site instance.
 
 ### How to ignore `node_modules/` in your container?
 One of the primary performance bottlenecks with Docker for Mac is file syncing between the host machine and the Docker containers. The less files that are mounted into the Docker container volumes, the less work Docker needs to do ensuring those files are synced. NPM and the /node_modules/ directories are the worst offenders by far. Since assets are transpiled/compiled from source prior to being used on the frontend, the dependencies in `node_modules/` are not actually required to run the site locally, only the compiled dist files.
