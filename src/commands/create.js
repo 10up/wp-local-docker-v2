@@ -27,6 +27,8 @@ const makeCert = require( './create/make-cert' );
 
 async function createCommand( spinner, defaults = {} ) {
 	const answers = await makeInquirer( inquirer )( defaults );
+	await envUtils.checkForEOLPHP( answers.php );
+
 	const settings = {
 		...answers,
 		envSlug: '',
