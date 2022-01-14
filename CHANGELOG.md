@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file, per [the Keep a Changelog standard](http://keepachangelog.com/).
 
+## [Unreleased] - TBD
+### Added
+- Adds warning for EOL versions of PHP.
+
+### Fixed
+- Fixed log file permissions on linux platforms
+
 ## [3.0.1] - 2022-01-05
 
 ### Fixed
