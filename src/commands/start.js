@@ -37,6 +37,8 @@ exports.handler = makeCommand( async ( { verbose, pull, env } ) => {
 		const envPath = await envUtils.getPathOrError( envName, spinner );
 		const envHosts = await envUtils.getEnvHosts( envPath );
 		const certs = await envUtils.getEnvConfig( envPath, 'certs' );
+		const phpVersion = await envUtils.getEnvPhpVersion( envPath );
+		await envUtils.checkForEOLPHP( phpVersion );
 
 		if ( Array.isArray( envHosts ) && envHosts.length > 0 ) {
 			let info = '';

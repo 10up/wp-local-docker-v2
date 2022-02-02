@@ -28,6 +28,8 @@ const inquirer = require( 'inquirer' );
 
 const config = require( './configure' );
 const helper = require( './helpers' );
+const { readYaml } = require( './utils/yaml' );
+const endOfLifePhpVersions = require( './utils/eol-php-versions' );
 
 const rootPath = path.dirname( __dirname );
 const srcPath = path.join( rootPath, 'src' );
@@ -231,6 +233,30 @@ function createDefaultProxy( value ) {
 	return proxyUrl;
 }
 
+/**
+ * Gets the PHP version of an env from the docker-compose.yml.
+ *
+ * @param {string} envPath path to the environemt
+ * @return string php version
+ */
+async function getEnvPhpVersion( envPath ) {
+	const dockerCompose = path.join( envPath, 'docker-compose.yml' );
+	const yaml = readYaml( dockerCompose );
+	const phpVersion = yaml.services.phpfpm.image.split( ':' ).pop();
+	return phpVersion.split( '-' ).shift();
+}
+
+/**
+ * Compares PHP version and desplays warning if the version is EOL.
+ *
+ * @param {string} phpVersion the php version to compare
+ */
+async function checkForEOLPHP( phpVersion ) {
+	if ( endOfLifePhpVersions.includes( phpVersion ) ) {
+		console.error( `${ chalk.bold.yellow( 'Warning:' ) } This environment is using an outdated version of PHP. Please update as soon as possible.` );
+	}
+}
+
 module.exports = {
 	rootPath,
 	srcPath,
@@ -250,4 +276,6 @@ module.exports = {
 	getPathOrError,
 	createDefaultProxy,
 	getSnapshotsPath,
+	getEnvPhpVersion,
+	checkForEOLPHP,
 };
