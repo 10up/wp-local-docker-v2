@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file, per [the Keep a Changelog standard](http://keepachangelog.com/).
 
-## [Unreleased] - TBD
+## [3.0.2] - 2022-02-02
 ### Added
 - Adds warning for EOL versions of PHP.
 
