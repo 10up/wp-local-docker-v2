@@ -1,6 +1,6 @@
 # WP Local Docker
 
-> WP Local Docker is an easy to use Docker based local development environment for WordPress development that works on Mac, Windows, and Linux. 
+> WP Local Docker is an easy to use Docker based local development environment for WordPress development that works on Mac, Windows, and Linux.
 
 [![Support Level](https://img.shields.io/badge/support-active-green.svg)](#support-level) [![Release Version](https://img.shields.io/github/release/10up/wp-local-docker-v2.svg)](https://github.com/10up/wp-local-docker-v2/releases/latest) [![MIT License](https://img.shields.io/github/license/10up/wp-local-docker-v2.svg)](https://github.com/10up/wp-local-docker-v2/blob/master/LICENSE)
 
@@ -243,9 +243,9 @@ xdebug.log=/var/www/html/wp-content
 
 ```
 
-Make sure to restart your docker image after this changes or stop / start. To verify your changes were applied you can create a file 
+Make sure to restart your docker image after this changes or stop / start. To verify your changes were applied you can create a file
 called `info.php` and add `<?php phpinfo(); ?>` at the root of your project and then visit `yourdomain.com/info.php` and look for
-the values described above to verify your settings were actually applied, if that's not the case verify the path for your 
+the values described above to verify your settings were actually applied, if that's not the case verify the path for your
 `xdebug.ini` file is actually placed into the right location.
 
 Open the file `docker-compose.yml` and update the line:
@@ -427,6 +427,42 @@ To:
 
 Once you update this run `docker-compose down` and `docker-compose up` to rebuild the containers.
 
+### Avoiding conflicts with other local dev environments (Valet, MAMP, etc) on macOS
+
+If you are running something like MAMP or Laravel Valet on your Mac, it is possible you may have port conflicts when attempting to use wp-local-docker, such as:
+
+```
+Cannot start service mysql: Ports are not available: listen tcp 127.0.0.1:3306: bind: address already in use
+```
+
+For the above error, that indicates that the `mysqld` process is already running using that same port (3306). To confirm what ports are currently in use on your Mac, run the following command in your terminal:
+
+```bash
+sudo lsof -i -P | grep LISTEN
+
+# Alternatively you can search for the specific port in your error, substituting 3306 the port you want.
+sudo lsof -i -P | grep :3306
+```
+
+If you see a process that is using that port, that process should be stopped before you attempt to start or create any new environments with wp-local-docker.
+
+If you installed `mysqld` via Homebrew, you need to stop the process via Homebrew:
+
+```
+brew services stop mysql
+```
+
+Once you stop the service re-run the `lsof` command above to verify the port is no longer in use.
+
+### What if I want to modify the default ports for global services?
+
+While you could modify the port configuration globally or per project, _this will require making adjustments in other areas_ to prevent a permissions error when starting up the database, such as:
+
+```
+Error: ER_ACCESS_DENIED_ERROR: Access denied for user 'root'@'localhost' (using password: YES)
+```
+
+For best results we recommend using the default port configuration whenever possible.
 
 ---
 ## Support Level
