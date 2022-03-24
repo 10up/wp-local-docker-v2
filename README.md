@@ -1,6 +1,6 @@
 # WP Local Docker
 
-> WP Local Docker is an easy to use Docker based local development environment for WordPress development that works on Mac, Windows, and Linux. 
+> WP Local Docker is an easy to use Docker based local development environment for WordPress development that works on Mac, Windows, and Linux.
 
 [![Support Level](https://img.shields.io/badge/support-active-green.svg)](#support-level) [![Release Version](https://img.shields.io/github/release/10up/wp-local-docker-v2.svg)](https://github.com/10up/wp-local-docker-v2/releases/latest) [![MIT License](https://img.shields.io/github/license/10up/wp-local-docker-v2.svg)](https://github.com/10up/wp-local-docker-v2/blob/master/LICENSE)
 
@@ -13,7 +13,7 @@ Windows, and Linux. Any number of environments can be created and may run at the
 appropriately to the correct environment based on the hostname specified during environment creation.
 
 Each environment within WP Local Docker is powered by nginx, phpfpm, memcached, and if desired, elasticsearch. PHP versions
-5.6, 7.0, 7.1, 7.2 or 7.3 are all supported. Supporting all environments within WP Local Docker is a MySQL container to run
+5.6, 7.0, 7.1, 7.2, 7.3, 7.4, or 8.0 are all supported. Supporting all environments within WP Local Docker is a MySQL container to run
 all MySQL databases, WP Snapshots to easily push and pull snapshots of a WordPress installation, PHPMyAdmin to manage
 MySQL databases with a familiar UI, and mailcatcher to catch any mail sent from all environments.
 
@@ -135,10 +135,12 @@ A special hostname `all` is available that will restart all environments as well
 
 `10updocker upgrade <hostname>` will upgrade all services associated with a preexisting environment.
 
-This command will assist you with keeping your environments up to date with the most recent upstream changes. If you
-are running an environment that was created before `v2.6.0`, we recommend upgrading your environment for a noticeable
+This command will assist you with keeping your environments up to date with the most recent upstream changes.
+
+If the environment was created before `v2.6.0`, we recommend upgrading your environment for a noticeable
 performance increase.
 
+If the environment was created before `v3.0.1`, this will update the elasticsearch image. When updating the elasticsearch image, we need to delete the docker volume so you will need to reindex after running this command.
 ### Elasticsearch
 
 If you have enabled Elasticsearch for a particular environment, you can send requests from the host machine to the
@@ -211,7 +213,102 @@ Access phpMyAdmin by navigating to [http://localhost:8092](http://localhost:8092
 
 Access MailCatcher by navigating to [http://localhost:1080](http://localhost:1080).
 
-#### Xdebug
+#### Xdebug version 3
+
+Make sure you are running the expected version by running:
+
+```bash
+php -v | grep Xdebug
+```
+
+The command needs to be executed on the docker image of PHP in order to get the right version of docker running
+on that container.
+
+The command above would return an ouput like:
+
+```
+    with Xdebug v3.1.1, Copyright (c) 2002-2021, by Derick Rethans
+```
+
+
+Update the configuration file on your site usually located at `config/php-fpm/docker-php-ext-xdebug.ini` in order to
+be updated to the new settings for `Xdebug 3`.
+
+```
+xdebug.client_host = host.docker.internal;
+xdebug.mode = develop,debug
+xdebug.start_with_request = yes
+xdebug.output_dir = /var/www/html/wp-content
+xdebug.log=/var/www/html/wp-content
+
+```
+
+Make sure to restart your docker image after this changes or stop / start. To verify your changes were applied you can create a file
+called `info.php` and add `<?php phpinfo(); ?>` at the root of your project and then visit `yourdomain.com/info.php` and look for
+the values described above to verify your settings were actually applied, if that's not the case verify the path for your
+`xdebug.ini` file is actually placed into the right location.
+
+Open the file `docker-compose.yml` and update the line:
+
+```
+'./config/php-fpm/docker-php-ext-xdebug.ini:/etc/php.d/docker-php-ext-xdebug.ini:cached'
+```
+
+with:  (For PHP7.4) specifically it might vary depdending on your PHP version.
+
+```
+'./config/php-fpm/docker-php-ext-xdebug.ini:/etc/php/7.4/fpm/conf.d/99-ext-xdebug.ini:cached'
+```
+
+
+#### PHPStorm
+
+Go to `Settings > PHP > Debug`.
+
+- Set the port to `9003`
+- Check (Ignore external connections through unregistered server configurations) to avoid wait on non wanted files.
+- Check (Resolve breakpoint if it's not available on the current line)
+- Uncheck (Force break at first line when no path mapping specified)
+- Uncheck (Force break at frist line when a script is outside the project)
+
+Go to `Settings > PHP > Servers`.
+
+- Add a new server with the following settings:
+  - `name: yourdomain.com`
+  - `host: localhost`
+  - `port: 80`
+  - `debugger: Xdebug`
+  - Enable `Use path mappings (select if the server is remote or symlinks are used)`
+  - Within the map directory select the path you want to debug (usually `wp-content`) and map it to `/var/www/html/wp-content`
+
+- Save your settings
+- Start to listen for connections on the top bar of your IDE (red phone icon)
+
+
+#### Visual Studio Code
+
+1. Ensure Xdebug is enabled for the environment using the `ENABLE_XDEBUG` environment variable.
+2. Install the [PHP Debug](https://marketplace.visualstudio.com/items?itemName=felixfbecker.php-debug) extension.
+3. In your project, go to the Debug view, click "Add Configuration..." and choose PHP environment. A new launch configuration will be created for you.
+4. Set the `pathMappings` parameter to your local `wordpress` directory. Example:
+
+```json
+"configurations": [
+        {
+            "name": "Listen for XDebug",
+            "type": "php",
+            "request": "launch",
+            "port": 9003,
+            "pathMappings": {
+                "/var/www/html": "${workspaceFolder}/wordpress",
+            }
+        }
+]
+
+```
+
+#### Xdebug version 2
+
 
 Xdebug is included in the php images but must be manually enabled if you use wp-local-docker 2.7.0 or earlier. To enable Xdebug, set the environment variable `ENABLE_XDEBUG` to `'true'` in the `docker-compose.yml` file in the root of the project. If you use wp-local-docker 2.8.0 or higher, then new environments will have Xdebug enabled by default.
 
@@ -223,6 +320,7 @@ Make sure your IDE is listening for PHP debug connections and set up a path mapp
 2. Install the [PHP Debug](https://marketplace.visualstudio.com/items?itemName=felixfbecker.php-debug) extension.
 3. In your project, go to the Debug view, click "Add Configuration..." and choose PHP environment. A new launch configuration will be created for you.
 4. Set the `pathMappings` parameter to your local `wordpress` directory. Example:
+
 ```json
 "configurations": [
         {
@@ -236,6 +334,7 @@ Make sure your IDE is listening for PHP debug connections and set up a path mapp
         }
 ]
 ```
+
 #### WPsnapshots
 ##### Configuration
 
@@ -268,6 +367,15 @@ somewhere within `~/wp-local-docker-sites/<environment>/`).
 
 ### Can I run as many concurrent enviroments as I want?
 Concurrent environments are limited by the available resources of your host machine.
+
+### I am having issues with wp-local-docker, what are the best troubleshooting techniques?
+First make sure that Docker and Node are up to date. Then ensure that wp-local-docker is up to date as well by running `npm i -g wp-local-docker`. Once we are sure everything is up to date, it's generally a good idea to restart docker.
+
+Now we will want to make sure we are using the latest of the docker images by running `10updocker image update`.
+
+Then run `10updocker configure` and answer `Yes` to `Do you want to reset your global services configuration? This will reset any customizations you have made.`
+
+Once you have reset the global configuration then you will want to reset the specific instance that is having the issue. You can do this by running `10updocker upgrade`. This will replace the `docker-compose.yml` file for that particular site instance.
 
 ### How to ignore `node_modules/` in your container?
 One of the primary performance bottlenecks with Docker for Mac is file syncing between the host machine and the Docker containers. The less files that are mounted into the Docker container volumes, the less work Docker needs to do ensuring those files are synced. NPM and the /node_modules/ directories are the worst offenders by far. Since assets are transpiled/compiled from source prior to being used on the frontend, the dependencies in `node_modules/` are not actually required to run the site locally, only the compiled dist files.
@@ -319,6 +427,42 @@ To:
 
 Once you update this run `docker-compose down` and `docker-compose up` to rebuild the containers.
 
+### Avoiding conflicts with other local dev environments (Valet, MAMP, etc) on macOS
+
+If you are running something like MAMP or Laravel Valet on your Mac, it is possible you may have port conflicts when attempting to use wp-local-docker, such as:
+
+```
+Cannot start service mysql: Ports are not available: listen tcp 127.0.0.1:3306: bind: address already in use
+```
+
+For the above error, that indicates that the `mysqld` process is already running using that same port (3306). To confirm what ports are currently in use on your Mac, run the following command in your terminal:
+
+```bash
+sudo lsof -i -P | grep LISTEN
+
+# Alternatively you can search for the specific port in your error, substituting 3306 the port you want.
+sudo lsof -i -P | grep :3306
+```
+
+If you see a process that is using that port, that process should be stopped before you attempt to start or create any new environments with wp-local-docker.
+
+If you installed `mysqld` via Homebrew, you need to stop the process via Homebrew:
+
+```
+brew services stop mysql
+```
+
+Once you stop the service re-run the `lsof` command above to verify the port is no longer in use.
+
+### What if I want to modify the default ports for global services?
+
+While you could modify the port configuration globally or per project, _this will require making adjustments in other areas_ to prevent a permissions error when starting up the database, such as:
+
+```
+Error: ER_ACCESS_DENIED_ERROR: Access denied for user 'root'@'localhost' (using password: YES)
+```
+
+For best results we recommend using the default port configuration whenever possible.
 
 ---
 ## Support Level

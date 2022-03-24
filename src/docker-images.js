@@ -17,5 +17,5 @@ exports.images = {
 	wpsnapshots: '10up/wpsnapshots:2',
 	memcached: 'memcached:latest',
 	nginx: 'nginx:latest',
-	elasticsearch: 'docker.elastic.co/elasticsearch/elasticsearch:5.6.16',
+	elasticsearch: 'docker.elastic.co/elasticsearch/elasticsearch:7.9.3',
 };
