@@ -55,6 +55,12 @@ cp /mnt/c/Users/USER-NAME/.ssh/id_rsa* .
 Docker has platform specific installation instructions available for linux on their [documentation site](https://docs.docker.com/install/#supported-platforms).
 Once docker is installed, you will need to [manually install docker compose](https://docs.docker.com/compose/install/).
 NodeJS can be installed via a package manager for many linux platforms [following these instructions](https://nodejs.org/en/download/package-manager/).
+Setup c compilers & add sudo user to docker group:
+
+```
+sudo apt install -y gcc make
+ sudo usermod -a -G docker user
+```
 
 ---
 ## Installation
