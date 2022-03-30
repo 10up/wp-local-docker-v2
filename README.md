@@ -59,7 +59,7 @@ Setup c compilers & add sudo user to docker group:
 
 ```
 sudo apt install -y gcc make
- sudo usermod -a -G docker user
+sudo usermod -a -G docker user
 ```
 
 ---
