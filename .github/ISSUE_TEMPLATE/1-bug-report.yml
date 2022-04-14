@@ -1,0 +1,69 @@
+name: "\U0001F41B Bug report"
+description: "Report a bug with this project."
+labels: "bug"
+body:
+    - type: markdown
+      attributes:
+          value: |
+              Thanks for taking the time to fill out this bug report!  Please fill in as much of the template below as you can.
+
+    - type: checkboxes
+      id: faqs
+      attributes:
+        label: Troubleshooting
+        description: By submitting this issue, you agree that our [troubleshooting tips](https://github.com/10up/wp-local-docker-v2#i-am-having-issues-with-wp-local-docker-what-are-the-best-troubleshooting-techniques) have not helped resolve the issue.
+        options:
+          - label: I have attempted to troubleshoot this already
+            required: true
+    
+    - type: textarea
+      attributes:
+          label: Describe the bug
+          description: Please write a clear and concise description of the bug, including what you expect to happen and what is currently happening.
+          placeholder: |
+              Feature '...' is not working properly. I expect '...' to happen, but '...' happens instead.
+      validations:
+          required: true
+          
+    - type: textarea
+      attributes:
+          label: Steps to Reproduce
+          description: Please write the steps needed to reproduce the bug.
+          placeholder: |
+              1. Go to '...'
+              2. Click on '...'
+              3. Scroll down to '...'
+              4. See error
+      validations:
+          required: true
+
+    - type: textarea
+      attributes:
+          label: Screenshots, screen recording, code snippet
+          description: |
+              If possible, please upload a screenshot or screen recording which demonstrates the bug. You can use LIEcap to create a GIF screen recording: https://www.cockos.com/licecap/
+              Tip: You can attach images or log files by clicking this area to highlight it and then dragging files in.
+              For small snippets paste it directly here, or you can use GitHub Gist to share multiple code files: https://gist.github.com
+              Please ensure the shared code can be used by a developer to reproduce the issue—ideally it can be copied into a local development environment or executed in a browser console to help debug the issue
+      validations:
+          required: false
+          
+    - type: textarea
+      attributes:
+          label: Environment information
+          placeholder: |
+             - Device: <!-- [e.g. MacBook] -->
+             - OS: <!-- [e.g. MacOS 10.14.3] -->
+             - Docker Desktop version: <!-- [e.g. 3.3.3 ] -->
+             - Browser and version: <!-- [e.g. Firefox 65.0.1, Chrome 73.0.3683.75, Safari 12.0.3] -->
+      validations:
+          required: false
+          
+    - type: checkboxes
+      id: terms
+      attributes:
+        label: Code of Conduct
+        description: By submitting this issue, you agree to follow our [Code of Conduct](https://github.com/10up/wp-local-docker-v2/blob/develop/CODE_OF_CONDUCT.md).
+        options:
+          - label: I agree to follow this project's Code of Conduct
+            required: true
