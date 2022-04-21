@@ -171,6 +171,8 @@ opcache configured with optimal settings for development.
 ## [2.2.0] - 2019-02-04
 
 [Unreleased]: https://github.com/10up/wp-local-docker-v2/compare/master...develop
+[3.0.2]: https://github.com/10up/wp-local-docker-v2/compare/3.0.1...3.0.2
+[3.0.1]: https://github.com/10up/wp-local-docker-v2/compare/3.0.0...3.0.1
 [3.0.0]: https://github.com/10up/wp-local-docker-v2/compare/2.8.1...3.0.0
 [2.8.1]: https://github.com/10up/wp-local-docker-v2/compare/2.8.0...2.8.1
 [2.8.0]: https://github.com/10up/wp-local-docker-v2/compare/2.7.0...2.8.0
