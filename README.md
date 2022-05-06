@@ -21,23 +21,27 @@ In addition to the services required to run WordPress, WP Local Docker will also
 single site installation, a Multisite with Subdirectories, a Multisite with Subdomains, or the core development version.
 
 ---
+
 ### Prerequisites
 
 WP Local Docker requires [docker](https://www.docker.com/), [docker-compose](https://docs.docker.com/compose/), [Node](https://nodejs.org/en/), and npm. It is recommended that you use the latest versions of
 docker and docker-compose. Node 12 is the minimum version of node that is currently supported. While WP Local Docker _may_ work with other versions of Node, compatibility is not guaranteed. We recommend using [NVM](https://github.com/nvm-sh/nvm) to manage Node versions.
 
 #### MacOS
+
 [Docker Desktop](https://docs.docker.com/docker-for-mac/install/) is available for download from the [Docker website](https://docs.docker.com/docker-for-mac/install/) and will
 install docker-compose automatically. NodeJS and npm can be installed from the [NodeJS website](https://nodejs.org),
 via a package manager, such as [Homebrew](https://brew.sh/), or using a version manager, such as
 [nvm](https://github.com/creationix/nvm).
 
 ##### NodeJS EACCESS Error
+
 If Node was installed via the download from the NodeJS website, you will likely get an `EACCESS` error when trying to install
 global npm packages without using sudo. Npm has an article on [preventing permission errors](https://docs.npmjs.com/getting-started/fixing-npm-permissions#option-2-change-npms-default-directory-to-another-directory)
 if you'd like to run the command without sudo. Alternatively, just run the install command with sudo.
 
 #### Windows
+
 [Docker Desktop](https://docs.docker.com/docker-for-windows/install/) is available for download from the [Docker website](https://docs.docker.com/docker-for-windows/install/) and will
 install docker-compose automatically. NodeJS and npm can be installed from the [NodeJS website](https://nodejs.org). You may also need [Python](https://www.python.org/downloads/windows/) 3.7+ and [Visual Studio](https://visualstudio.microsoft.com/downloads/) 2015 or newer with the [“Desktop development with C++” workload](https://docs.microsoft.com/en-us/cpp/build/vscpp-step-0-installation?view=msvc-160).
 
@@ -103,6 +107,7 @@ You will need to restart any open browsers for this change to take effect!
 That should fix the https issues.
 
 #### Linux
+
 Docker has platform specific installation instructions available for linux on their [documentation site](https://docs.docker.com/install/#supported-platforms).
 Once docker is installed, you will need to [manually install docker compose](https://docs.docker.com/compose/install/).
 NodeJS can be installed via a package manager for many linux platforms [following these instructions](https://nodejs.org/en/download/package-manager/).
@@ -114,6 +119,7 @@ sudo usermod -a -G docker user
 ```
 
 ---
+
 ## Installation
 
 Once all installation prerequisites have been met, WP Local Docker is installed as a global npm package by running
@@ -132,7 +138,9 @@ would like to customize the environment path or opt to not have WP Local Docker 
 To update WP Local Docker, run `npm install -g wp-local-docker` again and NPM will install the latest version over your current one.
 
 ---
+
 ## Using WP Local Docker
+
 ### Create an Environment
 
 `10updocker create` will present you with a series of prompts to configure your environment to suit your needs.
@@ -152,13 +160,15 @@ environment. Before running this command, create a new environment using the `10
 `NEW_ENV` should specify what environment to import into. If omitted, you will be prompted to select from available environments
 
 Example:
+
 * `10updocker migrate ~/sites/mysite`
 
 ### Migrate a WP Local Docker V2 Environment to v3
 
-`10updocker configure` to update to the latest `.wplocaldocker/global/docker-compose.yml` and answer `yes` to ` Do you want to reset your global services configuration? This will reset any customizations you have made.`
+`10updocker configure` to update to the latest `.wplocaldocker/global/docker-compose.yml` and answer `yes` to `Do you want to reset your global services configuration? This will reset any customizations you have made.`
 
 ### M1 Architecture consideration
+
 To utilize the new M1 architecture optimised docker images on existing sites, edit the `docker-compose.yml` file to match a newly created on. Alternatively you can just create new sites and they will be optimised for M1 archtecture.
 
 ### Delete an Environment
@@ -198,6 +208,13 @@ If the environment was created before `v2.6.0`, we recommend upgrading your envi
 performance increase.
 
 If the environment was created before `v3.0.1`, this will update the elasticsearch image. When updating the elasticsearch image, we need to delete the docker volume so you will need to reindex after running this command.
+
+### Managing Certificates
+
+`10updocker cert generate <hostname>` will generate certificates for use of SSL on local environments.
+
+`10updocker cert install` installs a new certificate authority in the system trust store.
+
 ### Elasticsearch
 
 If you have enabled Elasticsearch for a particular environment, you can send requests from the host machine to the
@@ -216,6 +233,7 @@ directory, simply run `10updocker wp <command>`. `<command>` can be any valid co
 to WP CLI.
 
 Examples:
+
 * `10updocker wp search-replace 'mysite.com' 'mysite.test'`
 * `10updocker wp site list`
 
@@ -224,6 +242,7 @@ Examples:
 You can get a shell inside of any container in your environment using the `10updocker shell [<service>]` command. If a
 service is not provided, the `phpfpm` container will be used by default. Other available services can vary depending
 on the options selected during creation of the environment, but may include:
+
 * `phpfpm`
 * `nginx`
 * `elasticsearch`
@@ -234,26 +253,31 @@ on the options selected during creation of the environment, but may include:
 Real time container logs are available using the `10updocker logs [<service>]` command. If a service is not provided,
 logs from all containers in the current environment will be shown. To stop logs, type `ctrl+c`. Available services can
 vary depending on the options selected during creation of the environment, but may include:
+
 * `phpfpm`
 * `nginx`
 * `elasticsearch`
 * `memcached`
 
 ### Clearing Shared Cache
+
 WP CLI, WP Snapshots, and npm (when building the development version of WordPress) all utilize cache to speed up
 operations and save on bandwidth in the future.
 
 `10updocker cache clear` Clears the WP CLI, WP Snapshots, and npm (for WordPress core development) caches.
 
 ### Updating Docker Images
+
 `10updocker image update` Will determine which of the docker images utilized by WP Local Docker are present on your
 system and update them to the latest version available.
 
 ### Stopping global services
+
 WP Local Docker relies on a set of global services to function properly. To turn off global services, run
 `10updocker stop all`. This will stop all environments and then the global services.
 
 ---
+
 ### Tools
 
 #### phpMyAdmin
@@ -261,6 +285,7 @@ WP Local Docker relies on a set of global services to function properly. To turn
 [phpMyAdmin](https://www.phpmyadmin.net/) is available as part of the global services stack that is deployed to support all of the environments.
 
 Access phpMyAdmin by navigating to [http://localhost:8092](http://localhost:8092).
+
 * Username: `wordpress`
 * Password: `password`
 
@@ -286,7 +311,6 @@ The command above would return an ouput like:
 ```
     with Xdebug v3.1.1, Copyright (c) 2002-2021, by Derick Rethans
 ```
-
 
 Update the configuration file on your site usually located at `config/php-fpm/docker-php-ext-xdebug.ini` in order to
 be updated to the new settings for `Xdebug 3`.
@@ -317,30 +341,28 @@ with:  (For PHP7.4) specifically it might vary depdending on your PHP version.
 './config/php-fpm/docker-php-ext-xdebug.ini:/etc/php/7.4/fpm/conf.d/99-ext-xdebug.ini:cached'
 ```
 
-
 #### PHPStorm
 
 Go to `Settings > PHP > Debug`.
 
-- Set the port to `9003`
-- Check (Ignore external connections through unregistered server configurations) to avoid wait on non wanted files.
-- Check (Resolve breakpoint if it's not available on the current line)
-- Uncheck (Force break at first line when no path mapping specified)
-- Uncheck (Force break at frist line when a script is outside the project)
+* Set the port to `9003`
+* Check (Ignore external connections through unregistered server configurations) to avoid wait on non wanted files.
+* Check (Resolve breakpoint if it's not available on the current line)
+* Uncheck (Force break at first line when no path mapping specified)
+* Uncheck (Force break at frist line when a script is outside the project)
 
 Go to `Settings > PHP > Servers`.
 
-- Add a new server with the following settings:
-  - `name: yourdomain.com`
-  - `host: localhost`
-  - `port: 80`
-  - `debugger: Xdebug`
-  - Enable `Use path mappings (select if the server is remote or symlinks are used)`
-  - Within the map directory select the path you want to debug (usually `wp-content`) and map it to `/var/www/html/wp-content`
+* Add a new server with the following settings:
+  * `name: yourdomain.com`
+  * `host: localhost`
+  * `port: 80`
+  * `debugger: Xdebug`
+  * Enable `Use path mappings (select if the server is remote or symlinks are used)`
+  * Within the map directory select the path you want to debug (usually `wp-content`) and map it to `/var/www/html/wp-content`
 
-- Save your settings
-- Start to listen for connections on the top bar of your IDE (red phone icon)
-
+* Save your settings
+* Start to listen for connections on the top bar of your IDE (red phone icon)
 
 #### Visual Studio Code
 
@@ -365,7 +387,6 @@ Go to `Settings > PHP > Servers`.
 ```
 
 #### Xdebug version 2
-
 
 Xdebug is included in the php images but must be manually enabled if you use wp-local-docker 2.7.0 or earlier. To enable Xdebug, set the environment variable `ENABLE_XDEBUG` to `'true'` in the `docker-compose.yml` file in the root of the project. If you use wp-local-docker 2.8.0 or higher, then new environments will have Xdebug enabled by default.
 
@@ -393,6 +414,7 @@ Make sure your IDE is listening for PHP debug connections and set up a path mapp
 ```
 
 #### WPsnapshots
+
 ##### Configuration
 
 If you have not used [WP Snapshots](https://github.com/10up/wpsnapshots) with [WP Local Docker](https://github.com/10up/wp-local-docker-v2) yet, you'll first need to configure WP Snapshots with your AWS
@@ -423,9 +445,11 @@ somewhere within `~/wp-local-docker-sites/<environment>/`).
 ## F.A.Q
 
 ### Can I run as many concurrent enviroments as I want?
+
 Concurrent environments are limited by the available resources of your host machine.
 
 ### I am having issues with wp-local-docker, what are the best troubleshooting techniques?
+
 First make sure that Docker and Node are up to date. Then ensure that wp-local-docker is up to date as well by running `npm i -g wp-local-docker`. Once we are sure everything is up to date, it's generally a good idea to restart docker.
 
 Now we will want to make sure we are using the latest of the docker images by running `10updocker image update`.
@@ -435,6 +459,7 @@ Then run `10updocker configure` and answer `Yes` to `Do you want to reset your g
 Once you have reset the global configuration then you will want to reset the specific instance that is having the issue. You can do this by running `10updocker upgrade`. This will replace the `docker-compose.yml` file for that particular site instance.
 
 ### How to ignore `node_modules/` in your container?
+
 One of the primary performance bottlenecks with Docker for Mac is file syncing between the host machine and the Docker containers. The less files that are mounted into the Docker container volumes, the less work Docker needs to do ensuring those files are synced. NPM and the /node_modules/ directories are the worst offenders by far. Since assets are transpiled/compiled from source prior to being used on the frontend, the dependencies in `node_modules/` are not actually required to run the site locally, only the compiled dist files.
 
 In order to mitigate the additional pressure `node_modules/` puts on Docker filesystem syncing, we can instruct Docker to ignore directories when mounting volumes. Technically, we are instructing Docker to mount nothing to a specific path on the volume, but the effect is the same. See below for a practical example of how one might edit the `docker-compose.yml` file in the site root:
@@ -459,6 +484,7 @@ Note: This action cannot be performed automatically as the specific paths to `no
 Once you have made the appropriate changes in your `docker-compose.yml` file, you must stop and start for the changes to take effect and confirm things have worked.
 
 ### How do I upgrade an environment to a new version of PHP?
+
 To upgrade to a newer version of PHP, please edit the `docker-compose.yml` file in the environment you are updating.
 From:
 
@@ -522,7 +548,11 @@ Error: ER_ACCESS_DENIED_ERROR: Access denied for user 'root'@'localhost' (using 
 For best results we recommend using the default port configuration whenever possible.
 
 ---
+
 ## Support Level
+
 **Active:** 10up is actively working on this, and we expect to continue work for the foreseeable future including keeping tested up to the most recent version of WordPress.  Bug reports, feature requests, questions, and pull requests are welcome.
+
 #### Like what you see?
+
 <a href="https://10up.com/contact/"><img src="https://10up.com/uploads/2016/10/10up-Github-Banner.png" width="850"></a>
