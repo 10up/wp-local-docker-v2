@@ -464,6 +464,12 @@ Error: ER_ACCESS_DENIED_ERROR: Access denied for user 'root'@'localhost' (using 
 
 For best results we recommend using the default port configuration whenever possible.
 
+### How do I expose my environment to the internet?
+
+```
+ngrok http -host-header=10up.test 80
+```
+
 ---
 ## Support Level
 **Active:** 10up is actively working on this, and we expect to continue work for the foreseeable future including keeping tested up to the most recent version of WordPress.  Bug reports, feature requests, questions, and pull requests are welcome.
