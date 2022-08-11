@@ -51,6 +51,41 @@ cd ~/.ssh
 cp /mnt/c/Users/USER-NAME/.ssh/id_rsa* .
 ```
 
+You may need to setup shared root certificate for https to work correctly in browsers in Windows.
+Inside WSL2 machine run:
+
+```bash
+mkcert -CAROOT
+```
+
+That will output the path to a certificate root directory which contains rootCA.pem file you will need to share with Windows.
+
+Copy rootCA.pem file to any directory on Windows. In Windows PowerShell set that directory as CAROOT:
+
+```bash
+$Env:CAROOT = "C:\path\to\directory\with\certificate"
+```
+
+Then install certificate in Windows PowerShell with:
+
+```bash
+mkcert -install
+```
+
+That should fix the https issues.
+
+If mkcert was not setup in WSL2 machine initially, you may need to install it inside WSL2 and run:
+
+```bash
+mkcert -install
+```
+
+You will need to regenerate certificates for sites:
+
+```bash
+10updocker cert generate yourwebsite.test
+```
+
 #### Linux
 Docker has platform specific installation instructions available for linux on their [documentation site](https://docs.docker.com/install/#supported-platforms).
 Once docker is installed, you will need to [manually install docker compose](https://docs.docker.com/compose/install/).
