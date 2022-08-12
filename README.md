@@ -50,41 +50,57 @@ git config --global credential.helper "/mnt/c/Program\ Files/Git/mingw64/libexec
 cd ~/.ssh
 cp /mnt/c/Users/USER-NAME/.ssh/id_rsa* .
 ```
-
-You may need to setup shared root certificate for https to work correctly in browsers in Windows.
-Inside WSL2 machine run:
+##### HTTPS on Windows
+If https is not working in the browsers on Windows you will need to setup a shared root certificate. 
+You will need [mkcert installed](https://github.com/FiloSottile/mkcert) inside WSL2 machine. With `mkcert` installed run:
 
 ```bash
 mkcert -CAROOT
 ```
 
-That will output the path to a certificate root directory which contains rootCA.pem file you will need to share with Windows.
+That will output the path to a certificate root directory which contains the rootCA.pem file you will need to share with Windows.
+List the directory path you got from the previous command:
 
-Copy rootCA.pem file to any directory on Windows. In Windows PowerShell set that directory as CAROOT:
+```bash
+ls /home/<user>/.local/share/mkcert
+```
+
+If there is no such directory or the directory is empty run:
+
+```bash
+mkcert -install
+```
+
+You will get output like:
+
+```bash
+Created a new local CA 💥
+The local CA is now installed in the system trust store! ⚡️
+The local CA is now installed in the Firefox trust store (requires browser restart)! 🦊
+```
+
+If there was no root certificate initially, you will need to regenerate the certificates for all the sites:
+
+```bash
+10updocker cert generate <yourwebsite.test>
+```
+
+Now there should be a rootCA.pem file in the root certicicate directory. Copy the rootCA.pem into any directory on Windows. In the Windows PowerShell set that directory as `CAROOT` environment variable:
 
 ```bash
 $Env:CAROOT = "C:\path\to\directory\with\certificate"
 ```
 
-Then install certificate in Windows PowerShell with:
+Then install certificate in the Windows PowerShell with:
 
 ```bash
 mkcert -install
 ```
 
+You may need to install `mkcert` on Windows, or just use the latest executable from [the releases page](https://github.com/FiloSottile/mkcert/releases).
+
+You will need to restart any open browsers for this change to take effect!
 That should fix the https issues.
-
-If mkcert was not setup in WSL2 machine initially, you may need to install it inside WSL2 and run:
-
-```bash
-mkcert -install
-```
-
-You will need to regenerate certificates for sites:
-
-```bash
-10updocker cert generate yourwebsite.test
-```
 
 #### Linux
 Docker has platform specific installation instructions available for linux on their [documentation site](https://docs.docker.com/install/#supported-platforms).
