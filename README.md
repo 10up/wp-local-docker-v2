@@ -249,6 +249,8 @@ If you have enabled Elasticsearch for a particular environment, you can send req
 Elasticsearch server by prefixing the url path with `/__elasticsearch/`. For example, if you wanted to hit the
 `/_all/_search/` endpoint of Elasticsearch, the URL would look like: `http://<hostname>/__elasticsearch/_all/_search`
 
+In the ElasticPress settings, you should enter `http://<hostname>/__elasticsearch` as the ElasticPress host.
+
 ### WP Snapshots
 
 See the section on [using WP Snapshots](#user-content-wpsnapshots)
