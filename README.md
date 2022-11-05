@@ -345,13 +345,12 @@ The command above would return an ouput like:
 Update the configuration file on your site usually located at `config/php-fpm/docker-php-ext-xdebug.ini` in order to
 be updated to the new settings for `Xdebug 3`.
 
-```
-xdebug.client_host = host.docker.internal;
+```ini
+xdebug.client_host = host.docker.internal
 xdebug.mode = develop,debug
 xdebug.start_with_request = yes
 xdebug.output_dir = /var/www/html/wp-content
 xdebug.log=/var/www/html/wp-content
-
 ```
 
 Make sure to restart your docker image after this changes or stop / start. To verify your changes were applied you can create a file
@@ -494,17 +493,17 @@ One of the primary performance bottlenecks with Docker for Mac is file syncing b
 
 In order to mitigate the additional pressure `node_modules/` puts on Docker filesystem syncing, we can instruct Docker to ignore directories when mounting volumes. Technically, we are instructing Docker to mount nothing to a specific path on the volume, but the effect is the same. See below for a practical example of how one might edit the `docker-compose.yml` file in the site root:
 
-```
+```yaml
 nginx:
-    ...
+    # ...
     volumes:
         - './wordpress:/var/www/html:cached'
         - '/var/www/html/wp-content/themes/{my-theme}/node_modules'
         - '/var/www/html/wp-content/plugins/{my-plugin}/node_modules'
 phpfpm:
-    ...
+    # ...
     volumes:
-        - './wordpres:/var/www/html:cached'
+        - './wordpress:/var/www/html:cached'
         - '/var/www/html/wp-content/themes/{my-theme}/node_modules'
         - '/var/www/html/wp-content/plugins/{my-plugin}/node_modules'
 ```
@@ -518,10 +517,10 @@ Once you have made the appropriate changes in your `docker-compose.yml` file, yo
 To upgrade to a newer version of PHP, please edit the `docker-compose.yml` file in the environment you are updating.
 From:
 
-```
+```yaml
   phpfpm:
     image: '10up/wp-php-fpm-dev:5.6-ubuntu'
-    ...
+    # ...
     volumes:
       - './wordpress:/var/www/html:cached'
       - './config/php-fpm/docker-php-ext-xdebug.ini:/etc/php.d/5.6/fpm/docker-php-ext-xdebug.ini:cached'
@@ -529,10 +528,10 @@ From:
 
 To:
 
-```
+```yaml
   phpfpm:
     image: '10up/wp-php-fpm-dev:7.4-ubuntu'
-    ...
+    # ...
     volumes:
       - './wordpress:/var/www/html:cached'
       - './config/php-fpm/docker-php-ext-xdebug.ini:/etc/php.d/7.4/fpm/docker-php-ext-xdebug.ini:cached'
