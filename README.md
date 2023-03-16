@@ -192,11 +192,39 @@ A special hostname `all` is available that will stop all running environments as
 
 A special hostname `all` is available that will start all environments as well as the global services.
 
+### Configure an Environment
+
+An environment's `config/` directory contains settings for various services:
+
+- `elasticsearch/`
+    - `elasticsearch.yml`
+- `nginx/`
+    - `default.conf`
+    - `develop.conf`
+    - `server.conf`
+- `php-fpm/`
+    - `docker-php-ext-xdebug.ini` — this is equivalent to `php.ini`, and is where you should put settings that would be found in a file named `php.ini`, such as `max_execution_time`, `memory_limit`, `xdebug.max_nesting_level`, `post_max_size`, `upload_max_filesize`, and similar.
+    - `wp-cli.develop.yml`
+    - `wp-cli.local.yml`
+
+After making changes to files in `config/` or to `docker-compose.yml`, you must recreate the containers. Instructions for doing so can be found on this page under [Restart an environment](#restart-an-environment)
+
 ### Restart an Environment
 
 `10updocker restart <hostname>` will restart all services associated with a preexisting environment.
 
 A special hostname `all` is available that will restart all environments as well as the global services.
+
+Restarting with `10updocker restart` does not apply configuration changes. If you've made changes to an environment's `docker-compose.yml` or the files in `/config` directory, you will need to stop the environment (but not global services) and then run [`docker-compose up`](https://docs.docker.com/compose/reference/up/) to recreate the containers:
+
+0. Navigate to the root directory of the install you want to make changes to.
+1. Make your changes to the configuration files.
+2. Run `10updocker stop all` to stop all environments, including the global services.
+3. Run `10updocker start` to get this install and the global services running.
+4. Run `10updocker stop` to stop this install but not the global services.
+5. Run [`docker-compose up`](https://docs.docker.com/compose/reference/up/) to recreate and start this install's docker containers. Wait for it to finish starting; this can be determined by watching the console output. Don't load the site in a browser. If there hasn't been anything new on the console for at least 10 seconds, you can proceed to the next step.
+6. Kill the newly-started docker process with the `Control-C` keyboard command, or your system's equivalent instruction.
+7. Run `10updocker restart` to restart the container.
 
 ### Upgrade an Environment
 
