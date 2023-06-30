@@ -586,9 +586,9 @@ To provide that access, please edit the `docker-compose.yml` file in the environ
       image: '10up/wp-php-fpm-dev:7.4-ubuntu'
       # ...
       volumes:
-		  # ...
-		  - '~/.wpsnapshots:/home/www-data/.wpsnapshots:cached'
-		  - '~/.aws:/home/www-data/.aws:cached'
+         # ...
+          - '~/.wpsnapshots:/home/www-data/.wpsnapshots:cached'
+          - '~/.aws:/home/www-data/.aws:cached'
 ```
 
 You'll then need to stop and start the environment for the changes to take effect.
