@@ -55,7 +55,7 @@ cd ~/.ssh
 cp /mnt/c/Users/USER-NAME/.ssh/id_rsa* .
 ```
 ##### HTTPS on Windows
-If https is not working in the browsers on Windows you will need to setup a shared root certificate. 
+If https is not working in the browsers on Windows you will need to setup a shared root certificate.
 You will need [mkcert installed](https://github.com/FiloSottile/mkcert) inside WSL2 machine. With `mkcert` installed run:
 
 ```bash
@@ -247,7 +247,7 @@ In the ElasticPress settings, you should enter `http://<hostname>/__elasticsearc
 
 ### WP Snapshots
 
-See the section on [using WP Snapshots](#user-content-wpsnapshots)
+See the section on [using Snapshots](#user-content-snapshots)
 
 ### Running WP CLI Commands
 
@@ -436,30 +436,33 @@ Make sure your IDE is listening for PHP debug connections and set up a path mapp
 ]
 ```
 
-#### WPsnapshots
+#### Snapshots
+
+As of version x.x.x of WP Local Docker, the snapshot system has switched from the old [WP Snapshots](https://github.com/10up/wpsnapshots) system, to the new [Snapshots](https://github.com/10up/snapshots) WP-CLI command.
+Whilst the public API and configuration has stayed the same, the new system is much more robust and allows for features to be more easily added in the future.
 
 ##### Configuration
 
-If you have not used [WP Snapshots](https://github.com/10up/wpsnapshots) with [WP Local Docker](https://github.com/10up/wp-local-docker-v2) yet, you'll first need to configure WP Snapshots with your AWS
-credentials. To configure, run `10updocker wpsnapshots configure <repository>` (e.g. `10updocker wpsnapshots configure 10up`). You will then be prompted to enter
+If you have not used [Snapshots](https://github.com/10up/snapshots) with [WP Local Docker](https://github.com/10up/wp-local-docker-v2) yet, you'll first need to configure Snapshots with your AWS
+credentials. To configure, run `10updocker wp snapshots configure <repository>` (e.g. `10updocker wp snapshots configure 10up`). You will then be prompted to enter
 your AWS credentials and a few other configuration details. Once complete, the configuration will be available across
 all of your WP Local Docker environments.
 
 ##### Pulling an Environment
 
-`10updocker wpsnapshots pull <snapshot-id>` This command pulls an existing snapshot from the repository into your current
+`10updocker wp snapshots pull <snapshot-id>` This command pulls an existing snapshot from the repository into your current
 environment, replacing your database and wp-content. This command must be run from withing your environment directory
 (by default, this is somewhere within `~/wp-local-docker-sites/<environment>/`).
 
 ##### Searching for an Environment
 
-`10updocker wpsnapshots search <search-term>` with searches the repository for snapshots. `<search-text>` will be
+`10updocker wp snapshots search <search-term>` with searches the repository for snapshots. `<search-text>` will be
 compared against project names and authors. Searching for "*" will return all snapshots.
 
 ##### Other Commands
 
-`10updocker wpsnapshots <command>` is the general form for all WP Snapshots commands. `<command>` is passed directly to
-WP Snapshots, so any command that WP Snapshots accepts will work in this form. Any command that requires a WordPress
+`10updocker wp snapshots <command>` is the general form for all Snapshots commands. `<command>` is passed directly to
+Snapshots, so any command that Snapshots accepts will work in this form. Any command that requires a WordPress
 environment (pull, create, etc) needs to be run from somewhere within an environment directory (by default, this is
 somewhere within `~/wp-local-docker-sites/<environment>/`).
 
@@ -569,6 +572,26 @@ Error: ER_ACCESS_DENIED_ERROR: Access denied for user 'root'@'localhost' (using 
 ```
 
 For best results we recommend using the default port configuration whenever possible.
+
+### I've upgraded WP Local Docker from a previous version and now the wpsnapshots command isn't working
+
+This is likely to do with the change from the [WP Snapshots](https://github.com/10up/wpsnapshots) system, to the new [Snapshots](https://github.com/10up/snapshots) WP-CLI command.
+This update removed the need for a dedicated container for the snapshots system, and instead uses the `phpfpm` container.
+Because of this, we need to ensure that the `phpfpm` container has access to the `~/.wpsnapshots` and `~/.aws` directories on your host machine.
+
+To provide that access, please edit the `docker-compose.yml` file in the environment you are updating, to add the following lines:
+
+```yaml
+  phpfpm:
+      image: '10up/wp-php-fpm-dev:7.4-ubuntu'
+      # ...
+      volumes:
+		  # ...
+		  - '~/.wpsnapshots:/home/www-data/.wpsnapshots:cached'
+		  - '~/.aws:/home/www-data/.aws:cached'
+```
+
+You'll then need to stop and start the environment for the changes to take effect.
 
 ---
 
