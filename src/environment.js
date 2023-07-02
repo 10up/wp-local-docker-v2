@@ -204,7 +204,7 @@ async function deleteEnv( env, spinner ) {
 					console.log( ` - Removing ${ hostsToDelete }` );
 				}
 
-				sudo.exec( `${ node } ${ hostsScript } remove ${ hostsToDelete }`, sudoOptions, ( error, stdout ) => {
+				sudo.exec( `${ node } "${ hostsScript }" remove ${ hostsToDelete }`, sudoOptions, ( error, stdout ) => {
 					if ( error ) {
 						if ( spinner ) {
 							spinner.warn( 'Something went wrong deleting host file entries. There may still be remnants in /etc/hosts' );
