@@ -444,7 +444,7 @@ Make sure your IDE is listening for PHP debug connections and set up a path mapp
 
 #### Snapshots
 
-As of version x.x.x of WP Local Docker, the snapshot system has switched from the old [WP Snapshots](https://github.com/10up/wpsnapshots) system, to the new [Snapshots](https://github.com/10up/snapshots) WP-CLI command.
+As of version 4.0.0 of WP Local Docker, the snapshot system has switched from the old [WP Snapshots](https://github.com/10up/wpsnapshots) system, to the new [Snapshots](https://github.com/10up/snapshots) WP-CLI command.
 Whilst the public API and configuration has stayed the same, the new system is much more robust and allows for features to be more easily added in the future.
 
 ##### Configuration
