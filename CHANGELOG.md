@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file, per [the Keep a Changelog standard](http://keepachangelog.com/).
 
+## [4.0.0] - 2023-07-06
+### Added
+
+### Changed
+
+### Fixed
+
+### Removes
+
 ## [3.0.2] - 2022-02-02
 ### Added
 - Adds warning for EOL versions of PHP.
@@ -33,7 +42,7 @@ All notable changes to this project will be documented in this file, per [the Ke
 ### Fixed
 - Fixes issues with some docker-compose commands caused by `docker-compose` library.
 - Fixes phpfpm image name issue that occurs on Linux if the user has a non-standard name.
-- Fixes empty content issues on create. 
+- Fixes empty content issues on create.
 - Fixes issue with missing npm request package.
 
 ### Removes
