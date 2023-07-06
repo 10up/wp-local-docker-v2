@@ -94,22 +94,25 @@ async function restart( env, spinner ) {
 
 	const isRunning = await compose.isRunning( envPath );
 	if ( isRunning ) {
-		await compose.restartAll( composeArgs );
+		if ( spinner ) {
+			spinner.start( `Stopping docker containers for ${ chalk.cyan( envSlug ) }...` );
+		} else {
+			console.log( `Stopping docker containers for ${ envSlug }` );
+		}
+		await compose.down( composeArgs );
 
 		if ( spinner ) {
-			spinner.succeed( `${ chalk.cyan( envSlug ) } is restarted...` );
+			spinner.succeed( `${ chalk.cyan( envSlug ) } has stopped...` );
 		}
-	} else {
-		if ( spinner ) {
-			spinner.info( 'Environment is not running, starting it...' );
-			spinner.start( `Starting docker containers for ${ chalk.cyan( envSlug ) }...` );
-		}
+	}
+	if ( spinner ) {
+		spinner.start( `Starting docker containers for ${ chalk.cyan( envSlug ) }...` );
+	}
 
-		await compose.upAll( composeArgs );
+	await compose.upAll( composeArgs );
 
-		if ( spinner ) {
-			spinner.succeed( `${ chalk.cyan( envSlug ) } is started...` );
-		}
+	if ( spinner ) {
+		spinner.succeed( `${ chalk.cyan( envSlug ) } has started...` );
 	}
 }
 
