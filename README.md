@@ -593,6 +593,13 @@ To provide that access, please edit the `docker-compose.yml` file in the environ
 
 You'll then need to stop and start the environment for the changes to take effect.
 
+### How do I expose my environment to the internet?
+
+```
+ngrok http -host-header=10up.test 80
+```
+
+
 ---
 
 ## Support Level
