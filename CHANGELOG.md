@@ -4,12 +4,19 @@ All notable changes to this project will be documented in this file, per [the Ke
 
 ## [4.0.0] - 2023-07-06
 ### Added
+- Adds the option to select PHP 8.1 or 8.2 when creating a new environment.
+- Adds support for proxying media from a HTTPS upstream utilising SNI.
 
 ### Changed
+- Updated the snapshot system to utilise the new PHP agnostic [Snapshots](https://github.com/10up/snapshots) WP-CLI package.
+- Updated the `10updocker restart` command to actually remove and rebuild the environments, ensuring that config changes are applied.
 
 ### Fixed
+- Fixes an issue where a space in the mkcert path could cause certs to fail to generate and hosts to fail to update.
+- Fixes the external network deprecation notice for new environments.
 
 ### Removes
+- Removes `10updocker init` and `10updocker clone` commands
 
 ## [3.0.2] - 2022-02-02
 ### Added
