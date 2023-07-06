@@ -1,6 +1,6 @@
 {
 	"name": "wp-local-docker",
-	"version": "4.0.0-alpha",
+	"version": "4.0.0",
 	"description": "WP Local Docker",
 	"license": "MIT",
 	"homepage": "https://10up.github.io/wp-local-docker-docs/",
