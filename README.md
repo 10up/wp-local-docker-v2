@@ -594,7 +594,7 @@ To provide that access, please edit the `docker-compose.yml` file in the environ
       volumes:
          # ...
           - '~/.wpsnapshots:/home/www-data/.wpsnapshots:cached'
-          - '~/.aws:/home/www-data/.aws:cached:ro'
+          - '~/.aws:/home/www-data/.aws:cached,ro'
 ```
 
 You'll then need to stop and start the environment for the changes to take effect.

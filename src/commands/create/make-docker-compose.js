@@ -91,7 +91,7 @@ module.exports = function makeDockerCompose( spinner ) {
 			baseConfig.services.phpfpm.image = `wp-php-fpm-dev-${ phpVersion }-${ slugify( process.env.USER ) }`;
 			baseConfig.services.phpfpm.volumes.push( `~/.ssh:/home/${ process.env.USER }/.ssh:cached` );
 			baseConfig.services.phpfpm.volumes.push( `${ wpsnapshotsDir }:/home/${ process.env.USER }/.wpsnapshots:cached` );
-			baseConfig.services.phpfpm.volumes.push( `~/.aws:/home/${ process.env.USER }/.aws:cached:ro` );
+			baseConfig.services.phpfpm.volumes.push( `~/.aws:/home/${ process.env.USER }/.aws:cached,ro` );
 			baseConfig.services.phpfpm.build = {
 				dockerfile: 'php-fpm',
 				context: '.containers',
@@ -105,7 +105,7 @@ module.exports = function makeDockerCompose( spinner ) {
 			// the official containers for this project will have a www-data user.
 			baseConfig.services.phpfpm.volumes.push( '~/.ssh:/home/www-data/.ssh:cached' );
 			baseConfig.services.phpfpm.volumes.push( `${ wpsnapshotsDir }:/home/www-data/.wpsnapshots:cached` );
-			baseConfig.services.phpfpm.volumes.push( '~/.aws:/home/www-data/.aws:cached:ro' );
+			baseConfig.services.phpfpm.volumes.push( '~/.aws:/home/www-data/.aws:cached,ro' );
 		}
 
 		let nginxConfig = 'default.conf';
