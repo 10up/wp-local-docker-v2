@@ -8,7 +8,7 @@
 
 > **Note**<br>
 > Version 4 of WP Local Docker has been released and contains breaking changes.<br>
-> Please follow the [migration instructions](#migrate-a-wp-local-docker-v2-environment-to-v400-) when upgrading.
+> Please follow the [migration instructions](#migrate-a-wp-local-docker-v2-environment-to-v400) when upgrading.
 
 ---
 
@@ -53,8 +53,8 @@
 * [Troubleshooting](#troubleshooting)
 * [Migrating from Older Versions](#migrating-from-older-versions)
 	+ [Migrate a WP Local Docker V1 Environment](#migrate-a-wp-local-docker-v1-environment)
-	+ [Migrate a WP Local Docker V2 Environment to v3.0.0+](#migrate-a-wp-local-docker-v2-environment-to-v300-)
-	+ [Migrate a WP Local Docker V2 Environment to v4.0.0+](#migrate-a-wp-local-docker-v2-environment-to-v400-)
+	+ [Migrate a WP Local Docker V2 Environment to v3.0.0+](#migrate-a-wp-local-docker-v2-environment-to-v300)
+	+ [Migrate a WP Local Docker V2 Environment to v4.0.0+](#migrate-a-wp-local-docker-v2-environment-to-v400)
 
 ## Introduction
 
