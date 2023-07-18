@@ -12,7 +12,7 @@ exports.name = {{projectName}};
  *
  * @example
  * exports.domain = "mysite.test";
- * 
+ *
  * @example
  * exports.domain = [
  *     "mysite.test",
@@ -35,8 +35,8 @@ exports.domain = {{domain}};
 exports.mediaProxy = {{proxy}};
 
 /**
- * The PHP version to use for the project. Available options are 7.4, 7.3,
- * 7.2, 7.1, 7.0 and 5.6.
+ * The PHP version to use for the project. Available options are
+ * 8.2, 8.1, 8.0, 7.4, 7.3, 7.2, 7.1, 7.0 and 5.6.
  *
  * @type {string}
  */
@@ -84,13 +84,13 @@ exports.wordpress = {
  *
  * @example
  * exports.snapshot = "a94a8fe5ccb19ba61c4c0873d391e987982fbbd3";
- * 
+ *
  * @example
  * exports.snapshot = [
  *     "a94a8fe5ccb19ba61c4c0873d391e987982fbbd3",
  *     "109f4b3c50d7b0df729d299bc6f8e9ef9066971f",
  * ];
- * 
+ *
  * @example
  * exports.snapshot = {
  *     repository: "myrepo",
@@ -109,10 +109,10 @@ exports.snapshot = {{snapshot}};
  *
  * @example
  * exports.mountPoint = '/wp-content';
- * 
+ *
  * @example
  * exports.mountPoint = '/wp-content/plugins/my-plugin';
- * 
+ *
  * @example
  * exports.mountPoint = '/wp-content/themes/my-theme';
  *

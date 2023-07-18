@@ -42,8 +42,8 @@ module.exports = function makeInquirer( inquirer ) {
 				name: 'phpVersion',
 				type: 'list',
 				message: 'What version of PHP would you like to use?',
-				choices: [ '7.4', '7.3', '7.2', '7.1', '7.0', '5.6' ],
-				default: '7.3',
+				choices: [ '8.2', '8.1', '8.0', '7.4', '7.3', '7.2', '7.1', '7.0', '5.6' ],
+				default: '8.2',
 			},
 			{
 				name: 'wordpress',

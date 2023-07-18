@@ -2,6 +2,8 @@ const { validateNotEmpty, parseHostname, parseProxyUrl } = require( '../../promp
 const { createDefaultProxy } = require( '../../env-utils' );
 
 const phpVersions = [
+	'8.2',
+	'8.1',
 	'8.0',
 	'7.4',
 	'7.3',
@@ -130,7 +132,7 @@ module.exports = function makeInquirer( { prompt } ) {
 				type: 'list',
 				message: 'What version of PHP would you like to use?',
 				choices: phpVersions,
-				default: '7.3',
+				default: '8.2',
 				when() {
 					return ! phpVersions.includes( php );
 				},

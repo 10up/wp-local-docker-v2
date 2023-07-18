@@ -1,6 +1,6 @@
 # WP Local Docker
 
-> WP Local Docker is an easy to use Docker based local development environment for WordPress development that works on Mac, Windows, and Linux. 
+> WP Local Docker is an easy to use Docker based local development environment for WordPress development that works on Mac, Windows, and Linux.
 
 [![Support Level](https://img.shields.io/badge/support-active-green.svg)](#support-level) [![Release Version](https://img.shields.io/github/release/10up/wp-local-docker-v2.svg)](https://github.com/10up/wp-local-docker-v2/releases/latest) [![MIT License](https://img.shields.io/github/license/10up/wp-local-docker-v2.svg)](https://github.com/10up/wp-local-docker-v2/blob/master/LICENSE)
 
@@ -13,7 +13,7 @@ Windows, and Linux. Any number of environments can be created and may run at the
 appropriately to the correct environment based on the hostname specified during environment creation.
 
 Each environment within WP Local Docker is powered by nginx, phpfpm, memcached, and if desired, elasticsearch. PHP versions
-5.6, 7.0, 7.1, 7.2 or 7.3 are all supported. Supporting all environments within WP Local Docker is a MySQL container to run
+5.6, 7.0, 7.1, 7.2, 7.3, 7.4, 8.0, 8.1, and 8.2 are all supported. Supporting all environments within WP Local Docker is a MySQL container to run
 all MySQL databases, WP Snapshots to easily push and pull snapshots of a WordPress installation, PHPMyAdmin to manage
 MySQL databases with a familiar UI, and mailcatcher to catch any mail sent from all environments.
 
