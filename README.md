@@ -8,7 +8,7 @@
 
 > **Note**<br>
 > Version 4 of WP Local Docker has been released and contains breaking changes.<br>
-> Please follow the [migration instructions](#migrate-a-wp-local-docker-v2-environment-to-v4) when upgrading.
+> Please follow the [migration instructions](#migrate-a-wp-local-docker-v2-environment-to-v400-) when upgrading.
 
 ---
 
@@ -53,8 +53,8 @@
 * [Troubleshooting](#troubleshooting)
 * [Migrating from Older Versions](#migrating-from-older-versions)
 	+ [Migrate a WP Local Docker V1 Environment](#migrate-a-wp-local-docker-v1-environment)
-	+ [Migrate a WP Local Docker V2 Environment to v3](#migrate-a-wp-local-docker-v2-environment-to-v3)
-	+ [Migrate a WP Local Docker V2 Environment to v4](#migrate-a-wp-local-docker-v2-environment-to-v4)
+	+ [Migrate a WP Local Docker V2 Environment to v3.0.0+](#migrate-a-wp-local-docker-v2-environment-to-v300-)
+	+ [Migrate a WP Local Docker V2 Environment to v4.0.0+](#migrate-a-wp-local-docker-v2-environment-to-v400-)
 
 ## Introduction
 
@@ -851,7 +851,7 @@ Here's an example:
 
 This command will migrate the environment located at `~/sites/mysite` to a new WP Local Docker V2 environment.
 
-### Migrate a WP Local Docker V2 Environment to v3
+### Migrate a WP Local Docker V2 Environment to v3.0.0+
 
 To upgrade your WP Local Docker V2 environment to V3, run the following command:
 
@@ -863,7 +863,7 @@ When asked `Do you want to reset your global services configuration? This will r
 
 This will update your configuration to the latest `.wplocaldocker/global/docker-compose.yml`.
 
-### Migrate a WP Local Docker V2 Environment to v4
+### Migrate a WP Local Docker V2 Environment to v4.0.0+
 
 To upgrade your WP Local Docker V2 environment to V4, follow the steps below:
 
