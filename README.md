@@ -876,7 +876,7 @@ To upgrade your WP Local Docker V2 environment to V4, follow the steps below:
 2. Update WP Local Docker
 
    ```bash
-   npm install -g wp-local-docker@next
+   npm install -g wp-local-docker@latest
    ```
 
 3. Restart your terminal
