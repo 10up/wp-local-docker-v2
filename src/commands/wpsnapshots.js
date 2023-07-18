@@ -1,7 +1,12 @@
-const makeDocker = require( '../utils/make-docker' );
+const { execSync } = require( 'child_process' );
+
 const makeCommand = require( '../utils/make-command' );
 const makeSpinner = require( '../utils/make-spinner' );
-const runSnapshots = require( '../utils/run-snapshots' );
+const shellEscape = require( 'shell-escape' );
+const envUtils = require( '../env-utils' );
+const gateway = require( '../gateway' );
+const environment = require( '../environment' );
+const compose = require( '../utils/docker-compose' );
 
 exports.command = 'wpsnapshots <cmd..>';
 exports.aliases = [ 'snapshots' ];
@@ -14,33 +19,54 @@ exports.builder = function( yargs ) {
 	} );
 };
 
-exports.handler = makeCommand( async function( { _, env, verbose } ) {
+exports.handler = makeCommand( async function( { env, verbose } ) {
+	let envSlug = env;
+	if ( ! envSlug ) {
+		envSlug = await envUtils.parseOrPromptEnv();
+	}
+
+	if ( envSlug === false ) {
+		throw new Error( 'Error: Unable to determine which environment to use snapshots with. Please run this command from within your environment\'s directory.' );
+	}
+
+	const envPath = await envUtils.envPath( envSlug );
 	const spinner = ! verbose ? makeSpinner() : undefined;
 
-	// Get everything after the snapshots command, so we can pass to the docker container
-	let wpsnapshotsCommand = false;
-	const command = [];
+	// Check if the container is running, otherwise, start up the stacks
+	const isRunning = await compose.isRunning( envPath );
+	if ( ! isRunning ) {
+		spinner && spinner.info( 'Environment is not running, starting it...' );
+		await gateway.startGlobal( spinner );
+		await environment.start( envSlug, spinner );
+	}
+
+	// Compose wp-cli command to run
+	let snapshotCommand = false;
+	const command = [
+		'wp',
+		'snapshots',
+	];
 	for ( let i = 0; i < process.argv.length; i++ ) {
-		if ( process.argv[i].toLowerCase() === _[0] ) {
-			wpsnapshotsCommand = true;
-		} else if ( wpsnapshotsCommand ) {
+		if ( process.argv[i].toLowerCase() === 'wpsnapshots' || process.argv[i].toLowerCase() === 'snapshots' ) {
+			snapshotCommand = true;
+			continue;
+		}
+
+		if ( snapshotCommand ) {
 			command.push( process.argv[i] );
 		}
 	}
 
 	try {
-		const docker = makeDocker();
-		const wpsnapshots = runSnapshots( spinner, docker );
-		await wpsnapshots( env, command, 'inherit' );
-	} catch ( err ) {
-		if ( spinner ) {
-			if ( spinner.isSpinning ) {
-				spinner.stop();
-			}
+		// Check for TTY
+		const ttyFlag = process.stdin.isTTY ? '' : ' -T';
 
-			spinner.fail( err );
-		} else {
-			console.error( err );
-		}
+		// Run the command
+		execSync( `docker-compose exec${ ttyFlag } phpfpm ${ shellEscape( command ) }`, {
+			stdio: 'inherit',
+			cwd: envPath
+		} );
+	} catch {
+		// do nothing
 	}
 } );

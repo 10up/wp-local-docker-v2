@@ -13,7 +13,7 @@ module.exports = function makeUpdateHosts( which, sudo, spinner ) {
 		const hostsScript = join( resolve( __dirname, '../../..' ), 'hosts.js' );
 
 		await new Promise( ( resolve ) => {
-			const command = `${ node } ${ hostsScript } add ${ hosts.join( ' ' ) }`;
+			const command = `${ node } "${ hostsScript }" add ${ hosts.join( ' ' ) }`;
 			sudo.exec( command, { name: 'WP Local Docker' }, ( err ) => {
 				if ( err ) {
 					if ( spinner ) {

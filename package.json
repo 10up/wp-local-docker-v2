@@ -1,6 +1,6 @@
 {
 	"name": "wp-local-docker",
-	"version": "3.0.2",
+	"version": "4.0.0",
 	"description": "WP Local Docker",
 	"license": "MIT",
 	"homepage": "https://10up.github.io/wp-local-docker-docs/",
@@ -47,7 +47,7 @@
 		"url": "git@github.com:10up/wp-local-docker-v2.git"
 	},
 	"engines": {
-		"node": ">=12"
+		"node": ">=16"
 	},
 	"author": "10up <info@10up.com> (https://10up.com/)",
 	"contributors": [

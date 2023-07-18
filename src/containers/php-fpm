@@ -13,5 +13,6 @@ RUN mkdir -p /run/php-fpm
 RUN chown ${CALLING_USER} /run/php-fpm
 RUN chown ${CALLING_USER} /var/log/php*log
 RUN touch /usr/local/etc/msmtprc && chown ${CALLING_USER} $_
+RUN chown ${CALLING_USER} /etc/msmtprc
 
 USER ${CALLING_USER}

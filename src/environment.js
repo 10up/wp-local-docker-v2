@@ -94,22 +94,25 @@ async function restart( env, spinner ) {
 
 	const isRunning = await compose.isRunning( envPath );
 	if ( isRunning ) {
-		await compose.restartAll( composeArgs );
+		if ( spinner ) {
+			spinner.start( `Stopping docker containers for ${ chalk.cyan( envSlug ) }...` );
+		} else {
+			console.log( `Stopping docker containers for ${ envSlug }` );
+		}
+		await compose.down( composeArgs );
 
 		if ( spinner ) {
-			spinner.succeed( `${ chalk.cyan( envSlug ) } is restarted...` );
+			spinner.succeed( `${ chalk.cyan( envSlug ) } has stopped...` );
 		}
-	} else {
-		if ( spinner ) {
-			spinner.info( 'Environment is not running, starting it...' );
-			spinner.start( `Starting docker containers for ${ chalk.cyan( envSlug ) }...` );
-		}
+	}
+	if ( spinner ) {
+		spinner.start( `Starting docker containers for ${ chalk.cyan( envSlug ) }...` );
+	}
 
-		await compose.upAll( composeArgs );
+	await compose.upAll( composeArgs );
 
-		if ( spinner ) {
-			spinner.succeed( `${ chalk.cyan( envSlug ) } is started...` );
-		}
+	if ( spinner ) {
+		spinner.succeed( `${ chalk.cyan( envSlug ) } has started...` );
 	}
 }
 
@@ -204,7 +207,7 @@ async function deleteEnv( env, spinner ) {
 					console.log( ` - Removing ${ hostsToDelete }` );
 				}
 
-				sudo.exec( `${ node } ${ hostsScript } remove ${ hostsToDelete }`, sudoOptions, ( error, stdout ) => {
+				sudo.exec( `${ node } "${ hostsScript }" remove ${ hostsToDelete }`, sudoOptions, ( error, stdout ) => {
 					if ( error ) {
 						if ( spinner ) {
 							spinner.warn( 'Something went wrong deleting host file entries. There may still be remnants in /etc/hosts' );
