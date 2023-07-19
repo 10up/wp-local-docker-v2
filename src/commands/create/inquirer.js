@@ -128,7 +128,7 @@ module.exports = function makeInquirer( { prompt } ) {
 				type: 'list',
 				message: 'What version of PHP would you like to use?',
 				choices: phpVersions,
-				default: '7.4',
+				default: '8.2',
 				when() {
 					return ! phpVersions.includes( php );
 				},
