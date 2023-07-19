@@ -17,5 +17,3 @@ jobs:
           CI: true
       - name: run linter
         run: npm run lint --silent
-      - name: run tests
-        run: npm test

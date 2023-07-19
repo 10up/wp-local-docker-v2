@@ -2,13 +2,60 @@
 
 All notable changes to this project will be documented in this file, per [the Keep a Changelog standard](http://keepachangelog.com/).
 
-## [Unreleased] - TBD
+## [4.0.0] - 2023-07-06
+### Added
+- Adds the option to select PHP 8.1 or 8.2 when creating a new environment.
+- Adds support for proxying media from a HTTPS upstream utilising SNI.
 
+### Changed
+- Updated the snapshot system to utilise the new PHP agnostic [Snapshots](https://github.com/10up/snapshots) WP-CLI package.
+- Updated the `10updocker restart` command to actually remove and rebuild the environments, ensuring that config changes are applied.
+
+### Fixed
+- Fixes an issue where a space in the mkcert path could cause certs to fail to generate and hosts to fail to update.
+- Fixes the external network deprecation notice for new environments.
+
+### Removes
+- Removes `10updocker init` and `10updocker clone` commands
+
+## [3.0.2] - 2022-02-02
+### Added
+- Adds warning for EOL versions of PHP.
+
+### Fixed
+- Fixed log file permissions on linux platforms
+
+## [3.0.1] - 2022-01-05
+
+### Fixed
+- Fixes the correct image name for phpfpm in Linux platforms
+- Fixes issue with php ini file being in the wrong location and add upgrade command to resolve this for exisitng projects.
+- Fixes xdebug values for xdebug3 since the port and settings changed moving from v2 to v3.
+
+### Changed
+- Update elasticsearch image to 7.9.3
+- Add Elasticsearch image update to the `upgrade` command. This will also delete the docker volume since it can cause issues. (Prompts user before deleting data.)
+- More readme updates for upgrading to the latest images.
+
+## [3.0.0] - 2021-11-11
 ### Added
 - Adds support for PHP 8.0.
+- Adds support for ARM images.
+
+### Changed
+- Updates dependencies to their latest versions.
+- Suppresses WP-CLI errors during removing the default content.
+
+### Fixed
+- Fixes issues with some docker-compose commands caused by `docker-compose` library.
+- Fixes phpfpm image name issue that occurs on Linux if the user has a non-standard name.
+- Fixes empty content issues on create.
+- Fixes issue with missing npm request package.
+
+### Removes
+- Removes `10updocker init` and `10updocker clone` commands
 
 ## [2.8.1] - 2021-01-29
-
 ### Changed
 - Compose files have been updated to build PHP images in the `.containers` context.
 
@@ -140,6 +187,9 @@ opcache configured with optimal settings for development.
 ## [2.2.0] - 2019-02-04
 
 [Unreleased]: https://github.com/10up/wp-local-docker-v2/compare/master...develop
+[3.0.2]: https://github.com/10up/wp-local-docker-v2/compare/3.0.1...3.0.2
+[3.0.1]: https://github.com/10up/wp-local-docker-v2/compare/3.0.0...3.0.1
+[3.0.0]: https://github.com/10up/wp-local-docker-v2/compare/2.8.1...3.0.0
 [2.8.1]: https://github.com/10up/wp-local-docker-v2/compare/2.8.0...2.8.1
 [2.8.0]: https://github.com/10up/wp-local-docker-v2/compare/2.7.0...2.8.0
 [2.7.0]: https://github.com/10up/wp-local-docker-v2/compare/2.6.2...2.7.0

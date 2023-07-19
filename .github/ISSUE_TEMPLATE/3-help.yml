@@ -1,0 +1,33 @@
+name: "❓ Need help?"
+description: "Ask us a question, we are here to help!"
+labels: "question"
+body:
+    - type: markdown
+      attributes:
+          value: |
+              If you have a question that is neither a bug report nor an enhancement, then please post it here!  Please fill in as much of the form below as you can.
+    
+    - type: checkboxes
+      id: faqs
+      attributes:
+        label: Troubleshooting
+        description: By submitting this question, you agree that our [troubleshooting tips](https://github.com/10up/wp-local-docker-v2#i-am-having-issues-with-wp-local-docker-what-are-the-best-troubleshooting-techniques) have not helped resolve the quesstion.
+        options:
+          - label: I have attempted to troubleshoot this already
+            required: true
+    
+    - type: textarea
+      attributes:
+          label: Describe your question
+          description: A clear and concise description of what your question is.
+      validations:
+          required: true
+
+    - type: checkboxes
+      id: terms
+      attributes:
+        label: Code of Conduct
+        description: By submitting this issue, you agree to follow our [Code of Conduct](https://github.com/10up/wp-local-docker-v2/blob/develop/CODE_OF_CONDUCT.md).
+        options:
+          - label: I agree to follow this project's Code of Conduct
+            required: true
