@@ -3,7 +3,7 @@ services:
   # Run a local dnsmasq server for the containers that will resolve DNS queries and
   # route any *.test domains to the gateway container
   dns:
-    image: andyshinn/dnsmasq
+    image: 4km3/dnsmasq:latest
     cap_add:
       - NET_ADMIN
     command: -A /test/10.0.0.3 --log-facility=-
