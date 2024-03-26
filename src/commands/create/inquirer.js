@@ -61,6 +61,10 @@ function marshalWordPress( original, answers ) {
 		wp.type = answers.wordpressType;
 	}
 
+	if ( answers.wordpressVersion ) {
+		wp.version = answers.wordpressVersion;
+	}
+
 	if ( answers.emptyContent ) {
 		wp.purify = true;
 	}
@@ -81,6 +85,7 @@ module.exports = function makeInquirer( { prompt } ) {
 
 		const {
 			type: wordpressType,
+			version: wordpressVersion,
 			title: wordpressTitle,
 			username: wordpressUsername,
 			password: wordpressPassword,
@@ -149,6 +154,17 @@ module.exports = function makeInquirer( { prompt } ) {
 					const installWp = answers.wordpress === true;
 					const wrongType = wordpressType && ! wordpressTypes.map( ( { value } ) => value ).includes( wordpressType );
 					return installWp || wrongType;
+				},
+			},
+			{
+				name: 'wordpressVersion',
+				type: 'input',
+				message: 'What version of WordPress would you like to install?',
+				default: 'latest',
+				when( answers ) {
+					const installWp = answers.wordpress === true;
+					const nonDevType = answers.wordpressType !== 'dev';
+					return ( installWp && nonDevType ) || ( wordpressType && wordpressType !== 'dev' && ! wordpressVersion );
 				},
 			},
 			{

@@ -1,20 +1,38 @@
 const envUtils = require( '../../env-utils' );
 const compose = require( '../../utils/docker-compose' );
+const chalk = require( 'chalk' );
 
-async function downloadWordPress( wordpressType, cwd, spinner ) {
+/**
+ * Downloads the given version of WordPress. Falls back to latest in case of an error.
+ *
+ * @returns {Promise<string>} The downloaded WP version, or the last one tried.
+ */
+async function downloadWordPress( wordpressType, cwd, spinner, version = 'latest' ) {
 	if ( spinner ) {
-		spinner.start( 'Downloading WordPress...' );
+		spinner.start( `Downloading WordPress ${ chalk.cyan( version ) }...` );
 	} else {
-		console.log( 'Downloading WordPress:' );
+		console.log( `Downloading WordPress ${ chalk.cyan( version ) }:` );
 	}
 
-	await compose.exec( 'phpfpm', 'wp core download --version=latest --force', { cwd, log: ! spinner } );
+	try {
+		await compose.exec( 'phpfpm', `wp core download --version=${ version } --force`, { cwd, log: ! spinner } );
+	} catch ( err ) {
+		if( version !== 'latest' ) {
+			console.warn( chalk.red( `Failed to download WP version '${ chalk.italic.cyanBright( version ) }'. Falling back to '${ chalk.italic.cyanBright( 'latest' ) }'.` ) );
+
+			return await downloadWordPress( wordpressType, cwd, spinner, 'latest' );
+		} else {
+			throw err;
+		}
+	}
 
 	if ( spinner ) {
-		spinner.succeed( 'WordPress is downloaded...' );
+		spinner.succeed( `WordPress ${ chalk.cyan( version ) } is downloaded...` );
 	} else {
 		console.log( ' - Done' );
 	}
+
+	return version;
 }
 
 async function configure( envSlug, cwd, spinner ) {
@@ -129,7 +147,7 @@ module.exports = function makeInstallWordPress( spinner ) {
 		try {
 			const cwd = await envUtils.envPath( envSlug );
 
-			await downloadWordPress( wordpress.type, cwd, spinner );
+			await downloadWordPress( wordpress.type, cwd, spinner, wordpress.version );
 			await configure( envSlug, cwd, spinner );
 			await install( hostname, wordpress, certs, cwd, spinner );
 			await setRewrites( cwd, spinner );
