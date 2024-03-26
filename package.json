@@ -32,7 +32,7 @@
 		"hosts.js"
 	],
 	"scripts": {
-		"postinstall": "npm run 10updocker postinstall --silent",
+		"postinstall": "sudo npm run 10updocker postinstall --silent",
 		"10updocker": "./index.js",
 		"10updocker-hosts": "./hosts.js",
 		"lint": "eslint . --ext .js --ignore-pattern node_modules",
